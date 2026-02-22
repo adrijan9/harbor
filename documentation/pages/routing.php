@@ -34,7 +34,7 @@ require __DIR__.'/../shared/header.php';
   entry: pages/routing.php
 #endroute</code></pre>
     <p>Compile with:</p>
-    <pre><code class="language-bash">./bin/router documentation/.router</code></pre>
+    <pre><code class="language-bash">./bin/harbor documentation/.router</code></pre>
 </section>
 
 <section class="docs-section">

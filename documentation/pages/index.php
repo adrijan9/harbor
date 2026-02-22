@@ -76,7 +76,7 @@ require __DIR__.'/../shared/header.php';
             </tr>
             <tr>
                 <td><code>bin/</code></td>
-                <td>CLI commands (`harbor`, `harbor-docs`, `router`).</td>
+                <td>CLI commands (`harbor`, `harbor-docs`).</td>
             </tr>
             </tbody>
         </table>

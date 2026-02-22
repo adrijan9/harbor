@@ -17,18 +17,16 @@ require __DIR__.'/../shared/header.php';
 
 <section class="docs-section">
     <h2><code>bin/harbor</code></h2>
-    <p>Site scaffolding command.</p>
-    <pre><code class="language-bash">./bin/harbor init my-site</code></pre>
+    <p>Primary CLI command for route compilation and site scaffolding.</p>
+    <pre><code class="language-bash">./bin/harbor .
+./bin/harbor documentation/.router
+./bin/harbor init my-site</code></pre>
     <ul>
+        <li>Default mode compiles a <code>.router</code> file into <code>routes.php</code>.</li>
+        <li>Passing a directory (for example <code>.</code>) compiles <code>&lt;directory&gt;/.router</code>.</li>
         <li>Creates page scaffolds, route files, and defaults.</li>
         <li>Creates parent-level <code>serve.sh</code> only if it does not already exist.</li>
     </ul>
-</section>
-
-<section class="docs-section">
-    <h2><code>bin/router</code></h2>
-    <p>Compiles a <code>.router</code> file to <code>routes.php</code>.</p>
-    <pre><code class="language-bash">./bin/router documentation/.router</code></pre>
 </section>
 
 <section class="docs-section">
@@ -48,7 +46,7 @@ require __DIR__.'/../shared/header.php';
     <h2>Development Workflow</h2>
     <pre><code class="language-bash">composer test
 ./vendor/bin/php-cs-fixer fix --using-cache=no --sequential
-./bin/router documentation/.router
+./bin/harbor documentation/.router
 ./bin/harbor-docs</code></pre>
 </section>
 

@@ -23,7 +23,7 @@ require __DIR__.'/shared/header.php';
 <section class="docs-section">
     <div class="notice-box">
         <strong>Tip:</strong> regenerate routes after editing <code>documentation/.router</code>:
-        <code>./bin/router documentation/.router</code>
+        <code>./bin/harbor documentation/.router</code>
     </div>
 </section>
 

@@ -34,7 +34,7 @@ require __DIR__.'/../shared/header.php';
 <section class="docs-section">
     <h2>Generate Routes</h2>
     <p>Route definitions are authored in a <code>.router</code> file and compiled into <code>routes.php</code>.</p>
-    <pre><code class="language-bash">./bin/router documentation/.router</code></pre>
+    <pre><code class="language-bash">./bin/harbor documentation/.router</code></pre>
 </section>
 
 <section class="docs-section">
