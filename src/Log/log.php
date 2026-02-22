@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace PhpFramework\Log;
+namespace Harbor\Log;
 
 require_once __DIR__.'/LogLevel.php';
 
 require_once __DIR__.'/../Filesystem/filesystem.php';
 
-use function PhpFramework\Filesystem\fs_append;
-use function PhpFramework\Filesystem\fs_dir_create;
-use function PhpFramework\Filesystem\fs_dir_exists;
-use function PhpFramework\Filesystem\fs_exists;
-use function PhpFramework\Filesystem\fs_write;
+use function Harbor\Filesystem\fs_append;
+use function Harbor\Filesystem\fs_dir_create;
+use function Harbor\Filesystem\fs_dir_exists;
+use function Harbor\Filesystem\fs_exists;
+use function Harbor\Filesystem\fs_write;
 
 $log_file_path = null;
 $log_is_initialized = false;

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace PhpFramework\Tests\Bin;
+namespace Harbor\Tests\Bin;
 
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\TestCase;

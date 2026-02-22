@@ -129,9 +129,9 @@ $is_absolute = harbor_is_absolute_path('/var/www/site/.router');
     <h2>Read Route Data</h2>
 
     <h3>Example</h3>
-    <pre><code class="language-php">use PhpFramework\HelperLoader;
-use function PhpFramework\Router\route_query;
-use function PhpFramework\Router\route_segment;
+    <pre><code class="language-php">use Harbor\HelperLoader;
+use function Harbor\Router\route_query;
+use function Harbor\Router\route_segment;
 
 HelperLoader::load('route');
 
@@ -273,7 +273,7 @@ $has_tab = route_query_exists('tab');</code></pre>
     <h2>Router Runtime</h2>
 
     <h3>Example</h3>
-    <pre><code class="language-php">use PhpFramework\Router\Router;
+    <pre><code class="language-php">use Harbor\Router\Router;
 
 require __DIR__.'/../vendor/autoload.php';
 

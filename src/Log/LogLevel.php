@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace PhpFramework\Log;
+namespace Harbor\Log;
 
 enum LogLevel: string
 {

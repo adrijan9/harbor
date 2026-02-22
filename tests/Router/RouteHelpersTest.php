@@ -2,31 +2,31 @@
 
 declare(strict_types=1);
 
-namespace PhpFramework\Tests\Router;
+namespace Harbor\Tests\Router;
 
-use PhpFramework\HelperLoader;
+use Harbor\HelperLoader;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\Attributes\BeforeClass;
 use PHPUnit\Framework\TestCase;
 
-use function PhpFramework\Router\route_queries_count;
-use function PhpFramework\Router\route_query;
-use function PhpFramework\Router\route_query_arr;
-use function PhpFramework\Router\route_query_bool;
-use function PhpFramework\Router\route_query_exists;
-use function PhpFramework\Router\route_query_int;
-use function PhpFramework\Router\route_query_json;
-use function PhpFramework\Router\route_query_obj;
-use function PhpFramework\Router\route_query_str;
-use function PhpFramework\Router\route_segment;
-use function PhpFramework\Router\route_segment_arr;
-use function PhpFramework\Router\route_segment_bool;
-use function PhpFramework\Router\route_segment_exists;
-use function PhpFramework\Router\route_segment_int;
-use function PhpFramework\Router\route_segment_json;
-use function PhpFramework\Router\route_segment_obj;
-use function PhpFramework\Router\route_segments_count;
+use function Harbor\Router\route_queries_count;
+use function Harbor\Router\route_query;
+use function Harbor\Router\route_query_arr;
+use function Harbor\Router\route_query_bool;
+use function Harbor\Router\route_query_exists;
+use function Harbor\Router\route_query_int;
+use function Harbor\Router\route_query_json;
+use function Harbor\Router\route_query_obj;
+use function Harbor\Router\route_query_str;
+use function Harbor\Router\route_segment;
+use function Harbor\Router\route_segment_arr;
+use function Harbor\Router\route_segment_bool;
+use function Harbor\Router\route_segment_exists;
+use function Harbor\Router\route_segment_int;
+use function Harbor\Router\route_segment_json;
+use function Harbor\Router\route_segment_obj;
+use function Harbor\Router\route_segments_count;
 
 final class RouteHelpersTest extends TestCase
 {

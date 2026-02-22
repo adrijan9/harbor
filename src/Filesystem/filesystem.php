@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace PhpFramework\Filesystem;
+namespace Harbor\Filesystem;
 
 function fs_read(string $file_path): string
 {

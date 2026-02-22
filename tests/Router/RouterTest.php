@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace PhpFramework\Tests\Router;
+namespace Harbor\Tests\Router;
 
-use PhpFramework\Router\Router;
+use Harbor\Router\Router;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\TestCase;

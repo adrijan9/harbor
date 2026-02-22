@@ -18,8 +18,8 @@ require __DIR__.'/../shared/header.php';
 <section class="docs-section">
     <h2>Load and Init</h2>
     <h3>Example</h3>
-    <pre><code class="language-php">use PhpFramework\HelperLoader;
-use function PhpFramework\Log\log_init;
+    <pre><code class="language-php">use Harbor\HelperLoader;
+use function Harbor\Log\log_init;
 
 HelperLoader::load('log');
 log_init(__DIR__.'/storage/app.log', 'app');</code></pre>
@@ -63,9 +63,9 @@ log_set_channel('infra');</code></pre>
 <section class="docs-section">
     <h2>Write Logs</h2>
     <h3>Example</h3>
-    <pre><code class="language-php">use PhpFramework\Log\LogLevel;
-use function PhpFramework\Log\log_info;
-use function PhpFramework\Log\log_write;
+    <pre><code class="language-php">use Harbor\Log\LogLevel;
+use function Harbor\Log\log_info;
+use function Harbor\Log\log_write;
 
 log_info('User {user} signed in', ['user' => 'ada']);
 log_write(LogLevel::WARNING, 'Disk usage high', ['usage' => 88], 'infra');</code></pre>
@@ -129,9 +129,9 @@ log_emergency('System outage');</code></pre>
 <section class="docs-section">
     <h2>Reusable Entries</h2>
     <h3>Example</h3>
-    <pre><code class="language-php">use PhpFramework\Log\LogLevel;
-use function PhpFramework\Log\log_create_content;
-use function PhpFramework\Log\log_write_content;
+    <pre><code class="language-php">use Harbor\Log\LogLevel;
+use function Harbor\Log\log_create_content;
+use function Harbor\Log\log_write_content;
 
 $content = log_create_content(LogLevel::NOTICE, 'Health check for {service}', ['service' => 'api'], 'cli');
 
@@ -162,7 +162,7 @@ log_write_content($content);</code></pre>
 <section class="docs-section">
     <h2>Exception Logging</h2>
     <h3>Example</h3>
-    <pre><code class="language-php">use function PhpFramework\Log\log_exception;
+    <pre><code class="language-php">use function Harbor\Log\log_exception;
 
 try {
     risky_operation();

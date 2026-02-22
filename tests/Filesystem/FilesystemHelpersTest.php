@@ -2,27 +2,27 @@
 
 declare(strict_types=1);
 
-namespace PhpFramework\Tests\Filesystem;
+namespace Harbor\Tests\Filesystem;
 
-use PhpFramework\HelperLoader;
+use Harbor\HelperLoader;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\Attributes\BeforeClass;
 use PHPUnit\Framework\TestCase;
 
-use function PhpFramework\Filesystem\fs_append;
-use function PhpFramework\Filesystem\fs_copy;
-use function PhpFramework\Filesystem\fs_delete;
-use function PhpFramework\Filesystem\fs_dir_create;
-use function PhpFramework\Filesystem\fs_dir_delete;
-use function PhpFramework\Filesystem\fs_dir_exists;
-use function PhpFramework\Filesystem\fs_dir_is_empty;
-use function PhpFramework\Filesystem\fs_dir_list;
-use function PhpFramework\Filesystem\fs_exists;
-use function PhpFramework\Filesystem\fs_move;
-use function PhpFramework\Filesystem\fs_read;
-use function PhpFramework\Filesystem\fs_size;
-use function PhpFramework\Filesystem\fs_write;
+use function Harbor\Filesystem\fs_append;
+use function Harbor\Filesystem\fs_copy;
+use function Harbor\Filesystem\fs_delete;
+use function Harbor\Filesystem\fs_dir_create;
+use function Harbor\Filesystem\fs_dir_delete;
+use function Harbor\Filesystem\fs_dir_exists;
+use function Harbor\Filesystem\fs_dir_is_empty;
+use function Harbor\Filesystem\fs_dir_list;
+use function Harbor\Filesystem\fs_exists;
+use function Harbor\Filesystem\fs_move;
+use function Harbor\Filesystem\fs_read;
+use function Harbor\Filesystem\fs_size;
+use function Harbor\Filesystem\fs_write;
 
 final class FilesystemHelpersTest extends TestCase
 {

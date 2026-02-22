@@ -18,11 +18,11 @@ require __DIR__.'/../shared/header.php';
 <section class="docs-section">
     <h2>Load Helper</h2>
     <h3>Example</h3>
-    <pre><code class="language-php">use PhpFramework\HelperLoader;
+    <pre><code class="language-php">use Harbor\HelperLoader;
 
 HelperLoader::load('request');</code></pre>
     <h3>What it does</h3>
-    <p>Loads request functions into the <code>PhpFramework\Request</code> namespace.</p>
+    <p>Loads request functions into the <code>Harbor\Request</code> namespace.</p>
     <h3>API</h3>
     <details class="api-details">
         <summary class="api-summary">
@@ -46,11 +46,11 @@ $request_data = request();</code></pre>
 <section class="docs-section">
     <h2>Read Request Data</h2>
     <h3>Example</h3>
-    <pre><code class="language-php">use function PhpFramework\Request\request_body_int;
-use function PhpFramework\Request\request_full_url;
-use function PhpFramework\Request\request_header_bool;
-use function PhpFramework\Request\request_input_str;
-use function PhpFramework\Request\request_method;
+    <pre><code class="language-php">use function Harbor\Request\request_body_int;
+use function Harbor\Request\request_full_url;
+use function Harbor\Request\request_header_bool;
+use function Harbor\Request\request_input_str;
+use function Harbor\Request\request_method;
 
 $method = request_method();
 $url = request_full_url();

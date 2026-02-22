@@ -2,26 +2,26 @@
 
 declare(strict_types=1);
 
-namespace PhpFramework\Tests\Log;
+namespace Harbor\Tests\Log;
 
-use PhpFramework\HelperLoader;
-use PhpFramework\Log\LogLevel;
+use Harbor\HelperLoader;
+use Harbor\Log\LogLevel;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\Attributes\BeforeClass;
 use PHPUnit\Framework\TestCase;
 
-use function PhpFramework\Log\log_create_content;
-use function PhpFramework\Log\log_exception;
-use function PhpFramework\Log\log_file_path;
-use function PhpFramework\Log\log_info;
-use function PhpFramework\Log\log_init;
-use function PhpFramework\Log\log_is_initialized;
-use function PhpFramework\Log\log_levels;
-use function PhpFramework\Log\log_reset;
-use function PhpFramework\Log\log_warning;
-use function PhpFramework\Log\log_write;
-use function PhpFramework\Log\log_write_content;
+use function Harbor\Log\log_create_content;
+use function Harbor\Log\log_exception;
+use function Harbor\Log\log_file_path;
+use function Harbor\Log\log_info;
+use function Harbor\Log\log_init;
+use function Harbor\Log\log_is_initialized;
+use function Harbor\Log\log_levels;
+use function Harbor\Log\log_reset;
+use function Harbor\Log\log_warning;
+use function Harbor\Log\log_write;
+use function Harbor\Log\log_write_content;
 
 final class LogHelpersTest extends TestCase
 {

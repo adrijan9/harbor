@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace PhpFramework\Tests;
+namespace Harbor\Tests;
 
-use PhpFramework\HelperLoader;
+use Harbor\HelperLoader;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\TestCase;
@@ -39,32 +39,32 @@ final class HelperLoaderTest extends TestCase
     {
         HelperLoader::load('route');
 
-        self::assertTrue(function_exists('PhpFramework\Router\route_segment'));
-        self::assertTrue(function_exists('PhpFramework\Router\route_query'));
+        self::assertTrue(function_exists('Harbor\Router\route_segment'));
+        self::assertTrue(function_exists('Harbor\Router\route_query'));
     }
 
     public function test_load_request_helper_registers_namespaced_functions(): void
     {
         HelperLoader::load('request');
 
-        self::assertTrue(function_exists('PhpFramework\Request\request'));
-        self::assertTrue(function_exists('PhpFramework\Request\request_method'));
+        self::assertTrue(function_exists('Harbor\Request\request'));
+        self::assertTrue(function_exists('Harbor\Request\request_method'));
     }
 
     public function test_load_filesystem_helper_registers_namespaced_functions(): void
     {
         HelperLoader::load('filesystem');
 
-        self::assertTrue(function_exists('PhpFramework\Filesystem\fs_read'));
-        self::assertTrue(function_exists('PhpFramework\Filesystem\fs_dir_create'));
+        self::assertTrue(function_exists('Harbor\Filesystem\fs_read'));
+        self::assertTrue(function_exists('Harbor\Filesystem\fs_dir_create'));
     }
 
     public function test_load_log_helper_registers_namespaced_functions(): void
     {
         HelperLoader::load('log');
 
-        self::assertTrue(function_exists('PhpFramework\Log\log_init'));
-        self::assertTrue(function_exists('PhpFramework\Log\log_error'));
+        self::assertTrue(function_exists('Harbor\Log\log_init'));
+        self::assertTrue(function_exists('Harbor\Log\log_error'));
     }
 
     #[Before]

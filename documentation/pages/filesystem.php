@@ -18,7 +18,7 @@ require __DIR__.'/../shared/header.php';
 <section class="docs-section">
     <h2>Load Helpers</h2>
     <h3>Example</h3>
-    <pre><code class="language-php">use PhpFramework\HelperLoader;
+    <pre><code class="language-php">use Harbor\HelperLoader;
 
 HelperLoader::load('filesystem');</code></pre>
     <h3>What it does</h3>
@@ -41,9 +41,9 @@ HelperLoader::load('filesystem');</code></pre>
 <section class="docs-section">
     <h2>File Ops</h2>
     <h3>Example</h3>
-    <pre><code class="language-php">use function PhpFramework\Filesystem\fs_append;
-use function PhpFramework\Filesystem\fs_read;
-use function PhpFramework\Filesystem\fs_write;
+    <pre><code class="language-php">use function Harbor\Filesystem\fs_append;
+use function Harbor\Filesystem\fs_read;
+use function Harbor\Filesystem\fs_write;
 
 fs_write(__DIR__.'/cache/output.txt', 'Build started');
 fs_append(__DIR__.'/cache/output.txt', PHP_EOL.'Build completed');
@@ -103,9 +103,9 @@ $deleted = fs_delete(__DIR__.'/cache/output.txt');</code></pre>
 <section class="docs-section">
     <h2>Directory Ops</h2>
     <h3>Example</h3>
-    <pre><code class="language-php">use function PhpFramework\Filesystem\fs_dir_create;
-use function PhpFramework\Filesystem\fs_dir_delete;
-use function PhpFramework\Filesystem\fs_dir_list;
+    <pre><code class="language-php">use function Harbor\Filesystem\fs_dir_create;
+use function Harbor\Filesystem\fs_dir_delete;
+use function Harbor\Filesystem\fs_dir_list;
 
 fs_dir_create(__DIR__.'/storage/reports');
 $files = fs_dir_list(__DIR__.'/storage/reports');

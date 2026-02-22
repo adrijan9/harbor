@@ -7,12 +7,12 @@
     ],
     "autoload": {
         "psr-4": {
-            "PhpFramework\\": "src/"
+            "Harbor\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "PhpFramework\\Tests\\": "tests/"
+            "Harbor\\Tests\\": "tests/"
         }
     },
     "authors": [

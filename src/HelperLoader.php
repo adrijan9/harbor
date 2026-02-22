@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace PhpFramework;
+namespace Harbor;
 
 final class HelperLoader
 {

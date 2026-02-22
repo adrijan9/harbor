@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace PhpFramework\Request;
+namespace Harbor\Request;
 
 /**
  * Full request snapshot.

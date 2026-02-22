@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace PhpFramework\Router;
+namespace Harbor\Router;
 
 /**
  * Class Router.
