@@ -2,7 +2,6 @@
     "version": "1.0.0",
     "name": "adrijan991/php-framework",
     "bin": [
-        "bin/router",
         "bin/harbor",
         "bin/harbor-docs"
     ],
