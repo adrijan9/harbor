@@ -59,6 +59,17 @@ $docs_navigation = [
         })();
     </script>
     <link rel="stylesheet" href="/assets/css/docs.css">
+    <link
+        id="hljs_theme_light"
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/github.min.css"
+    >
+    <link
+        id="hljs_theme_dark"
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/github-dark.min.css"
+        disabled
+    >
 </head>
 <body data-page-id="<?php echo htmlspecialchars($page_id, ENT_QUOTES, 'UTF-8'); ?>">
 <div class="bg-shape bg-shape-left"></div>

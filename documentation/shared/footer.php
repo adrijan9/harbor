@@ -25,6 +25,7 @@ $current_year = (int) date('Y');
     </svg>
 </button>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/highlight.min.js"></script>
 <script src="/assets/js/docs.js"></script>
 </body>
 </html>

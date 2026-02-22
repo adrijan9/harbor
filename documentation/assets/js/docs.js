@@ -7,6 +7,8 @@
     const toc_container = document.getElementById('docs_toc');
     const toc_nav = document.getElementById('docs_toc_nav');
     const back_to_top_button = document.getElementById('back_to_top');
+    const hljs_theme_light = document.getElementById('hljs_theme_light');
+    const hljs_theme_dark = document.getElementById('hljs_theme_dark');
     const system_theme_query = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
     const reduced_motion_query = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
     const theme_option_buttons = Array.from(document.querySelectorAll('[data-theme-choice]'));
@@ -33,6 +35,22 @@
         });
     };
 
+    const sync_highlight_theme = (resolved_theme) => {
+        if (!hljs_theme_light || !hljs_theme_dark) {
+            return;
+        }
+
+        const is_dark_theme = 'dark' === resolved_theme;
+        hljs_theme_dark.disabled = !is_dark_theme;
+        hljs_theme_light.disabled = is_dark_theme;
+    };
+
+    const init_code_highlight = () => {
+        if (window.hljs && 'function' === typeof window.hljs.highlightAll) {
+            window.hljs.highlightAll();
+        }
+    };
+
     const apply_theme_mode = (mode, persist_selection) => {
         theme_mode = is_valid_theme_mode(mode) ? mode : 'system';
 
@@ -40,6 +58,7 @@
         root.setAttribute('data-theme-mode', theme_mode);
         root.setAttribute('data-theme', resolved_theme);
         update_theme_options(theme_mode);
+        sync_highlight_theme(resolved_theme);
 
         if (!persist_selection) {
             return;
@@ -74,6 +93,7 @@
     };
 
     load_theme_mode();
+    init_code_highlight();
 
     theme_option_buttons.forEach((button) => {
         button.addEventListener('click', () => {

@@ -32,13 +32,30 @@ log_init(__DIR__.'/storage/app.log', 'app');</code></pre>
             <span class="api-state"><span class="api-state-closed">Hidden - click to open</span><span class="api-state-open">Open</span></span>
         </summary>
         <div class="api-body">
-            <ul class="api-method-list">
-                <li><code>log_init()</code> Initialize log file and channel.</li>
-                <li><code>log_reset()</code> Reset logger state.</li>
-                <li><code>log_is_initialized()</code> Check logger initialization.</li>
-                <li><code>log_file_path()</code> Read active log file path.</li>
-                <li><code>log_set_channel()</code> Set default channel name.</li>
-            </ul>
+            <pre><code class="language-php">function log_init(string $file_path, string $channel = 'app'): void
+// Initializes logger file path and default channel.
+// Creates missing log directory/file automatically.
+log_init(__DIR__.'/storage/app.log', 'app');
+
+function log_reset(): void
+// Resets logger state.
+// Clears initialized file path and default channel.
+log_reset();
+
+function log_is_initialized(): bool
+// Checks logger initialization state.
+// Returns true after successful log_init().
+$ready = log_is_initialized();
+
+function log_file_path(): ?string
+// Returns active log file path.
+// Returns null when logger is not initialized.
+$path = log_file_path();
+
+function log_set_channel(string $channel): void
+// Updates default channel name.
+// Channel must match logger channel format rules.
+log_set_channel('infra');</code></pre>
         </div>
     </details>
 </section>
@@ -61,17 +78,50 @@ log_write(LogLevel::WARNING, 'Disk usage high', ['usage' => 88], 'infra');</code
             <span class="api-state"><span class="api-state-closed">Hidden - click to open</span><span class="api-state-open">Open</span></span>
         </summary>
         <div class="api-body">
-            <ul class="api-method-list">
-                <li><code>log_write()</code> Write log entry with level and context.</li>
-                <li><code>log_debug()</code> Write debug-level entry.</li>
-                <li><code>log_info()</code> Write info-level entry.</li>
-                <li><code>log_notice()</code> Write notice-level entry.</li>
-                <li><code>log_warning()</code> Write warning-level entry.</li>
-                <li><code>log_error()</code> Write error-level entry.</li>
-                <li><code>log_critical()</code> Write critical-level entry.</li>
-                <li><code>log_alert()</code> Write alert-level entry.</li>
-                <li><code>log_emergency()</code> Write emergency-level entry.</li>
-            </ul>
+            <pre><code class="language-php">function log_write(LogLevel|string $level, string $message, array $context = [], ?string $channel = null): void
+// Writes one formatted log entry to file.
+// Supports enum or string level and optional channel override.
+log_write(LogLevel::WARNING, 'Disk usage high', ['usage' => 88], 'infra');
+
+function log_debug(string $message, array $context = [], ?string $channel = null): void
+// Shortcut for debug level logs.
+// Delegates to log_write() with LogLevel::DEBUG.
+log_debug('Cache warmed', ['items' => 42]);
+
+function log_info(string $message, array $context = [], ?string $channel = null): void
+// Shortcut for info level logs.
+// Delegates to log_write() with LogLevel::INFO.
+log_info('User {user} signed in', ['user' => 'ada']);
+
+function log_notice(string $message, array $context = [], ?string $channel = null): void
+// Shortcut for notice level logs.
+// Delegates to log_write() with LogLevel::NOTICE.
+log_notice('Billing sync completed');
+
+function log_warning(string $message, array $context = [], ?string $channel = null): void
+// Shortcut for warning level logs.
+// Delegates to log_write() with LogLevel::WARNING.
+log_warning('Queue delay high', ['seconds' => 12]);
+
+function log_error(string $message, array $context = [], ?string $channel = null): void
+// Shortcut for error level logs.
+// Delegates to log_write() with LogLevel::ERROR.
+log_error('Payment request failed', ['order_id' => 1024]);
+
+function log_critical(string $message, array $context = [], ?string $channel = null): void
+// Shortcut for critical level logs.
+// Delegates to log_write() with LogLevel::CRITICAL.
+log_critical('Database unavailable');
+
+function log_alert(string $message, array $context = [], ?string $channel = null): void
+// Shortcut for alert level logs.
+// Delegates to log_write() with LogLevel::ALERT.
+log_alert('Primary node unhealthy');
+
+function log_emergency(string $message, array $context = [], ?string $channel = null): void
+// Shortcut for emergency level logs.
+// Delegates to log_write() with LogLevel::EMERGENCY.
+log_emergency('System outage');</code></pre>
         </div>
     </details>
 </section>
@@ -96,10 +146,15 @@ log_write_content($content);      // file output</code></pre>
             <span class="api-state"><span class="api-state-closed">Hidden - click to open</span><span class="api-state-open">Open</span></span>
         </summary>
         <div class="api-body">
-            <ul class="api-method-list">
-                <li><code>log_create_content()</code> Build formatted log content string.</li>
-                <li><code>log_write_content()</code> Write prebuilt log content.</li>
-            </ul>
+            <pre><code class="language-php">function log_create_content(LogLevel|string $level, string $message, array $context = [], ?string $channel = null): string
+// Builds one formatted log line string.
+// Interpolates context placeholders before output.
+$content = log_create_content(LogLevel::NOTICE, 'Health check for {service}', ['service' => 'api'], 'cli');
+
+function log_write_content(string $log_content): void
+// Writes prebuilt log content to active log file.
+// Appends newline when content does not end with PHP_EOL.
+log_write_content($content);</code></pre>
         </div>
     </details>
 </section>
@@ -123,11 +178,20 @@ try {
             <span class="api-state"><span class="api-state-closed">Hidden - click to open</span><span class="api-state-open">Open</span></span>
         </summary>
         <div class="api-body">
-            <ul class="api-method-list">
-                <li><code>log_exception()</code> Log throwable with normalized payload.</li>
-                <li><code>PhpFramework\Log\LogLevel</code> Enum of supported levels.</li>
-                <li><code>log_levels()</code> Return all level string values.</li>
-            </ul>
+            <pre><code class="language-php">function log_exception(\Throwable $exception, array $context = [], LogLevel|string $level = LogLevel::ERROR, string $message = 'Unhandled exception', ?string $channel = null): void
+// Logs throwable data with merged custom context.
+// Adds class/message/code/file/line/trace fields automatically.
+log_exception($exception, ['request_id' => 'req-42']);
+
+function log_levels(): array
+// Returns supported log level values.
+// Values are sourced from the LogLevel enum.
+$levels = log_levels();
+
+enum LogLevel: string
+// Defines available levels: debug, info, notice, warning, error, critical, alert, emergency.
+// Use enum cases for strict level selection.
+$level = LogLevel::WARNING;</code></pre>
         </div>
     </details>
 </section>

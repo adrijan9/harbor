@@ -565,17 +565,28 @@ a {
     list-style: none;
     margin: 0;
     padding: 0;
+    display: grid;
+    gap: 0.65rem;
 }
 
 .api-method-list li {
     margin: 0;
-    padding: 0.4rem 0;
-    color: var(--text-muted);
-    border-bottom: 1px dashed var(--line);
+    padding: 0;
+    border: 0;
 }
 
-.api-method-list li:last-child {
-    border-bottom: 0;
+.api-method-list li pre {
+    margin: 0;
+}
+
+.api-group > pre,
+.api-body > pre {
+    margin: 0;
+}
+
+pre code.hljs {
+    background: transparent !important;
+    padding: 0;
 }
 
 .card-grid {

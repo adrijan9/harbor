@@ -45,14 +45,25 @@ require __DIR__.'/../shared/header.php';
             <span class="api-state"><span class="api-state-closed">Hidden - click to open</span><span class="api-state-open">Open</span></span>
         </summary>
         <div class="api-body">
-            <ul class="api-method-list">
-                <li><code>path</code> Route path pattern.</li>
-                <li><code>method</code> HTTP method value in route file.</li>
-                <li><code>name</code> Optional route identifier.</li>
-                <li><code>entry</code> PHP file to execute for matched route.</li>
-                <li><code>$</code> Dynamic segment placeholder in paths.</li>
-                <li><code>/404</code> Fallback route appended by compiler.</li>
-            </ul>
+            <pre><code class="language-ini">path: /guides/$
+# Defines a route path.
+# "$" marks one dynamic segment.
+
+method: GET
+# Limits the route to one HTTP method.
+# Common values are GET, POST, PUT, PATCH, DELETE.
+
+name: docs.guide
+# Optional route name.
+# Useful for internal reference and clarity.
+
+entry: pages/routing.php
+# PHP file loaded when route matches.
+# Can be relative to project or absolute.
+
+path: /404
+# Fallback path used when no route matches.
+# Keep one final 404 route in .router.</code></pre>
         </div>
     </details>
 </section>
@@ -62,8 +73,8 @@ require __DIR__.'/../shared/header.php';
 
     <h3>Example</h3>
     <pre><code class="language-php">use PhpFramework\HelperLoader;
-use function PhpFramework\Router\route_segment;
 use function PhpFramework\Router\route_query;
+use function PhpFramework\Router\route_segment;
 
 HelperLoader::load('route');
 
@@ -72,6 +83,8 @@ $tab = route_query('tab', 'general');</code></pre>
 
     <h3>What it does</h3>
     <p>Reads matched path segments and query values from the current route context.</p>
+    <p>Example URL: <code>/guides/php?tab=general</code> with route path <code>/guides/$</code>.</p>
+    <p>Result: <code>route_segment(0)</code> returns <code>'php'</code>, <code>route_query('tab')</code> returns <code>'general'</code>.</p>
 
     <h3>API</h3>
     <details class="api-details">
@@ -82,35 +95,118 @@ $tab = route_query('tab', 'general');</code></pre>
         <div class="api-body">
             <div class="api-group">
                 <p class="api-group-title">Segment Helpers</p>
-                <ul class="api-method-list">
-                    <li><code>route_segment()</code> Read a segment by index.</li>
-                    <li><code>route_segment_int()</code> Segment as integer.</li>
-                    <li><code>route_segment_float()</code> Segment as float.</li>
-                    <li><code>route_segment_str()</code> Segment as string.</li>
-                    <li><code>route_segment_bool()</code> Segment as boolean.</li>
-                    <li><code>route_segment_arr()</code> Segment as array.</li>
-                    <li><code>route_segment_obj()</code> Segment as object.</li>
-                    <li><code>route_segment_json()</code> Segment decoded as JSON.</li>
-                    <li><code>route_segments()</code> All matched segments.</li>
-                    <li><code>route_segments_count()</code> Segment count.</li>
-                    <li><code>route_segment_exists()</code> Segment existence check.</li>
-                </ul>
+                <pre><code class="language-php">function route_segment(int $index, mixed $default = null): mixed
+// Gets one dynamic segment by index.
+// Works with "$" placeholders from the current matched route.
+$slug = route_segment(0, 'overview'); // "php" for /guides/php
+
+function route_segment_int(int $index, int $default = 0): int
+// Gets one segment and casts numeric values to int.
+// Returns $default when the value is not numeric.
+$page = route_segment_int(1, 1);
+
+function route_segment_float(int $index, float $default = 0.0): float
+// Gets one segment and casts numeric values to float.
+// Returns $default when conversion is not possible.
+$ratio = route_segment_float(1, 1.0);
+
+function route_segment_str(int $index, string $default = ''): string
+// Gets one segment as string.
+// Supports scalar and stringable object values.
+$section = route_segment_str(0, 'guides');
+
+function route_segment_bool(int $index, bool $default = false): bool
+// Gets one segment as bool.
+// Accepts boolean-like values such as "true", "false", 0, 1.
+$enabled = route_segment_bool(2, false);
+
+function route_segment_arr(int $index, array $default = []): array
+// Gets one segment as array.
+// Supports JSON arrays and comma-separated values.
+$tags = route_segment_arr(1, ['general']);
+
+function route_segment_obj(int $index, ?object $default = null): ?object
+// Gets one segment as object.
+// Supports JSON object/array input.
+$filters = route_segment_obj(1);
+
+function route_segment_json(int $index, mixed $default = null): mixed
+// Decodes one segment as JSON.
+// Returns $default when JSON decoding fails.
+$payload = route_segment_json(1, []);
+
+function route_segments(): array
+// Returns all matched dynamic segments.
+// Order matches the "$" positions in route path.
+$segments = route_segments();
+
+function route_segments_count(): int
+// Counts all matched dynamic segments.
+// Useful for simple route validation.
+$total_segments = route_segments_count();
+
+function route_segment_exists(int $index): bool
+// Checks if a segment index exists.
+// Uses zero-based index.
+$has_first = route_segment_exists(0);</code></pre>
             </div>
+
             <div class="api-group">
                 <p class="api-group-title">Query Helpers</p>
-                <ul class="api-method-list">
-                    <li><code>route_query()</code> Read query value by key.</li>
-                    <li><code>route_query_int()</code> Query value as integer.</li>
-                    <li><code>route_query_float()</code> Query value as float.</li>
-                    <li><code>route_query_str()</code> Query value as string.</li>
-                    <li><code>route_query_bool()</code> Query value as boolean.</li>
-                    <li><code>route_query_arr()</code> Query value as array.</li>
-                    <li><code>route_query_obj()</code> Query value as object.</li>
-                    <li><code>route_query_json()</code> Query value decoded as JSON.</li>
-                    <li><code>route_queries()</code> All query values.</li>
-                    <li><code>route_queries_count()</code> Query count.</li>
-                    <li><code>route_query_exists()</code> Query key existence check.</li>
-                </ul>
+                <pre><code class="language-php">function route_query(?string $key = null, mixed $default = null): mixed
+// Gets one query value or full query array.
+// Supports dot notation for nested keys.
+$tab = route_query('tab', 'general');
+
+function route_query_int(string $key, int $default = 0): int
+// Gets one query value as int.
+// Returns $default if conversion fails.
+$page = route_query_int('page', 1);
+
+function route_query_float(string $key, float $default = 0.0): float
+// Gets one query value as float.
+// Returns $default if conversion fails.
+$ratio = route_query_float('ratio', 1.0);
+
+function route_query_str(string $key, string $default = ''): string
+// Gets one query value as string.
+// Returns $default when value is missing.
+$locale = route_query_str('locale', 'en');
+
+function route_query_bool(string $key, bool $default = false): bool
+// Gets one query value as bool.
+// Accepts true/false style string values.
+$draft = route_query_bool('draft', false);
+
+function route_query_arr(string $key, array $default = []): array
+// Gets one query value as array.
+// Supports JSON and comma-separated input.
+$tags = route_query_arr('tags', []);
+
+function route_query_obj(string $key, ?object $default = null): ?object
+// Gets one query value as object.
+// Supports JSON object/array input.
+$filters = route_query_obj('filters');
+
+function route_query_json(string $key, mixed $default = null): mixed
+// Decodes one query value as JSON.
+// Returns $default when decoding fails.
+$meta = route_query_json('meta', []);
+
+function route_queries(): array
+// Returns full query parameter array.
+// Values come from current request query string.
+$query = route_queries();
+
+function route_queries_count(): int
+// Counts total query parameters.
+// Useful for quick empty checks.
+$total_queries = route_queries_count();
+
+function route_query_exists(string $key): bool
+// Checks if one query key exists.
+// Supports dot notation for nested keys.
+$has_tab = route_query_exists('tab');</code></pre>
             </div>
         </div>
     </details>
@@ -136,38 +232,25 @@ new Router(__DIR__.'/routes.php')->render();</code></pre>
             <span class="api-state"><span class="api-state-closed">Hidden - click to open</span><span class="api-state-open">Open</span></span>
         </summary>
         <div class="api-body">
-            <ul class="api-method-list">
-                <li><code>Router::__construct(string $router_path)</code> Load routes from file.</li>
-                <li><code>Router::get_uri()</code> Resolve request path.</li>
-                <li><code>Router::current()</code> Return matched route or fallback.</li>
-                <li><code>Router::render(array $variables = [])</code> Render current route entry.</li>
-            </ul>
-        </div>
-    </details>
-</section>
+            <pre><code class="language-php">public function __construct(string $router_path)
+// Creates router using compiled routes file.
+// The file should return an array of route definitions.
+$router = new Router(__DIR__.'/routes.php');
 
-<section class="docs-section">
-    <h2>Fallback</h2>
-    <h3>Example</h3>
-    <pre><code class="language-ini">#route
-  method: GET
-  path: /404
-  entry: not_found.php
-#endroute</code></pre>
-    <h3>What it does</h3>
-    <p>If no route matches, runtime falls back to the final <code>/404</code> route entry.</p>
-    <h3>API</h3>
-    <details class="api-details">
-        <summary class="api-summary">
-            <span>Fallback API</span>
-            <span class="api-state"><span class="api-state-closed">Hidden - click to open</span><span class="api-state-open">Open</span></span>
-        </summary>
-        <div class="api-body">
-            <ul class="api-method-list">
-                <li><code>/404</code> Default fallback path.</li>
-                <li><code>not_found.php</code> Default fallback entry.</li>
-                <li><code>Router::current()</code> Returns fallback when no route matches.</li>
-            </ul>
+public function get_uri(): string
+// Returns current request path.
+// Reads and normalizes REQUEST_URI.
+$uri = $router->get_uri();
+
+public function current()
+// Resolves current route with segments and query.
+// Falls back to final /404 route when no match exists.
+$current_route = $router->current();
+
+public function render(array $variables = []): void
+// Renders current route entry file.
+// Variables are extracted before including the entry.
+$router->render(['name' => 'Ada']);</code></pre>
         </div>
     </details>
 </section>
@@ -175,7 +258,8 @@ new Router(__DIR__.'/routes.php')->render();</code></pre>
 <section class="docs-section">
     <h2>Compile Command</h2>
     <h3>Example</h3>
-    <pre><code class="language-bash">./bin/harbor documentation/.router</code></pre>
+    <pre><code class="language-bash">./bin/harbor documentation/.router
+./bin/harbor .</code></pre>
     <h3>What it does</h3>
     <p>Compiles your route file into executable route arrays.</p>
     <h3>API</h3>
@@ -185,11 +269,17 @@ new Router(__DIR__.'/routes.php')->render();</code></pre>
             <span class="api-state"><span class="api-state-closed">Hidden - click to open</span><span class="api-state-open">Open</span></span>
         </summary>
         <div class="api-body">
-            <ul class="api-method-list">
-                <li><code>./bin/harbor .</code> Compile <code>./.router</code>.</li>
-                <li><code>./bin/harbor &lt;project-dir&gt;</code> Compile <code>&lt;project-dir&gt;/.router</code>.</li>
-                <li><code>./bin/harbor &lt;path-to-.router&gt;</code> Compile specific route file.</li>
-            </ul>
+            <pre><code class="language-bash">./bin/harbor .
+# Compiles ./.router by default.
+# Best for project root usage.
+
+./bin/harbor &lt;project-dir&gt;
+# Compiles &lt;project-dir&gt;/.router.
+# Good for multi-project workspace.
+
+./bin/harbor &lt;path-to-.router&gt;
+# Compiles a specific router file path.
+# Use when route file is outside default location.</code></pre>
         </div>
     </details>
 </section>

@@ -30,10 +30,15 @@ HelperLoader::load('request');</code></pre>
             <span class="api-state"><span class="api-state-closed">Hidden - click to open</span><span class="api-state-open">Open</span></span>
         </summary>
         <div class="api-body">
-            <ul class="api-method-list">
-                <li><code>HelperLoader::load('request')</code> Load request helper module.</li>
-                <li><code>request()</code> Return full request snapshot.</li>
-            </ul>
+            <pre><code class="language-php">HelperLoader::load(string $helper_name): void
+// Loads helper functions by module name.
+// Use "request" to enable request helpers.
+HelperLoader::load('request');
+
+function request(): array
+// Returns normalized request snapshot.
+// Includes method, URL data, headers, body, cookies, files, and server data.
+$request_data = request();</code></pre>
         </div>
     </details>
 </section>
@@ -65,100 +70,330 @@ $search_query = request_input_str('search', '');</code></pre>
         <div class="api-body">
             <div class="api-group">
                 <p class="api-group-title">Request and Method</p>
-                <ul class="api-method-list">
-                    <li><code>request()</code> Full request snapshot.</li>
-                    <li><code>request_method()</code> HTTP method in uppercase.</li>
-                    <li><code>request_is_get()</code> Check GET method.</li>
-                    <li><code>request_is_post()</code> Check POST method.</li>
-                    <li><code>request_is_put()</code> Check PUT method.</li>
-                    <li><code>request_is_patch()</code> Check PATCH method.</li>
-                    <li><code>request_is_delete()</code> Check DELETE method.</li>
-                    <li><code>request_is_options()</code> Check OPTIONS method.</li>
-                    <li><code>request_is_head()</code> Check HEAD method.</li>
-                    <li><code>request_is_trace()</code> Check TRACE method.</li>
-                    <li><code>request_is_connect()</code> Check CONNECT method.</li>
-                </ul>
+                <pre><code class="language-php">function request(): array
+// Returns normalized request snapshot.
+// Use this when you need all request data in one array.
+$all = request();
+
+function request_method(): string
+// Returns current HTTP method in uppercase.
+// Reads REQUEST_METHOD and defaults to GET.
+$method = request_method();
+
+function request_is_get(): bool
+// Checks if method is GET.
+// Internally compares against request_method().
+$is_get = request_is_get();
+
+function request_is_post(): bool
+// Checks if method is POST.
+// Internally compares against request_method().
+$is_post = request_is_post();
+
+function request_is_put(): bool
+// Checks if method is PUT.
+// Internally compares against request_method().
+$is_put = request_is_put();
+
+function request_is_patch(): bool
+// Checks if method is PATCH.
+// Internally compares against request_method().
+$is_patch = request_is_patch();
+
+function request_is_delete(): bool
+// Checks if method is DELETE.
+// Internally compares against request_method().
+$is_delete = request_is_delete();
+
+function request_is_options(): bool
+// Checks if method is OPTIONS.
+// Internally compares against request_method().
+$is_options = request_is_options();
+
+function request_is_head(): bool
+// Checks if method is HEAD.
+// Internally compares against request_method().
+$is_head = request_is_head();
+
+function request_is_trace(): bool
+// Checks if method is TRACE.
+// Internally compares against request_method().
+$is_trace = request_is_trace();
+
+function request_is_connect(): bool
+// Checks if method is CONNECT.
+// Internally compares against request_method().
+$is_connect = request_is_connect();</code></pre>
             </div>
 
             <div class="api-group">
                 <p class="api-group-title">URL and Metadata</p>
-                <ul class="api-method-list">
-                    <li><code>request_uri()</code> Raw request URI.</li>
-                    <li><code>request_path()</code> Path without query string.</li>
-                    <li><code>request_query_string()</code> Query string value.</li>
-                    <li><code>request_scheme()</code> URL scheme (http/https).</li>
-                    <li><code>request_host()</code> Request host value.</li>
-                    <li><code>request_port()</code> Request port value.</li>
-                    <li><code>request_url()</code> Full URL without query.</li>
-                    <li><code>request_full_url()</code> Full URL with query.</li>
-                    <li><code>request_ip()</code> Client IP address.</li>
-                    <li><code>request_user_agent()</code> User-Agent header value.</li>
-                    <li><code>request_referer()</code> Referer header value.</li>
-                    <li><code>request_is_secure()</code> Check HTTPS request.</li>
-                    <li><code>request_is_ajax()</code> Check AJAX request.</li>
-                    <li><code>request_is_json()</code> Check JSON request content type.</li>
-                </ul>
+                <pre><code class="language-php">function request_uri(): string
+// Returns raw request URI.
+// Includes path and query string when present.
+$uri = request_uri(); // "/users/42?tab=profile"
+
+function request_path(): string
+// Returns URI path only.
+// Removes query string from URI.
+$path = request_path(); // "/users/42"
+
+function request_query_string(): string
+// Returns raw query string.
+// Reads query from URI or QUERY_STRING.
+$query = request_query_string(); // "tab=profile"
+
+function request_scheme(): string
+// Returns URL scheme.
+// Resolves to "http" or "https".
+$scheme = request_scheme();
+
+function request_host(): string
+// Returns host name.
+// Uses Host header or server host fallback.
+$host = request_host();
+
+function request_port(): int
+// Returns request port.
+// Uses host/server values with scheme defaults.
+$port = request_port();
+
+function request_url(): string
+// Returns full URL without query string.
+// Combines scheme, host, port, and path.
+$url = request_url();
+
+function request_full_url(): string
+// Returns full URL with query string.
+// Extends request_url() when query is present.
+$full_url = request_full_url();
+
+function request_ip(): ?string
+// Returns client IP address.
+// Checks x-forwarded-for then REMOTE_ADDR.
+$ip = request_ip();
+
+function request_user_agent(string $default = ''): string
+// Returns User-Agent header as string.
+// Uses provided default when missing.
+$agent = request_user_agent('unknown');
+
+function request_referer(?string $default = null): ?string
+// Returns Referer header as nullable string.
+// Uses provided default when missing.
+$referer = request_referer();
+
+function request_is_secure(): bool
+// Checks if request is HTTPS.
+// Uses HTTPS/server port/forwarded headers.
+$is_secure = request_is_secure();
+
+function request_is_ajax(): bool
+// Checks if request came from XHR.
+// Compares x-requested-with header.
+$is_ajax = request_is_ajax();
+
+function request_is_json(): bool
+// Checks if request content type is JSON.
+// Looks for "application/json" in Content-Type.
+$is_json = request_is_json();</code></pre>
             </div>
 
             <div class="api-group">
                 <p class="api-group-title">Headers</p>
-                <ul class="api-method-list">
-                    <li><code>request_headers()</code> All normalized headers.</li>
-                    <li><code>request_header()</code> Header value by key.</li>
-                    <li><code>request_header_exists()</code> Header existence check.</li>
-                    <li><code>request_header_int()</code> Header as integer.</li>
-                    <li><code>request_header_float()</code> Header as float.</li>
-                    <li><code>request_header_str()</code> Header as string.</li>
-                    <li><code>request_header_bool()</code> Header as boolean.</li>
-                    <li><code>request_header_arr()</code> Header as array.</li>
-                    <li><code>request_header_obj()</code> Header as object.</li>
-                    <li><code>request_header_json()</code> Header decoded as JSON.</li>
-                </ul>
+                <pre><code class="language-php">function request_headers(): array
+// Returns normalized request headers.
+// Header names are lowercase with dashes.
+$headers = request_headers();
+
+function request_header(string $key, mixed $default = null): mixed
+// Returns one header value by key.
+// Supports normalized or regular header names.
+$trace_id = request_header('x-trace-id');
+
+function request_header_exists(string $key): bool
+// Checks if one header key exists.
+// Uses normalized header matching.
+$has_trace = request_header_exists('x-trace-id');
+
+function request_header_int(string $key, int $default = 0): int
+// Returns one header value as int.
+// Falls back to default when conversion fails.
+$length = request_header_int('content-length', 0);
+
+function request_header_float(string $key, float $default = 0.0): float
+// Returns one header value as float.
+// Falls back to default when conversion fails.
+$ratio = request_header_float('x-ratio', 1.0);
+
+function request_header_str(string $key, string $default = ''): string
+// Returns one header value as string.
+// Falls back to default when value is missing.
+$content_type = request_header_str('content-type', '');
+
+function request_header_bool(string $key, bool $default = false): bool
+// Returns one header value as bool.
+// Accepts boolean-like string values.
+$trace = request_header_bool('x-trace-enabled', false);
+
+function request_header_arr(string $key, array $default = []): array
+// Returns one header value as array.
+// Supports JSON arrays and CSV-like strings.
+$tags = request_header_arr('x-tags', []);
+
+function request_header_obj(string $key, ?object $default = null): ?object
+// Returns one header value as object.
+// Supports JSON object/array conversion.
+$options = request_header_obj('x-options');
+
+function request_header_json(string $key, mixed $default = null): mixed
+// Decodes one header value as JSON.
+// Returns default when decode fails.
+$meta = request_header_json('x-meta', []);</code></pre>
             </div>
 
             <div class="api-group">
                 <p class="api-group-title">Body</p>
-                <ul class="api-method-list">
-                    <li><code>request_raw_body()</code> Raw request payload string.</li>
-                    <li><code>request_body()</code> Body value by key or full body.</li>
-                    <li><code>request_body_all()</code> Full body as array.</li>
-                    <li><code>request_body_count()</code> Body key count.</li>
-                    <li><code>request_body_exists()</code> Body key existence check.</li>
-                    <li><code>request_body_int()</code> Body value as integer.</li>
-                    <li><code>request_body_float()</code> Body value as float.</li>
-                    <li><code>request_body_str()</code> Body value as string.</li>
-                    <li><code>request_body_bool()</code> Body value as boolean.</li>
-                    <li><code>request_body_arr()</code> Body value as array.</li>
-                    <li><code>request_body_obj()</code> Body value as object.</li>
-                    <li><code>request_body_json()</code> Body value decoded as JSON.</li>
-                </ul>
+                <pre><code class="language-php">function request_raw_body(): string
+// Returns raw HTTP body string.
+// Reads php://input once and caches it.
+$raw = request_raw_body();
+
+function request_body(?string $key = null, mixed $default = null): mixed
+// Returns one body value or full body payload.
+// Supports dot notation when body is array/object.
+$email = request_body('user.email', '');
+
+function request_body_all(): array
+// Returns full body as array.
+// Object payloads are converted to array.
+$body = request_body_all();
+
+function request_body_count(): int
+// Returns number of body keys.
+// Counts keys from request_body_all().
+$body_count = request_body_count();
+
+function request_body_exists(string $key): bool
+// Checks if body key exists.
+// Supports dot notation for nested keys.
+$has_token = request_body_exists('token');
+
+function request_body_int(string $key, int $default = 0): int
+// Returns one body value as int.
+// Falls back to default when conversion fails.
+$user_id = request_body_int('user.id', 0);
+
+function request_body_float(string $key, float $default = 0.0): float
+// Returns one body value as float.
+// Falls back to default when conversion fails.
+$price = request_body_float('price', 0.0);
+
+function request_body_str(string $key, string $default = ''): string
+// Returns one body value as string.
+// Falls back to default when conversion fails.
+$name = request_body_str('name', 'Guest');
+
+function request_body_bool(string $key, bool $default = false): bool
+// Returns one body value as bool.
+// Accepts common boolean-like values.
+$enabled = request_body_bool('enabled', false);
+
+function request_body_arr(string $key, array $default = []): array
+// Returns one body value as array.
+// Supports JSON and comma-separated values.
+$roles = request_body_arr('roles', []);
+
+function request_body_obj(string $key, ?object $default = null): ?object
+// Returns one body value as object.
+// Supports JSON object/array conversion.
+$profile = request_body_obj('profile');
+
+function request_body_json(string $key, mixed $default = null): mixed
+// Decodes one body value as JSON.
+// Returns default when decode fails.
+$settings = request_body_json('settings', []);</code></pre>
             </div>
 
             <div class="api-group">
                 <p class="api-group-title">Input</p>
-                <ul class="api-method-list">
-                    <li><code>request_input()</code> Request value from body/query.</li>
-                    <li><code>request_input_int()</code> Input value as integer.</li>
-                    <li><code>request_input_float()</code> Input value as float.</li>
-                    <li><code>request_input_str()</code> Input value as string.</li>
-                    <li><code>request_input_bool()</code> Input value as boolean.</li>
-                    <li><code>request_input_arr()</code> Input value as array.</li>
-                    <li><code>request_input_obj()</code> Input value as object.</li>
-                    <li><code>request_input_json()</code> Input value decoded as JSON.</li>
-                </ul>
+                <pre><code class="language-php">function request_input(?string $key = null, mixed $default = null): mixed
+// Returns request input value.
+// Alias of request_body() in Harbor runtime.
+$input = request_input('name', '');
+
+function request_input_int(string $key, int $default = 0): int
+// Returns input value as int.
+// Falls back to default when conversion fails.
+$limit = request_input_int('limit', 25);
+
+function request_input_float(string $key, float $default = 0.0): float
+// Returns input value as float.
+// Falls back to default when conversion fails.
+$discount = request_input_float('discount', 0.0);
+
+function request_input_str(string $key, string $default = ''): string
+// Returns input value as string.
+// Falls back to default when conversion fails.
+$search = request_input_str('search', '');
+
+function request_input_bool(string $key, bool $default = false): bool
+// Returns input value as bool.
+// Accepts common boolean-like values.
+$remember = request_input_bool('remember', false);
+
+function request_input_arr(string $key, array $default = []): array
+// Returns input value as array.
+// Supports JSON and comma-separated values.
+$filters = request_input_arr('filters', []);
+
+function request_input_obj(string $key, ?object $default = null): ?object
+// Returns input value as object.
+// Supports JSON object/array conversion.
+$payload = request_input_obj('payload');
+
+function request_input_json(string $key, mixed $default = null): mixed
+// Decodes input value as JSON.
+// Returns default when decode fails.
+$rules = request_input_json('rules', []);</code></pre>
             </div>
 
             <div class="api-group">
                 <p class="api-group-title">Cookie, Files, Server</p>
-                <ul class="api-method-list">
-                    <li><code>request_cookie()</code> Cookie value by key.</li>
-                    <li><code>request_cookies()</code> All cookie values.</li>
-                    <li><code>request_cookie_exists()</code> Cookie existence check.</li>
-                    <li><code>request_files()</code> File payload by key.</li>
-                    <li><code>request_file()</code> File alias for single key lookup.</li>
-                    <li><code>request_has_file()</code> Uploaded file existence check.</li>
-                    <li><code>request_server()</code> Server value by key.</li>
-                </ul>
+                <pre><code class="language-php">function request_cookie(?string $key = null, mixed $default = null): mixed
+// Returns one cookie value or all cookies.
+// Supports dot notation for cookie arrays.
+$session_id = request_cookie('session_id', null);
+
+function request_cookies(): array
+// Returns all cookies array.
+// Maps directly from $_COOKIE.
+$cookies = request_cookies();
+
+function request_cookie_exists(string $key): bool
+// Checks if cookie key exists.
+// Supports dot notation for nested values.
+$has_session = request_cookie_exists('session_id');
+
+function request_files(?string $key = null, mixed $default = null): mixed
+// Returns one uploaded file payload or all files.
+// Supports dot notation for nested uploads.
+$files = request_files();
+
+function request_file(string $key, mixed $default = null): mixed
+// Returns one uploaded file payload.
+// Alias of request_files() for single key lookup.
+$avatar = request_file('avatar');
+
+function request_has_file(string $key): bool
+// Checks if uploaded file key exists.
+// Uses normalized $_FILES lookup.
+$has_avatar = request_has_file('avatar');
+
+function request_server(?string $key = null, mixed $default = null): mixed
+// Returns one server value or full server array.
+// Supports dot notation for nested values.
+$request_time = request_server('REQUEST_TIME', 0);</code></pre>
             </div>
         </div>
     </details>
