@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace Harbor\Router;
 
+require_once __DIR__.'/../../Support/value.php';
+
+use function Harbor\Support\harbor_is_null;
+
 /**
  * Segment functions.
  */
@@ -154,7 +158,7 @@ function route_segment_json(int $index, mixed $default = null): mixed
 
     $decoded = route_segment_decode_json($value, true);
 
-    return null === $decoded ? $default : $decoded;
+    return harbor_is_null($decoded) ? $default : $decoded;
 }
 
 function route_segments(): array

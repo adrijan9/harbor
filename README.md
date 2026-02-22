@@ -47,11 +47,14 @@ This command will serve the documentation site on `http://localhost:<SOME_PORT>`
 
 - `Router` runtime:
   - Loads route arrays from `routes.php`
+  - Optionally loads and merges `config.php` data into `$_ENV`
   - Matches path segments (supports `$` as a dynamic segment placeholder)
   - Injects matched route data into `$GLOBALS['route']`
   - Requires the matched PHP entry file directly
 - `HelperLoader`:
   - `route` for route segment/query access helpers
+  - `config` for config file loading and typed env reads
+  - `value` for shared blank/null checks (`harbor_is_blank`, `harbor_is_null`)
   - `request` for typed request metadata/body/header helpers
   - `filesystem` for explicit file/directory operations
   - `log` for structured logging helpers and levels
@@ -86,6 +89,7 @@ Example generated site layout:
 ```text
 my-site/
   .router
+  config.php
   routes/
     shared.router
   routes.php
@@ -136,7 +140,7 @@ use Harbor\Router\Router;
 
 require __DIR__.'/../vendor/autoload.php';
 
-new Router(__DIR__.'/routes.php')->render();
+new Router(__DIR__.'/routes.php', __DIR__.'/config.php')->render();
 ```
 
 ## Multi-Site Positioning

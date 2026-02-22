@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace Harbor;
 
+require_once __DIR__.'/Support/value.php';
+
+use function Harbor\Support\harbor_is_null;
+
 final class HelperLoader
 {
     public static function load(string ...$helpers): void
@@ -27,7 +31,7 @@ final class HelperLoader
         $normalized_helper = strtolower(trim($helper));
         $helper_path = self::helper_paths()[$normalized_helper] ?? null;
 
-        if (null === $helper_path) {
+        if (harbor_is_null($helper_path)) {
             throw new \InvalidArgumentException(
                 sprintf('Helper "%s" is not registered.', $helper)
             );
@@ -56,6 +60,10 @@ final class HelperLoader
                 __DIR__.'/Router/helpers/route_segments.php',
                 __DIR__.'/Router/helpers/route_query.php',
             ],
+            // Config
+            'config' => __DIR__.'/Config/config.php',
+            // Support
+            'value' => __DIR__.'/Support/value.php',
             // Request
             'request' => __DIR__.'/Request/request.php',
             // Filesystem

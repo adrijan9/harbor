@@ -2,11 +2,16 @@
 
 declare(strict_types=1);
 
+require_once __DIR__.'/../src/Support/value.php';
+
+use function Harbor\Support\harbor_is_blank;
+use function Harbor\Support\harbor_is_null;
+
 function harbor_run_compile(string $router_source_path): void
 {
     $normalized_path = harbor_resolve_router_source_path($router_source_path);
 
-    if ('' === $normalized_path) {
+    if (harbor_is_blank($normalized_path)) {
         fwrite(STDERR, 'Missing .router path. Usage: ./bin/harbor . | ./bin/harbor /path/to/.router'.PHP_EOL);
 
         exit(1);
@@ -74,7 +79,7 @@ function harbor_pre_process_routes_file(string $router_source_path, array $inclu
 
     foreach ($lines as $line) {
         $include_path = harbor_parse_include_path($line);
-        if (null === $include_path) {
+        if (harbor_is_null($include_path)) {
             $processed_parts[] = $line;
 
             continue;
@@ -105,7 +110,7 @@ function harbor_parse_include_path(string $line): ?string
 
     $path = trim($matches[1]);
 
-    return '' === $path ? null : $path;
+    return harbor_is_blank($path) ? null : $path;
 }
 
 function harbor_is_absolute_path(string $path): bool
@@ -122,7 +127,7 @@ function harbor_compile_routes_from_content(string $router_content): array
 
     foreach ($lines as $line) {
         $normalized_line = trim($line);
-        if ('' === $normalized_line) {
+        if (harbor_is_blank($normalized_line)) {
             continue;
         }
 
@@ -170,7 +175,7 @@ function harbor_resolve_router_source_path(string $input_path): string
 {
     $normalized_input = trim($input_path);
 
-    if ('' === $normalized_input) {
+    if (harbor_is_blank($normalized_input)) {
         return '';
     }
 

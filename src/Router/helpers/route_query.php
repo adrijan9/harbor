@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 namespace Harbor\Router;
 
+require_once __DIR__.'/../../Support/value.php';
+
+use function Harbor\Support\harbor_is_blank;
+use function Harbor\Support\harbor_is_null;
+
 /**
  * Query functions.
  */
@@ -11,7 +16,7 @@ function route_query(?string $key = null, mixed $default = null): mixed
 {
     $query = route_queries();
 
-    if (null === $key || '' === $key) {
+    if (harbor_is_blank($key)) {
         return $query;
     }
 
@@ -158,7 +163,7 @@ function route_query_json(string $key, mixed $default = null): mixed
 
     $decoded = route_query_decode_json($value, true);
 
-    return null === $decoded ? $default : $decoded;
+    return harbor_is_null($decoded) ? $default : $decoded;
 }
 
 function route_queries(): array

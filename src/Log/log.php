@@ -7,12 +7,15 @@ namespace Harbor\Log;
 require_once __DIR__.'/LogLevel.php';
 
 require_once __DIR__.'/../Filesystem/filesystem.php';
+require_once __DIR__.'/../Support/value.php';
 
 use function Harbor\Filesystem\fs_append;
 use function Harbor\Filesystem\fs_dir_create;
 use function Harbor\Filesystem\fs_dir_exists;
 use function Harbor\Filesystem\fs_exists;
 use function Harbor\Filesystem\fs_write;
+use function Harbor\Support\harbor_is_blank;
+use function Harbor\Support\harbor_is_null;
 
 $log_file_path = null;
 $log_is_initialized = false;
@@ -23,7 +26,7 @@ function log_init(string $file_path, string $channel = 'app'): void
     global $log_file_path, $log_is_initialized, $log_default_channel;
 
     $normalized_file_path = trim($file_path);
-    if ('' === $normalized_file_path) {
+    if (harbor_is_blank($normalized_file_path)) {
         throw new \InvalidArgumentException('Log file path cannot be empty.');
     }
 
@@ -83,7 +86,8 @@ function log_create_content(LogLevel|string $level, string $message, array $cont
     global $log_default_channel;
 
     $normalized_level = log_validate_level($level);
-    $normalized_channel = null === $channel ? $log_default_channel : log_validate_channel($channel);
+    $channel_candidate = harbor_is_null($channel) ? $log_default_channel : $channel;
+    $normalized_channel = log_validate_channel($channel_candidate);
     $interpolated_message = log_interpolate_message($message, $context);
     $normalized_context = log_normalize_context($context);
     $context_json = log_encode_context($normalized_context);
@@ -169,7 +173,7 @@ function log_bail_if_not_initialized(): void
 {
     global $log_is_initialized, $log_file_path;
 
-    if (! $log_is_initialized || ! is_string($log_file_path) || '' === $log_file_path) {
+    if (! $log_is_initialized || ! is_string($log_file_path) || harbor_is_blank($log_file_path)) {
         throw new \RuntimeException('Log file not initialized. Call log_init() first.');
     }
 }
@@ -183,7 +187,7 @@ function log_validate_level(LogLevel|string $level): string
     $normalized_level = strtolower(trim($level));
     $log_level = LogLevel::tryFrom($normalized_level);
 
-    if (null === $log_level) {
+    if (harbor_is_null($log_level)) {
         throw new \InvalidArgumentException(sprintf('Invalid log level "%s".', $level));
     }
 
@@ -194,7 +198,7 @@ function log_validate_channel(string $channel): string
 {
     $normalized_channel = trim($channel);
 
-    if ('' === $normalized_channel) {
+    if (harbor_is_blank($normalized_channel)) {
         throw new \InvalidArgumentException('Log channel cannot be empty.');
     }
 
@@ -209,7 +213,7 @@ function log_validate_channel(string $channel): string
 
 function log_interpolate_message(string $message, array $context): string
 {
-    if ([] === $context) {
+    if (harbor_is_blank($context)) {
         return $message;
     }
 
@@ -239,7 +243,7 @@ function log_context_value_to_string(mixed $value): string
         return $value ? 'true' : 'false';
     }
 
-    if (null === $value) {
+    if (harbor_is_null($value)) {
         return 'null';
     }
 
@@ -264,7 +268,7 @@ function log_normalize_context(array $context): array
 
 function log_normalize_context_value(mixed $value): mixed
 {
-    if (is_scalar($value) || null === $value) {
+    if (is_scalar($value) || harbor_is_null($value)) {
         return $value;
     }
 
@@ -309,7 +313,7 @@ function log_normalize_context_value(mixed $value): mixed
 
 function log_encode_context(array $context): string
 {
-    if ([] === $context) {
+    if (harbor_is_blank($context)) {
         return '';
     }
 

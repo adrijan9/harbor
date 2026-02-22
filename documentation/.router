@@ -20,6 +20,20 @@
 #endroute
 
 #route
+  path: /config
+  method: GET
+  name: docs.config
+  entry: pages/config.php
+#endroute
+
+#route
+  path: /support
+  method: GET
+  name: docs.support
+  entry: pages/support.php
+#endroute
+
+#route
   path: /request
   method: GET
   name: docs.request

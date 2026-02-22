@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Harbor\Tests\Request;
 
+require_once dirname(__DIR__, 2).'/src/Support/value.php';
+
 use Harbor\HelperLoader;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
@@ -51,6 +53,7 @@ use function Harbor\Request\request_server;
 use function Harbor\Request\request_uri;
 use function Harbor\Request\request_url;
 use function Harbor\Request\request_user_agent;
+use function Harbor\Support\harbor_is_null;
 
 #[RunTestsInSeparateProcesses]
 #[PreserveGlobalState(false)]
@@ -215,7 +218,7 @@ final class RequestHelpersTest extends TestCase
         $_COOKIE = $cookie;
         $_FILES = $files;
 
-        if (null === $route) {
+        if (harbor_is_null($route)) {
             unset($GLOBALS['route']);
         } else {
             $GLOBALS['route'] = $route;

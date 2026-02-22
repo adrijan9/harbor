@@ -33,6 +33,14 @@ require __DIR__.'/../shared/header.php';
             <h3>Request Helpers</h3>
             <p>Typed access to method, URL, headers, body, files, and cookies.</p>
         </a>
+        <a class="card" href="/config">
+            <h3>Config Helpers</h3>
+            <p>Load one or many config files and read typed values from env.</p>
+        </a>
+        <a class="card" href="/support">
+            <h3>Support Helpers</h3>
+            <p>Shared value checks for blank and null behavior.</p>
+        </a>
         <a class="card" href="/filesystem">
             <h3>Filesystem</h3>
             <p>Safe file and directory operations.</p>

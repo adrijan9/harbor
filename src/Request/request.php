@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace Harbor\Request;
 
+require_once __DIR__.'/../Support/value.php';
+
+use function Harbor\Support\harbor_is_blank;
+
 /**
  * Full request snapshot.
  */
@@ -178,7 +182,7 @@ function request_full_url(): string
 {
     $query_string = request_query_string();
 
-    if ('' === $query_string) {
+    if (harbor_is_blank($query_string)) {
         return request_url();
     }
 
@@ -359,7 +363,7 @@ function request_body(?string $key = null, mixed $default = null): mixed
 {
     $body = request_body_data();
 
-    if (null === $key || '' === $key) {
+    if (harbor_is_blank($key)) {
         return $body;
     }
 
@@ -482,7 +486,7 @@ function request_input_json(string $key, mixed $default = null): mixed
  */
 function request_cookie(?string $key = null, mixed $default = null): mixed
 {
-    if (null === $key || '' === $key) {
+    if (harbor_is_blank($key)) {
         return request_cookies();
     }
 
@@ -503,7 +507,7 @@ function request_files(?string $key = null, mixed $default = null): mixed
 {
     $files = is_array($_FILES) ? $_FILES : [];
 
-    if (null === $key || '' === $key) {
+    if (harbor_is_blank($key)) {
         return $files;
     }
 
@@ -527,7 +531,7 @@ function request_server(?string $key = null, mixed $default = null): mixed
 {
     $server = is_array($_SERVER) ? $_SERVER : [];
 
-    if (null === $key || '' === $key) {
+    if (harbor_is_blank($key)) {
         return $server;
     }
 
@@ -555,7 +559,7 @@ function request_body_data(): mixed
     }
 
     $raw_body = request_raw_body();
-    if ('' === $raw_body) {
+    if (harbor_is_blank($raw_body)) {
         $parsed_body = [];
 
         return $parsed_body;

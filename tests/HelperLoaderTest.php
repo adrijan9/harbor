@@ -22,6 +22,8 @@ final class HelperLoaderTest extends TestCase
         self::assertContains('route', $helpers);
         self::assertContains('route_segments', $helpers);
         self::assertContains('route_query', $helpers);
+        self::assertContains('config', $helpers);
+        self::assertContains('value', $helpers);
         self::assertContains('request', $helpers);
         self::assertContains('filesystem', $helpers);
         self::assertContains('log', $helpers);
@@ -49,6 +51,23 @@ final class HelperLoaderTest extends TestCase
 
         self::assertTrue(function_exists('Harbor\Request\request'));
         self::assertTrue(function_exists('Harbor\Request\request_method'));
+    }
+
+    public function test_load_config_helper_registers_namespaced_functions(): void
+    {
+        HelperLoader::load('config');
+
+        self::assertTrue(function_exists('Harbor\Config\config'));
+        self::assertTrue(function_exists('Harbor\Config\config_init'));
+        self::assertTrue(function_exists('Harbor\Config\config_int'));
+    }
+
+    public function test_load_value_helper_registers_namespaced_functions(): void
+    {
+        HelperLoader::load('value');
+
+        self::assertTrue(function_exists('Harbor\Support\harbor_is_blank'));
+        self::assertTrue(function_exists('Harbor\Support\harbor_is_null'));
     }
 
     public function test_load_filesystem_helper_registers_namespaced_functions(): void

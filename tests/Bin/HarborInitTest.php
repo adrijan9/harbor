@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace Harbor\Tests\Bin;
 
-use Harbor\Environment;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\TestCase;
 
 require_once dirname(__DIR__, 2).'/bin/harbor_init.php';
+require_once dirname(__DIR__, 2).'/src/Support/value.php';
+
+use function Harbor\Support\harbor_is_blank;
 
 final class HarborInitTest extends TestCase
 {
@@ -36,12 +38,13 @@ final class HarborInitTest extends TestCase
         $config = require $site_path.'/config.php';
         self::assertIsArray($config);
         self::assertSame('Harbor Site', $config['app_name'] ?? null);
-        self::assertSame(Environment::LOCAL, $config['environment'] ?? null);
+        self::assertSame('local', $config['environment'] ?? null);
 
         $index_content = file_get_contents($site_path.'/index.php');
         self::assertIsString($index_content);
-        self::assertStringContainsString("\$config = require __DIR__.'/config.php';", $index_content);
-        self::assertStringContainsString("\$GLOBALS['config'] = \$config;", $index_content);
+        self::assertStringContainsString("new Router(", $index_content);
+        self::assertStringContainsString("__DIR__.'/routes.php'", $index_content);
+        self::assertStringContainsString("__DIR__.'/config.php'", $index_content);
     }
 
     #[After]
@@ -51,7 +54,7 @@ final class HarborInitTest extends TestCase
             chdir($this->original_working_directory);
         }
 
-        if ('' === $this->workspace_path || ! is_dir($this->workspace_path)) {
+        if (harbor_is_blank($this->workspace_path) || ! is_dir($this->workspace_path)) {
             return;
         }
 
@@ -83,4 +86,3 @@ final class HarborInitTest extends TestCase
         rmdir($directory_path);
     }
 }
-

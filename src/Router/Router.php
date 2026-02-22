@@ -4,6 +4,12 @@ declare(strict_types=1);
 
 namespace Harbor\Router;
 
+require_once __DIR__.'/../Config/config.php';
+require_once __DIR__.'/../Support/value.php';
+
+use function Harbor\Config\config_init;
+use function Harbor\Support\harbor_is_blank;
+
 /**
  * Class Router.
  */
@@ -11,9 +17,15 @@ class Router
 {
     private array $routes;
 
-    public function __construct(private readonly string $router_path)
-    {
+    public function __construct(
+        private readonly string $router_path,
+        private readonly ?string $config_path = null,
+    ) {
         $this->routes = require $router_path;
+
+        if (is_string($this->config_path) && '' !== trim($this->config_path)) {
+            config_init($this->config_path);
+        }
     }
 
     public function get_uri(): string
@@ -50,8 +62,9 @@ class Router
     {
         $current_route = $this->current();
         $entry = $current_route['entry'] ?? null;
+        $normalized_entry = is_string($entry) ? trim($entry) : '';
 
-        if (! is_string($entry) || '' === trim($entry)) {
+        if (! is_string($entry) || harbor_is_blank($normalized_entry)) {
             throw new \RuntimeException('Current route entry is invalid.');
         }
 
@@ -91,7 +104,7 @@ class Router
     {
         $trimmed_path = trim($path, '/');
 
-        if ('' === $trimmed_path) {
+        if (harbor_is_blank($trimmed_path)) {
             return [];
         }
 
@@ -103,7 +116,7 @@ class Router
         $url = $_SERVER['REQUEST_URI'] ?? '/';
         $query = parse_url($url, PHP_URL_QUERY);
 
-        if (! is_string($query) || '' === $query) {
+        if (! is_string($query) || harbor_is_blank($query)) {
             return [];
         }
 

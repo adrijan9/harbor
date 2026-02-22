@@ -22,33 +22,47 @@
   ),
   3 => 
   array (
+    'path' => '/config',
+    'method' => 'GET',
+    'name' => 'docs.config',
+    'entry' => 'pages/config.php',
+  ),
+  4 => 
+  array (
+    'path' => '/support',
+    'method' => 'GET',
+    'name' => 'docs.support',
+    'entry' => 'pages/support.php',
+  ),
+  5 => 
+  array (
     'path' => '/request',
     'method' => 'GET',
     'name' => 'docs.request',
     'entry' => 'pages/request.php',
   ),
-  4 => 
+  6 => 
   array (
     'path' => '/filesystem',
     'method' => 'GET',
     'name' => 'docs.filesystem',
     'entry' => 'pages/filesystem.php',
   ),
-  5 => 
+  7 => 
   array (
     'path' => '/logging',
     'method' => 'GET',
     'name' => 'docs.logging',
     'entry' => 'pages/logging.php',
   ),
-  6 => 
+  8 => 
   array (
     'path' => '/cli',
     'method' => 'GET',
     'name' => 'docs.cli',
     'entry' => 'pages/cli.php',
   ),
-  7 => 
+  9 => 
   array (
     'method' => 'GET',
     'path' => '/404',

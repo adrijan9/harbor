@@ -2,17 +2,21 @@
 
 declare(strict_types=1);
 
+require_once __DIR__.'/../src/Support/value.php';
+
+use function Harbor\Support\harbor_is_blank;
+
 function harbor_run_init(?string $site_name_from_argument = null): void
 {
     $site_name = is_string($site_name_from_argument) ? trim($site_name_from_argument) : '';
 
-    if ('' === $site_name) {
+    if (harbor_is_blank($site_name)) {
         fwrite(STDOUT, 'Site name (default: public): ');
         $input = fgets(STDIN);
         $site_name = trim(false === $input ? '' : $input);
     }
 
-    if ('' === $site_name) {
+    if (harbor_is_blank($site_name)) {
         $site_name = 'public';
     }
 
@@ -158,16 +162,10 @@ require __DIR__.'/../vendor/autoload.php';
 
 use Harbor\Router\Router;
 
-$config = require __DIR__.'/config.php';
-
-if (! is_array($config)) {
-    throw new RuntimeException('Site config.php must return an array.');
-}
-
-$GLOBALS['config'] = $config;
-
-
-new Router(__DIR__.'/routes.php')->render();
+new Router(
+    __DIR__.'/routes.php',
+    __DIR__.'/config.php',
+)->render();
 
 PHP;
 }
@@ -179,11 +177,9 @@ function harbor_default_config_template(): string
 
 declare(strict_types=1);
 
-use Harbor\Environment;
-
 return [
     'app_name' => 'Harbor Site',
-    'environment' => Environment::LOCAL,
+    'environment' => 'local',
 ];
 
 PHP;
