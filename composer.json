@@ -1,0 +1,36 @@
+{
+    "version": "1.0.0",
+    "name": "adrijan991/php-framework",
+    "bin": [
+        "bin/router",
+        "bin/harbor",
+        "bin/harbor-docs"
+    ],
+    "autoload": {
+        "psr-4": {
+            "PhpFramework\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "PhpFramework\\Tests\\": "tests/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Adrijan Mitrov",
+            "email": "adrijan9@gmail.com"
+        }
+    ],
+    "require": {
+        "php": "^8.5"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.94",
+        "phpunit/phpunit": "^11.5",
+        "symfony/var-dumper": "^8.0"
+    },
+    "scripts": {
+        "test": "phpunit"
+    }
+}
