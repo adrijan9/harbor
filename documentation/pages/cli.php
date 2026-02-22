@@ -17,37 +17,53 @@ require __DIR__.'/../shared/header.php';
 
 <section class="docs-section">
     <h2><code>bin/harbor</code></h2>
-    <p>Primary CLI command for route compilation and site scaffolding.</p>
+    <h3>Example</h3>
     <pre><code class="language-bash">./bin/harbor .
 ./bin/harbor documentation/.router
 ./bin/harbor init my-site</code></pre>
+    <h3>What it does</h3>
+    <p>Compiles routes by default and scaffolds sites with <code>init</code>.</p>
+    <h3>API</h3>
     <ul>
-        <li>Default mode compiles a <code>.router</code> file into <code>routes.php</code>.</li>
-        <li>Passing a directory (for example <code>.</code>) compiles <code>&lt;directory&gt;/.router</code>.</li>
-        <li>Creates page scaffolds, route files, and defaults.</li>
-        <li>Creates parent-level <code>serve.sh</code> only if it does not already exist.</li>
+        <li><code>./bin/harbor .</code> compiles <code>./.router</code>.</li>
+        <li><code>./bin/harbor &lt;directory&gt;</code> compiles <code>&lt;directory&gt;/.router</code>.</li>
+        <li><code>./bin/harbor &lt;path-to-.router&gt;</code> compiles that route file.</li>
+        <li><code>./bin/harbor init [site-name]</code> creates a site scaffold.</li>
     </ul>
 </section>
 
 <section class="docs-section">
     <h2><code>bin/harbor-docs</code></h2>
-    <p>Serves the package documentation locally.</p>
+    <h3>Example</h3>
     <pre><code class="language-bash">./bin/harbor-docs
 ./bin/harbor-docs --port=9090</code></pre>
+    <h3>What it does</h3>
+    <p>Starts the local docs server on an available port.</p>
+    <h3>API</h3>
     <ul>
-        <li>Default start port is <code>8081</code>.</li>
-        <li>Port <code>8080</code> is skipped by design.</li>
-        <li>The command automatically picks the next available port.</li>
-        <li>Dependency install users can run <code>./vendor/bin/harbor-docs</code>.</li>
+        <li>Option: <code>--port=PORT</code>.</li>
+        <li>Default start port: <code>8081</code>.</li>
+        <li>Reserved port: <code>8080</code> is skipped.</li>
+        <li>Installed package path: <code>./vendor/bin/harbor-docs</code>.</li>
     </ul>
 </section>
 
 <section class="docs-section">
     <h2>Dev Workflow</h2>
+    <h3>Example</h3>
     <pre><code class="language-bash">composer test
 ./vendor/bin/php-cs-fixer fix --using-cache=no --sequential
 ./bin/harbor documentation/.router
 ./bin/harbor-docs</code></pre>
+    <h3>What it does</h3>
+    <p>Runs tests, formats code, compiles routes, and starts docs.</p>
+    <h3>API</h3>
+    <ul>
+        <li><code>composer test</code>.</li>
+        <li><code>./vendor/bin/php-cs-fixer fix --using-cache=no --sequential</code>.</li>
+        <li><code>./bin/harbor documentation/.router</code>.</li>
+        <li><code>./bin/harbor-docs</code>.</li>
+    </ul>
 </section>
 
 <?php require __DIR__.'/../shared/footer.php'; ?>

@@ -10,7 +10,7 @@ $docs_navigation = [
     ['id' => 'home', 'label' => 'Overview', 'href' => '/'],
     ['id' => 'installation', 'label' => 'Installation', 'href' => '/installation'],
     ['id' => 'routing', 'label' => 'Routing', 'href' => '/routing'],
-    ['id' => 'request', 'label' => 'Request Helpers', 'href' => '/request'],
+    ['id' => 'request', 'label' => 'Request', 'href' => '/request'],
     ['id' => 'filesystem', 'label' => 'Filesystem', 'href' => '/filesystem'],
     ['id' => 'logging', 'label' => 'Logging', 'href' => '/logging'],
     ['id' => 'cli', 'label' => 'CLI', 'href' => '/cli'],

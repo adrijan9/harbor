@@ -22,30 +22,50 @@ require __DIR__.'/../shared/header.php';
         <li>Composer 2.x</li>
         <li>Web server support for rewriting to <code>index.php</code> (Apache or PHP built-in server)</li>
     </ul>
-
-    <h3>Install Dependencies</h3>
-    <pre><code class="language-bash">composer install</code></pre>
-
-    <h3>Create a Site Scaffold</h3>
-    <pre><code class="language-bash">./bin/harbor init documentation</code></pre>
-    <p>The command creates pages, route templates, and a parent-level <code>serve.sh</code> if missing.</p>
 </section>
 
 <section class="docs-section">
-    <h2>Generate Routes</h2>
-    <p>Route definitions are authored in a <code>.router</code> file and compiled into <code>routes.php</code>.</p>
-    <pre><code class="language-bash">./bin/harbor documentation/.router</code></pre>
+    <h2>Install Core</h2>
+    <h3>Example</h3>
+    <pre><code class="language-bash">composer install
+./bin/harbor init documentation</code></pre>
+    <h3>What it does</h3>
+    <p>Installs dependencies and creates a runnable site scaffold.</p>
+    <h3>API</h3>
+    <ul>
+        <li><code>composer install</code> installs dependencies.</li>
+        <li><code>./bin/harbor init [site-name]</code> generates <code>.router</code>, <code>routes.php</code>, <code>index.php</code>, and <code>pages/</code>.</li>
+    </ul>
+</section>
+
+<section class="docs-section">
+    <h2>Compile Routes</h2>
+    <h3>Example</h3>
+    <pre><code class="language-bash">./bin/harbor documentation/.router
+./bin/harbor documentation</code></pre>
+    <h3>What it does</h3>
+    <p>Compiles route definitions into <code>routes.php</code>.</p>
+    <h3>API</h3>
+    <ul>
+        <li>Input: <code>.router</code> route definitions.</li>
+        <li>Output: <code>routes.php</code> in the same directory.</li>
+        <li>Modes: file path input or directory input.</li>
+    </ul>
 </section>
 
 <section class="docs-section">
     <h2>Run Docs</h2>
-    <p>Serve documentation with the package CLI:</p>
+    <h3>Example</h3>
     <pre><code class="language-bash">./bin/harbor-docs</code></pre>
-    <p>
-        The command starts from port <code>8081</code>, skips <code>8080</code>, and finds the next available port
-        automatically.
-    </p>
-    <p>When installed as a dependency package, use <code>./vendor/bin/harbor-docs</code> instead.</p>
+    <h3>What it does</h3>
+    <p>Serves local documentation on the next available port.</p>
+    <h3>API</h3>
+    <ul>
+        <li>Default start port: <code>8081</code>.</li>
+        <li>Reserved port: <code>8080</code> is skipped.</li>
+        <li>Option: <code>--port=PORT</code>.</li>
+        <li>Installed package path: <code>./vendor/bin/harbor-docs</code>.</li>
+    </ul>
 </section>
 
 <?php require __DIR__.'/../shared/footer.php'; ?>
