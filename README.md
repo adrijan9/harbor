@@ -146,8 +146,8 @@ Current model:
 ## Development
 
 ```bash
-composer test
-./vendor/bin/php-cs-fixer fix
-./bin/harbor documentation/.router
-./bin/harbor-docs
+composer test # run PHPUnit tests
+./vendor/bin/php-cs-fixer fix # run PHP CS Fixer
+./bin/harbor documentation/.router # compile docs routes
+./bin/harbor-docs # serve docs site
 ```
