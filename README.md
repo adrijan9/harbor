@@ -47,7 +47,7 @@ This command will serve the documentation site on `http://localhost:<SOME_PORT>`
 
 - `Router` runtime:
   - Loads route arrays from `routes.php`
-  - Optionally loads and merges `config.php` data into `$_ENV`
+  - Requires `config.php` path and loads it into `$_ENV` under the `config` key
   - Matches path segments (supports `$` as a dynamic segment placeholder)
   - Injects matched route data into `$GLOBALS['route']`
   - Requires the matched PHP entry file directly

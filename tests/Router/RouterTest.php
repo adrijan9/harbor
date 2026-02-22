@@ -93,15 +93,15 @@ final class RouterTest extends TestCase
         $router->render();
     }
 
-    public function test_constructor_merges_config_file_into_env(): void
+    public function test_constructor_loads_config_file_into_env_under_filename_key(): void
     {
         $_SERVER['REQUEST_URI'] = '/';
 
         $this->create_router(config_file: 'config.php');
 
-        self::assertSame('fixture-site', $_ENV['app_name'] ?? null);
-        self::assertSame('true', $_ENV['feature_enabled'] ?? null);
-        self::assertSame('3306', $_ENV['db']['port'] ?? null);
+        self::assertSame('fixture-site', $_ENV['config']['app_name'] ?? null);
+        self::assertSame('true', $_ENV['config']['feature_enabled'] ?? null);
+        self::assertSame('3306', $_ENV['config']['db']['port'] ?? null);
     }
 
     #[Before]
@@ -140,12 +140,9 @@ final class RouterTest extends TestCase
         }
     }
 
-    private function create_router(string $routes_file = 'routes.php', ?string $config_file = null): Router
+    private function create_router(string $routes_file = 'routes.php', string $config_file = 'config.php'): Router
     {
-        $config_path = null;
-        if (is_string($config_file)) {
-            $config_path = $this->fixtures_dir.'/'.$config_file;
-        }
+        $config_path = $this->fixtures_dir.'/'.$config_file;
 
         return new Router($this->fixtures_dir.'/'.$routes_file, $config_path);
     }

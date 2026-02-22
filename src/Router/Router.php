@@ -19,13 +19,11 @@ class Router
 
     public function __construct(
         private readonly string $router_path,
-        private readonly ?string $config_path = null,
+        private readonly string $config_path,
     ) {
         $this->routes = require $router_path;
 
-        if (is_string($this->config_path) && '' !== trim($this->config_path)) {
-            config_init($this->config_path);
-        }
+        config_init($this->config_path);
     }
 
     public function get_uri(): string

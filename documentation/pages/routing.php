@@ -277,7 +277,7 @@ $has_tab = route_query_exists('tab');</code></pre>
 
 require __DIR__.'/../vendor/autoload.php';
 
-new Router(__DIR__.'/routes.php')->render();</code></pre>
+new Router(__DIR__.'/routes.php', __DIR__.'/config.php')->render();</code></pre>
 
     <h3>What it does</h3>
     <p>Loads routes, resolves the current route, then includes the matched entry file.</p>
@@ -289,10 +289,10 @@ new Router(__DIR__.'/routes.php')->render();</code></pre>
             <span class="api-state"><span class="api-state-closed">Hidden - click to open</span><span class="api-state-open">Open</span></span>
         </summary>
         <div class="api-body">
-            <pre><code class="language-php">public function __construct(string $router_path)
+            <pre><code class="language-php">public function __construct(string $router_path, string $config_path)
 // Creates router using compiled routes file.
-// The file should return an array of route definitions.
-$router = new Router(__DIR__.'/routes.php');
+// The config path is required and loaded into $_ENV.
+$router = new Router(__DIR__.'/routes.php', __DIR__.'/config.php');
 
 public function get_uri(): string
 // Returns current request path.

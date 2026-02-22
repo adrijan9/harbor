@@ -30,6 +30,9 @@ final class ConfigHelpersTest extends TestCase
     /** @var array<int, string> */
     private array $temporary_files = [];
 
+    /** @var array<int, string> */
+    private array $temporary_directories = [];
+
     #[Before]
     protected function load_helper_and_capture_env(): void
     {
@@ -37,52 +40,56 @@ final class ConfigHelpersTest extends TestCase
         HelperLoader::load('config');
     }
 
-    public function test_config_init_merges_multiple_files_into_env(): void
+    public function test_config_init_registers_each_file_under_its_filename_key(): void
     {
-        $base_file = $this->create_temp_config_file([
+        $app_file = $this->create_temp_config_file('app.php', [
             'app_name' => 'Harbor Site',
-            'db' => ['host' => 'localhost', 'port' => '3306'],
             'ratio' => '1.5',
             'feature' => 'false',
         ]);
 
-        $override_file = $this->create_temp_config_file([
-            'db' => ['port' => 3307],
-            'feature' => 'true',
+        $database_file = $this->create_temp_config_file('database.php', [
+            'mysql' => ['host' => 'localhost', 'port' => 3307],
             'tags' => 'php,harbor',
             'json_payload' => '{"id":15,"enabled":true}',
             'profile' => ['team' => 'core'],
         ]);
 
-        config_init($base_file, $override_file);
+        $_ENV = [];
+        $GLOBALS['_ENV'] = $_ENV;
 
-        self::assertSame('Harbor Site', config('app_name'));
-        self::assertSame('localhost', config_get('db.host'));
-        self::assertSame(3307, config_int('db.port'));
-        self::assertSame(1.5, config_float('ratio'));
-        self::assertTrue(config_bool('feature'));
-        self::assertSame(['php', 'harbor'], config_arr('tags'));
-        self::assertSame(['id' => 15, 'enabled' => true], config_json('json_payload'));
-        self::assertTrue(config_exists('profile.team'));
-        self::assertGreaterThanOrEqual(5, config_count());
+        config_init($app_file, $database_file);
+
+        self::assertSame('Harbor Site', config('app.app_name'));
+        self::assertSame('localhost', config_get('database.mysql.host'));
+        self::assertSame(3307, config_int('database.mysql.port'));
+        self::assertSame(1.5, config_float('app.ratio'));
+        self::assertFalse(config_bool('app.feature'));
+        self::assertSame(['php', 'harbor'], config_arr('database.tags'));
+        self::assertSame(['id' => 15, 'enabled' => true], config_json('database.json_payload'));
+        self::assertTrue(config_exists('database.profile.team'));
+        self::assertSame(2, config_count());
         self::assertSame($_ENV, config_all());
     }
 
     public function test_config_helpers_return_defaults_for_missing_or_invalid_values(): void
     {
         $_ENV = [
-            'app_name' => 'Harbor',
-            'enabled' => 'not-bool',
-            'count' => 'not-numeric',
-            'meta' => '{"team":"runtime"}',
+            'app' => [
+                'app_name' => 'Harbor',
+                'enabled' => 'not-bool',
+                'count' => 'not-numeric',
+                'meta' => '{"team":"runtime"}',
+            ],
         ];
+        $GLOBALS['_ENV'] = $_ENV;
 
-        self::assertSame('fallback', config_str('missing', 'fallback'));
-        self::assertSame(9, config_int('count', 9));
-        self::assertFalse(config_bool('enabled', false));
-        self::assertSame(['x' => 1], config_json('missing_json', ['x' => 1]));
+        self::assertSame('fallback', config_str('app.missing', 'fallback'));
+        self::assertSame(9, config_int('app.count', 9));
+        self::assertFalse(config_bool('app.enabled', false));
+        self::assertSame(['x' => 1], config_json('app.missing_json', ['x' => 1]));
 
-        $meta = config_obj('meta');
+        $meta = config_obj('app.meta');
         self::assertInstanceOf(\stdClass::class, $meta);
         self::assertSame('runtime', $meta->team);
     }
@@ -117,14 +124,30 @@ final class ConfigHelpersTest extends TestCase
             }
         }
 
+        foreach ($this->temporary_directories as $directory_path) {
+            if (is_dir($directory_path)) {
+                rmdir($directory_path);
+            }
+        }
+
         $this->temporary_files = [];
+        $this->temporary_directories = [];
     }
 
-    private function create_temp_config_file(array $configuration): string
+    private function create_temp_config_file(string $file_name, array $configuration): string
     {
         $content = '<?php return '.var_export($configuration, true).';';
+        $directory = sys_get_temp_dir().'/harbor_cfg_'.bin2hex(random_bytes(8));
+        if (! mkdir($directory, 0o777, true) && ! is_dir($directory)) {
+            throw new \RuntimeException(sprintf('Failed to create temporary directory "%s".', $directory));
+        }
 
-        return $this->create_temp_php_file($content);
+        $this->temporary_directories[] = $directory;
+        $file_path = $directory.'/'.$file_name;
+        file_put_contents($file_path, $content);
+        $this->temporary_files[] = $file_path;
+
+        return $file_path;
     }
 
     private function create_temp_php_file(string $content): string
