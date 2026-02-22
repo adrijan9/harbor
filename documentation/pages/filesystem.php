@@ -24,9 +24,17 @@ HelperLoader::load('filesystem');</code></pre>
     <h3>What it does</h3>
     <p>Loads filesystem helper functions.</p>
     <h3>API</h3>
-    <ul>
-        <li>Loader call: <code>HelperLoader::load('filesystem')</code>.</li>
-    </ul>
+    <details class="api-details">
+        <summary class="api-summary">
+            <span>Filesystem Loader API</span>
+            <span class="api-state"><span class="api-state-closed">Hidden - click to open</span><span class="api-state-open">Open</span></span>
+        </summary>
+        <div class="api-body">
+            <ul class="api-method-list">
+                <li><code>HelperLoader::load('filesystem')</code> Load filesystem helper module.</li>
+            </ul>
+        </div>
+    </details>
 </section>
 
 <section class="docs-section">
@@ -42,11 +50,24 @@ $content = fs_read(__DIR__.'/cache/output.txt');</code></pre>
     <h3>What it does</h3>
     <p>Creates, updates, reads, and manages files.</p>
     <h3>API</h3>
-    <ul>
-        <li><code>fs_read()</code>, <code>fs_write()</code>, <code>fs_append()</code>.</li>
-        <li><code>fs_exists()</code>, <code>fs_size()</code>.</li>
-        <li><code>fs_copy()</code>, <code>fs_move()</code>, <code>fs_delete()</code>.</li>
-    </ul>
+    <details class="api-details">
+        <summary class="api-summary">
+            <span>File API</span>
+            <span class="api-state"><span class="api-state-closed">Hidden - click to open</span><span class="api-state-open">Open</span></span>
+        </summary>
+        <div class="api-body">
+            <ul class="api-method-list">
+                <li><code>fs_read()</code> Read file content.</li>
+                <li><code>fs_write()</code> Write file content.</li>
+                <li><code>fs_append()</code> Append file content.</li>
+                <li><code>fs_exists()</code> Check file existence.</li>
+                <li><code>fs_size()</code> Get file size in bytes.</li>
+                <li><code>fs_copy()</code> Copy file to destination.</li>
+                <li><code>fs_move()</code> Move or rename file.</li>
+                <li><code>fs_delete()</code> Delete file.</li>
+            </ul>
+        </div>
+    </details>
 </section>
 
 <section class="docs-section">
@@ -62,11 +83,21 @@ fs_dir_delete(__DIR__.'/storage/reports', true);</code></pre>
     <h3>What it does</h3>
     <p>Creates, lists, checks, and deletes directories.</p>
     <h3>API</h3>
-    <ul>
-        <li><code>fs_dir_exists()</code>, <code>fs_dir_create()</code>.</li>
-        <li><code>fs_dir_is_empty()</code>, <code>fs_dir_list()</code>.</li>
-        <li><code>fs_dir_delete()</code> (recursive optional).</li>
-    </ul>
+    <details class="api-details">
+        <summary class="api-summary">
+            <span>Directory API</span>
+            <span class="api-state"><span class="api-state-closed">Hidden - click to open</span><span class="api-state-open">Open</span></span>
+        </summary>
+        <div class="api-body">
+            <ul class="api-method-list">
+                <li><code>fs_dir_exists()</code> Check directory existence.</li>
+                <li><code>fs_dir_create()</code> Create directory path.</li>
+                <li><code>fs_dir_is_empty()</code> Check if directory is empty.</li>
+                <li><code>fs_dir_list()</code> List directory entries.</li>
+                <li><code>fs_dir_delete()</code> Delete directory (optional recursive).</li>
+            </ul>
+        </div>
+    </details>
 </section>
 
 <?php require __DIR__.'/../shared/footer.php'; ?>

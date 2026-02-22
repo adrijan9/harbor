@@ -24,12 +24,21 @@ require __DIR__.'/../shared/header.php';
     <h3>What it does</h3>
     <p>Compiles routes by default and scaffolds sites with <code>init</code>.</p>
     <h3>API</h3>
-    <ul>
-        <li><code>./bin/harbor .</code> compiles <code>./.router</code>.</li>
-        <li><code>./bin/harbor &lt;directory&gt;</code> compiles <code>&lt;directory&gt;/.router</code>.</li>
-        <li><code>./bin/harbor &lt;path-to-.router&gt;</code> compiles that route file.</li>
-        <li><code>./bin/harbor init [site-name]</code> creates a site scaffold.</li>
-    </ul>
+    <details class="api-details">
+        <summary class="api-summary">
+            <span>Harbor CLI API</span>
+            <span class="api-state"><span class="api-state-closed">Hidden - click to open</span><span class="api-state-open">Open</span></span>
+        </summary>
+        <div class="api-body">
+            <ul class="api-method-list">
+                <li><code>./bin/harbor .</code> Compile <code>./.router</code>.</li>
+                <li><code>./bin/harbor &lt;directory&gt;</code> Compile <code>&lt;directory&gt;/.router</code>.</li>
+                <li><code>./bin/harbor &lt;path-to-.router&gt;</code> Compile route file.</li>
+                <li><code>./bin/harbor init [site-name]</code> Create site scaffold.</li>
+                <li><code>./bin/harbor -h</code> Show CLI help.</li>
+            </ul>
+        </div>
+    </details>
 </section>
 
 <section class="docs-section">
@@ -40,12 +49,21 @@ require __DIR__.'/../shared/header.php';
     <h3>What it does</h3>
     <p>Starts the local docs server on an available port.</p>
     <h3>API</h3>
-    <ul>
-        <li>Option: <code>--port=PORT</code>.</li>
-        <li>Default start port: <code>8081</code>.</li>
-        <li>Reserved port: <code>8080</code> is skipped.</li>
-        <li>Installed package path: <code>./vendor/bin/harbor-docs</code>.</li>
-    </ul>
+    <details class="api-details">
+        <summary class="api-summary">
+            <span>Docs CLI API</span>
+            <span class="api-state"><span class="api-state-closed">Hidden - click to open</span><span class="api-state-open">Open</span></span>
+        </summary>
+        <div class="api-body">
+            <ul class="api-method-list">
+                <li><code>./bin/harbor-docs</code> Start docs server with auto port selection.</li>
+                <li><code>./bin/harbor-docs --port=PORT</code> Set preferred start port.</li>
+                <li><code>--port=8081</code> Default start port.</li>
+                <li><code>8080</code> Reserved and skipped by design.</li>
+                <li><code>./vendor/bin/harbor-docs</code> Installed package command path.</li>
+            </ul>
+        </div>
+    </details>
 </section>
 
 <section class="docs-section">
@@ -58,12 +76,20 @@ require __DIR__.'/../shared/header.php';
     <h3>What it does</h3>
     <p>Runs tests, formats code, compiles routes, and starts docs.</p>
     <h3>API</h3>
-    <ul>
-        <li><code>composer test</code>.</li>
-        <li><code>./vendor/bin/php-cs-fixer fix --using-cache=no --sequential</code>.</li>
-        <li><code>./bin/harbor documentation/.router</code>.</li>
-        <li><code>./bin/harbor-docs</code>.</li>
-    </ul>
+    <details class="api-details">
+        <summary class="api-summary">
+            <span>Workflow API</span>
+            <span class="api-state"><span class="api-state-closed">Hidden - click to open</span><span class="api-state-open">Open</span></span>
+        </summary>
+        <div class="api-body">
+            <ul class="api-method-list">
+                <li><code>composer test</code> Run PHPUnit suite.</li>
+                <li><code>./vendor/bin/php-cs-fixer fix --using-cache=no --sequential</code> Apply coding style fixes.</li>
+                <li><code>./bin/harbor documentation/.router</code> Compile docs route file.</li>
+                <li><code>./bin/harbor-docs</code> Run local docs server.</li>
+            </ul>
+        </div>
+    </details>
 </section>
 
 <?php require __DIR__.'/../shared/footer.php'; ?>

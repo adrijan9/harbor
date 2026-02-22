@@ -492,6 +492,92 @@ a {
     color: var(--text-muted);
 }
 
+.api-details {
+    margin-top: 0.6rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: var(--surface-alt);
+    overflow: hidden;
+}
+
+.api-summary {
+    list-style: none;
+    margin: 0;
+    padding: 0.7rem 0.85rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.8rem;
+    cursor: pointer;
+    user-select: none;
+    color: var(--text);
+    font-weight: 600;
+}
+
+.api-summary::-webkit-details-marker {
+    display: none;
+}
+
+.api-summary::after {
+    content: "▸";
+    color: var(--accent);
+    font-size: 0.9rem;
+    transition: transform 160ms ease;
+}
+
+.api-details[open] .api-summary::after {
+    transform: rotate(90deg);
+}
+
+.api-state {
+    color: var(--text-muted);
+    font-size: 0.76rem;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.api-details[open] .api-state-closed {
+    display: none;
+}
+
+.api-details:not([open]) .api-state-open {
+    display: none;
+}
+
+.api-body {
+    border-top: 1px solid var(--line);
+    padding: 0.75rem 0.85rem 0.9rem;
+}
+
+.api-group + .api-group {
+    margin-top: 0.9rem;
+}
+
+.api-group-title {
+    margin: 0 0 0.35rem;
+    font-size: 0.76rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+
+.api-method-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.api-method-list li {
+    margin: 0;
+    padding: 0.4rem 0;
+    color: var(--text-muted);
+    border-bottom: 1px dashed var(--line);
+}
+
+.api-method-list li:last-child {
+    border-bottom: 0;
+}
+
 .card-grid {
     margin-top: 0.8rem;
     display: grid;

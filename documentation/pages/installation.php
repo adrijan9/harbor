@@ -32,10 +32,19 @@ require __DIR__.'/../shared/header.php';
     <h3>What it does</h3>
     <p>Installs dependencies and creates a runnable site scaffold.</p>
     <h3>API</h3>
-    <ul>
-        <li><code>composer install</code> installs dependencies.</li>
-        <li><code>./bin/harbor init [site-name]</code> generates <code>.router</code>, <code>routes.php</code>, <code>index.php</code>, and <code>pages/</code>.</li>
-    </ul>
+    <details class="api-details">
+        <summary class="api-summary">
+            <span>Install API</span>
+            <span class="api-state"><span class="api-state-closed">Hidden - click to open</span><span class="api-state-open">Open</span></span>
+        </summary>
+        <div class="api-body">
+            <ul class="api-method-list">
+                <li><code>composer install</code> Install PHP dependencies.</li>
+                <li><code>./bin/harbor init [site-name]</code> Generate new site scaffold.</li>
+                <li><code>site-name</code> Optional site directory name (default: <code>public</code>).</li>
+            </ul>
+        </div>
+    </details>
 </section>
 
 <section class="docs-section">
@@ -46,11 +55,19 @@ require __DIR__.'/../shared/header.php';
     <h3>What it does</h3>
     <p>Compiles route definitions into <code>routes.php</code>.</p>
     <h3>API</h3>
-    <ul>
-        <li>Input: <code>.router</code> route definitions.</li>
-        <li>Output: <code>routes.php</code> in the same directory.</li>
-        <li>Modes: file path input or directory input.</li>
-    </ul>
+    <details class="api-details">
+        <summary class="api-summary">
+            <span>Route Compile API</span>
+            <span class="api-state"><span class="api-state-closed">Hidden - click to open</span><span class="api-state-open">Open</span></span>
+        </summary>
+        <div class="api-body">
+            <ul class="api-method-list">
+                <li><code>./bin/harbor &lt;path-to-.router&gt;</code> Compile route file.</li>
+                <li><code>./bin/harbor &lt;directory&gt;</code> Compile <code>&lt;directory&gt;/.router</code>.</li>
+                <li><code>routes.php</code> Output file generated beside input.</li>
+            </ul>
+        </div>
+    </details>
 </section>
 
 <section class="docs-section">
@@ -60,12 +77,21 @@ require __DIR__.'/../shared/header.php';
     <h3>What it does</h3>
     <p>Serves local documentation on the next available port.</p>
     <h3>API</h3>
-    <ul>
-        <li>Default start port: <code>8081</code>.</li>
-        <li>Reserved port: <code>8080</code> is skipped.</li>
-        <li>Option: <code>--port=PORT</code>.</li>
-        <li>Installed package path: <code>./vendor/bin/harbor-docs</code>.</li>
-    </ul>
+    <details class="api-details">
+        <summary class="api-summary">
+            <span>Docs Serve API</span>
+            <span class="api-state"><span class="api-state-closed">Hidden - click to open</span><span class="api-state-open">Open</span></span>
+        </summary>
+        <div class="api-body">
+            <ul class="api-method-list">
+                <li><code>./bin/harbor-docs</code> Start docs server.</li>
+                <li><code>./bin/harbor-docs --port=PORT</code> Set preferred start port.</li>
+                <li><code>8081</code> Default start port.</li>
+                <li><code>8080</code> Reserved and skipped.</li>
+                <li><code>./vendor/bin/harbor-docs</code> Command path when installed as dependency.</li>
+            </ul>
+        </div>
+    </details>
 </section>
 
 <?php require __DIR__.'/../shared/footer.php'; ?>
