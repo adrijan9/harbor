@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 $page_title = 'Harbor Docs - Request Helpers';
-$page_description = 'Typed request accessors for URL, headers, body, cookies, files, and server variables.';
+$page_description = 'Typed request helpers for URL, headers, body, cookies, files, and server data.';
 $page_id = 'request';
 
 require __DIR__.'/../shared/header.php';
@@ -11,10 +11,8 @@ require __DIR__.'/../shared/header.php';
 
 <section class="hero">
     <span class="hero-eyebrow">Helpers</span>
-    <h1>Request Helper Reference</h1>
-    <p>
-        Request helpers expose normalized values with typed accessors so page code stays compact and explicit.
-    </p>
+    <h1>Request Helpers</h1>
+    <p>Typed helpers for request data and metadata.</p>
 </section>
 
 <section class="docs-section">
@@ -25,7 +23,7 @@ HelperLoader::load('request');</code></pre>
 </section>
 
 <section class="docs-section">
-    <h2>Common Functions</h2>
+    <h2>Key Functions</h2>
     <div class="table-wrapper">
         <table>
             <thead>

@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 $page_title = 'Harbor Docs - Filesystem Helpers';
-$page_description = 'File and directory helper functions for safe local I/O operations.';
+$page_description = 'Filesystem helpers for file and directory operations.';
 $page_id = 'filesystem';
 
 require __DIR__.'/../shared/header.php';
@@ -11,12 +11,12 @@ require __DIR__.'/../shared/header.php';
 
 <section class="hero">
     <span class="hero-eyebrow">Helpers</span>
-    <h1>Filesystem Helper Reference</h1>
-    <p>Filesystem helpers wrap file and directory operations with clear exceptions on failure paths.</p>
+    <h1>Filesystem Helpers</h1>
+    <p>Simple file and directory operations with clear errors.</p>
 </section>
 
 <section class="docs-section">
-    <h2>Load Filesystem Helpers</h2>
+    <h2>Load Helpers</h2>
     <pre><code class="language-php">use PhpFramework\HelperLoader;
 
 HelperLoader::load('filesystem');</code></pre>
@@ -37,7 +37,7 @@ fs_append(__DIR__.'/cache/output.txt', PHP_EOL.'Build completed');</code></pre>
 </section>
 
 <section class="docs-section">
-    <h2>Directory Operations</h2>
+    <h2>Directory Ops</h2>
     <ul>
         <li><code>fs_dir_create()</code>, <code>fs_dir_exists()</code></li>
         <li><code>fs_dir_list()</code>, <code>fs_dir_is_empty()</code></li>

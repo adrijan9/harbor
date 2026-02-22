@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 $page_title = 'Harbor Docs - Overview';
-$page_description = 'Get started with Harbor and explore its helpers, router, and CLI tooling.';
+$page_description = 'Core Harbor docs for routing, helpers, and CLI.';
 $page_id = 'home';
 
 require __DIR__.'/../shared/header.php';
@@ -11,11 +11,8 @@ require __DIR__.'/../shared/header.php';
 
 <section class="hero">
     <span class="hero-eyebrow">Documentation</span>
-    <h1>Pragmatic PHP framework primitives for routing, request handling, filesystem, and logging.</h1>
-    <p>
-        This documentation walks through every built-in helper and workflow in the project. The goal is to keep setup
-        minimal while giving you predictable, explicit APIs.
-    </p>
+    <h1>Harbor Documentation</h1>
+    <p>Routing, helpers, and CLI guides in one place.</p>
     <div class="button-row">
         <a class="button button-primary" href="/installation">Start Installation</a>
         <a class="button button-ghost" href="/routing">View Routing Guide</a>
@@ -30,23 +27,23 @@ require __DIR__.'/../shared/header.php';
     <div class="card-grid">
         <a class="card" href="/routing">
             <h3>Routing</h3>
-            <p>Readable route files with dynamic segment support and query extraction.</p>
+            <p>Route files with segment and query support.</p>
         </a>
         <a class="card" href="/request">
             <h3>Request Helpers</h3>
-            <p>Typed access for method, URL, headers, body, files, cookies, and metadata.</p>
+            <p>Typed access to method, URL, headers, body, files, and cookies.</p>
         </a>
         <a class="card" href="/filesystem">
             <h3>Filesystem</h3>
-            <p>Safe file and directory operations with explicit runtime exceptions.</p>
+            <p>Safe file and directory operations.</p>
         </a>
         <a class="card" href="/logging">
             <h3>Logging</h3>
-            <p>PSR-style levels, structured context, and reusable content creation for multiple outputs.</p>
+            <p>Levels, context, and reusable log entries.</p>
         </a>
         <a class="card" href="/cli">
             <h3>CLI Tooling</h3>
-            <p>Init site scaffolds and compile `.router` definitions into executable route arrays.</p>
+            <p>Scaffold sites and compile `.router` files.</p>
         </a>
     </div>
 </section>

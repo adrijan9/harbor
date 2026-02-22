@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 $page_title = 'Harbor Docs - Routing';
-$page_description = 'Define routes with static and dynamic segments using .router files.';
+$page_description = 'Define routes with .router files and compile to routes.php.';
 $page_id = 'routing';
 
 require __DIR__.'/../shared/header.php';
@@ -11,15 +11,12 @@ require __DIR__.'/../shared/header.php';
 
 <section class="hero">
     <span class="hero-eyebrow">Routing</span>
-    <h1>Route Definitions and Matching</h1>
-    <p>
-        Routes are loaded from <code>routes.php</code> and matched by path segment count and values.
-        Use <code>$</code> as a dynamic segment placeholder.
-    </p>
+    <h1>Routing</h1>
+    <p>Write routes in <code>.router</code>, compile to <code>routes.php</code>, then match by path segments.</p>
 </section>
 
 <section class="docs-section">
-    <h2>Author Routes in <code>.router</code></h2>
+    <h2>Write <code>.router</code> Routes</h2>
     <pre><code class="language-ini">#route
   path: /
   method: GET
@@ -35,10 +32,12 @@ require __DIR__.'/../shared/header.php';
 #endroute</code></pre>
     <p>Compile with:</p>
     <pre><code class="language-bash">./bin/harbor documentation/.router</code></pre>
+    <p>Or if you in the project directory:</p>
+    <pre><code class="language-bash">./bin/harbor .</code></pre>
 </section>
 
 <section class="docs-section">
-    <h2>Dynamic Segments and Query Parameters</h2>
+    <h2>Segments and Query</h2>
     <p>
         The router stores matched dynamic values in <code>$GLOBALS['route']['segments']</code> and parsed query values in
         <code>$GLOBALS['route']['query']</code>.

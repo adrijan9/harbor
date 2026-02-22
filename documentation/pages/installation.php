@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 $page_title = 'Harbor Docs - Installation';
-$page_description = 'Install dependencies, scaffold a site, and run the documentation locally.';
+$page_description = 'Install Harbor, scaffold a site, and run docs locally.';
 $page_id = 'installation';
 
 require __DIR__.'/../shared/header.php';
@@ -11,8 +11,8 @@ require __DIR__.'/../shared/header.php';
 
 <section class="hero">
     <span class="hero-eyebrow">Getting Started</span>
-    <h1>Installation and Local Setup</h1>
-    <p>Use these commands to install dependencies, scaffold a site, generate routes, and run a local server.</p>
+    <h1>Install and Run</h1>
+    <p>Install dependencies, scaffold a site, compile routes, and run docs.</p>
 </section>
 
 <section class="docs-section">
@@ -38,7 +38,7 @@ require __DIR__.'/../shared/header.php';
 </section>
 
 <section class="docs-section">
-    <h2>Documentation</h2>
+    <h2>Run Docs</h2>
     <p>Serve documentation with the package CLI:</p>
     <pre><code class="language-bash">./bin/harbor-docs</code></pre>
     <p>

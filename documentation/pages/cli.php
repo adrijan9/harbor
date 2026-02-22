@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 $page_title = 'Harbor Docs - CLI';
-$page_description = 'CLI commands for scaffolding, route generation, and local serving.';
+$page_description = 'CLI commands for scaffolding, route compile, and local docs.';
 $page_id = 'cli';
 
 require __DIR__.'/../shared/header.php';
@@ -11,8 +11,8 @@ require __DIR__.'/../shared/header.php';
 
 <section class="hero">
     <span class="hero-eyebrow">Tooling</span>
-    <h1>CLI Commands</h1>
-    <p>Use the built-in commands to scaffold sites and compile route definitions quickly.</p>
+    <h1>CLI</h1>
+    <p>Scaffold sites, compile routes, and run docs.</p>
 </section>
 
 <section class="docs-section">
@@ -43,7 +43,7 @@ require __DIR__.'/../shared/header.php';
 </section>
 
 <section class="docs-section">
-    <h2>Development Workflow</h2>
+    <h2>Dev Workflow</h2>
     <pre><code class="language-bash">composer test
 ./vendor/bin/php-cs-fixer fix --using-cache=no --sequential
 ./bin/harbor documentation/.router
