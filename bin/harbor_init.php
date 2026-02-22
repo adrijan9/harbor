@@ -48,6 +48,7 @@ function harbor_run_init(?string $site_name_from_argument = null): void
     harbor_create_directory($pages_path);
 
     harbor_write_file($site_path.'/.htaccess', harbor_default_htaccess_template());
+    harbor_write_file($site_path.'/config.php', harbor_default_config_template());
     harbor_write_file($site_path.'/index.php', harbor_default_site_index_template());
     harbor_write_file($site_path.'/.router', harbor_default_router_template());
     harbor_write_file($pages_path.'/index.php', harbor_default_home_page_template());
@@ -153,11 +154,36 @@ function harbor_default_site_index_template(): string
 
 declare(strict_types=1);
 
-use PhpFramework\Router\Router;
+use Harbor\Router\Router;
+
+$config = require __DIR__.'/config.php';
+
+if (! is_array($config)) {
+    throw new RuntimeException('Site config.php must return an array.');
+}
+
+$GLOBALS['config'] = $config;
 
 require __DIR__.'/../vendor/autoload.php';
 
 new Router(__DIR__.'/routes.php')->render();
+
+PHP;
+}
+
+function harbor_default_config_template(): string
+{
+    return <<<'PHP'
+<?php
+
+declare(strict_types=1);
+
+use Harbor\Environment;
+
+return [
+    'app_name' => 'Harbor Site',
+    'environment' => Environment::LOCAL,
+];
 
 PHP;
 }
