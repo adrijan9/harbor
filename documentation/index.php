@@ -2,11 +2,15 @@
 
 declare(strict_types=1);
 
-$config = require __DIR__.'/config.php';
+require __DIR__.'/../vendor/autoload.php';
 
 use Harbor\Router\Router;
 
-require __DIR__.'/../vendor/autoload.php';
+$config = require __DIR__.'/config.php';
+
+if (! is_array($config)) {
+    throw new RuntimeException('Site config.php must return an array.');
+}
 
 $GLOBALS['config'] = $config;
 

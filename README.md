@@ -132,7 +132,7 @@ Minimal `index.php` for a site:
 
 declare(strict_types=1);
 
-use PhpFramework\Router\Router;
+use Harbor\Router\Router;
 
 require __DIR__.'/../vendor/autoload.php';
 

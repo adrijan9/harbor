@@ -154,6 +154,8 @@ function harbor_default_site_index_template(): string
 
 declare(strict_types=1);
 
+require __DIR__.'/../vendor/autoload.php';
+
 use Harbor\Router\Router;
 
 $config = require __DIR__.'/config.php';
@@ -164,7 +166,6 @@ if (! is_array($config)) {
 
 $GLOBALS['config'] = $config;
 
-require __DIR__.'/../vendor/autoload.php';
 
 new Router(__DIR__.'/routes.php')->render();
 
