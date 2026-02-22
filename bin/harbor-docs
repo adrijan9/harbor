@@ -1,0 +1,112 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+$arguments = $_SERVER['argv'] ?? [];
+
+if (in_array('--help', $arguments, true) || in_array('-h', $arguments, true)) {
+    print_usage();
+
+    exit(0);
+}
+
+$documentation_path = realpath(__DIR__.'/../documentation');
+if (false === $documentation_path || ! is_dir($documentation_path)) {
+    fwrite(STDERR, sprintf('Documentation directory not found: %s%s', __DIR__.'/../documentation', PHP_EOL));
+
+    exit(1);
+}
+
+$preferred_port = parse_port_argument($arguments);
+if (8080 === $preferred_port) {
+    fwrite(STDERR, 'Port 8080 is reserved. Use a different port.'.PHP_EOL);
+
+    exit(1);
+}
+
+$port = null;
+
+try {
+    $port = find_available_port($preferred_port);
+} catch (RuntimeException $exception) {
+    fwrite(STDERR, $exception->getMessage().PHP_EOL);
+
+    exit(1);
+}
+$base_url = sprintf('http://127.0.0.1:%d', $port);
+
+fwrite(STDOUT, sprintf('Serving documentation from %s%s', $documentation_path, PHP_EOL));
+fwrite(STDOUT, sprintf('Open %s%s', $base_url, PHP_EOL));
+fwrite(STDOUT, 'Press Ctrl+C to stop.'.PHP_EOL);
+
+$command = sprintf('%s -S 127.0.0.1:%d -t %s', escapeshellarg(PHP_BINARY), $port, escapeshellarg($documentation_path));
+passthru($command, $exit_code);
+
+exit($exit_code);
+
+function print_usage(): void
+{
+    fwrite(STDOUT, 'Usage: harbor-docs [--port=PORT]'.PHP_EOL);
+    fwrite(STDOUT, PHP_EOL);
+    fwrite(STDOUT, 'Options:'.PHP_EOL);
+    fwrite(STDOUT, '  --port=PORT    Preferred starting port (default: 8081, 8080 is never used).'.PHP_EOL);
+}
+
+function parse_port_argument(array $arguments): int
+{
+    foreach ($arguments as $argument) {
+        if (! is_string($argument) || ! str_starts_with($argument, '--port=')) {
+            continue;
+        }
+
+        $port_value = substr($argument, strlen('--port='));
+        if (false === $port_value || ! ctype_digit($port_value)) {
+            fwrite(STDERR, sprintf('Invalid port value: %s%s', $argument, PHP_EOL));
+
+            exit(1);
+        }
+
+        $port = (int) $port_value;
+        if ($port < 1 || $port > 65535) {
+            fwrite(STDERR, sprintf('Port out of range: %d%s', $port, PHP_EOL));
+
+            exit(1);
+        }
+
+        return $port;
+    }
+
+    return 8081;
+}
+
+function find_available_port(int $start_port): int
+{
+    $max_attempts = 100;
+    $last_port = min(65535, $start_port + $max_attempts - 1);
+
+    for ($port = $start_port; $port <= $last_port; ++$port) {
+        if (8080 === $port) {
+            continue;
+        }
+
+        if (is_port_available($port)) {
+            return $port;
+        }
+    }
+
+    throw new RuntimeException(sprintf('Unable to find an available port between %d and %d.', $start_port, $last_port));
+}
+
+function is_port_available(int $port): bool
+{
+    $socket = @stream_socket_server(sprintf('tcp://127.0.0.1:%d', $port), $error_number, $error_message);
+
+    if (false === $socket) {
+        return false;
+    }
+
+    fclose($socket);
+
+    return true;
+}
