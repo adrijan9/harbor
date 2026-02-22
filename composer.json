@@ -1,6 +1,6 @@
 {
     "version": "1.0.0",
-    "name": "adrijan991/php-framework",
+    "name": "adrijan9/harbor",
     "bin": [
         "bin/harbor",
         "bin/harbor-docs"

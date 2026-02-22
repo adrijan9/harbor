@@ -7,6 +7,7 @@
     const toc_container = document.getElementById('docs_toc');
     const toc_nav = document.getElementById('docs_toc_nav');
     const back_to_top_button = document.getElementById('back_to_top');
+    const repo_star_count = document.getElementById('repo_star_count');
     const hljs_theme_light = document.getElementById('hljs_theme_light');
     const hljs_theme_dark = document.getElementById('hljs_theme_dark');
     const system_theme_query = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
@@ -49,6 +50,48 @@
         if (window.hljs && 'function' === typeof window.hljs.highlightAll) {
             window.hljs.highlightAll();
         }
+    };
+
+    const setup_repo_star_count = () => {
+        if (!repo_star_count) {
+            return;
+        }
+
+        const format_count = (count) => {
+            if (!Number.isFinite(count) || count < 0) {
+                return '--';
+            }
+
+            if (count >= 1_000_000) {
+                return `${(count / 1_000_000).toFixed(1).replace(/\\.0$/, '')}m`;
+            }
+
+            if (count >= 1_000) {
+                return `${(count / 1_000).toFixed(1).replace(/\\.0$/, '')}k`;
+            }
+
+            return String(count);
+        };
+
+        fetch('https://api.github.com/repos/adrijan9/harbor', {
+            headers: {
+                Accept: 'application/vnd.github+json',
+            },
+        })
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error(`GitHub API response: ${response.status}`);
+                }
+
+                return response.json();
+            })
+            .then((data) => {
+                const stars = Number(data && data.stargazers_count);
+                repo_star_count.textContent = format_count(stars);
+            })
+            .catch(() => {
+                // Keep fallback value when API request fails.
+            });
     };
 
     const apply_theme_mode = (mode, persist_selection) => {
@@ -94,6 +137,7 @@
 
     load_theme_mode();
     init_code_highlight();
+    setup_repo_star_count();
 
     theme_option_buttons.forEach((button) => {
         button.addEventListener('click', () => {

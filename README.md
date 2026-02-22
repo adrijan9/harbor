@@ -16,6 +16,7 @@ It does not enforce architecture.
 ## What Harbor Is
 
 - A route compiler (`.router` -> `routes.php`)
+- Route include preprocessing via `#include "path/to/file.router"` (recursive)
 - A small runtime router that resolves and includes PHP entry files
 - An optional helper loader for focused modules
 - CLI tools for scaffolding and docs
@@ -85,11 +86,20 @@ Example generated site layout:
 ```text
 my-site/
   .router
+  routes/
+    shared.router
   routes.php
   index.php
   not_found.php
   pages/
     index.php
+```
+
+Include example:
+
+```ini
+# file: my-site/.router
+#include "./routes/shared.router"
 ```
 
 ## Quick Start

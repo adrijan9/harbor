@@ -107,6 +107,22 @@ $docs_navigation = [
                 </button>
             </div>
 
+            <a
+                class="repo-stars-link"
+                href="https://github.com/adrijan9/harbor"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Harbor GitHub stars"
+                title="Harbor GitHub stars"
+            >
+                <span class="repo-stars-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 .5C5.79.5.75 5.54.75 11.75c0 4.97 3.22 9.19 7.69 10.68.56.1.77-.24.77-.54 0-.26-.01-1.15-.02-2.08-3.13.68-3.79-1.32-3.79-1.32-.51-1.29-1.25-1.64-1.25-1.64-1.02-.69.08-.68.08-.68 1.12.08 1.72 1.15 1.72 1.15 1 1.71 2.64 1.22 3.27.93.1-.72.39-1.22.72-1.51-2.49-.29-5.11-1.25-5.11-5.57 0-1.23.44-2.23 1.15-3.02-.12-.29-.5-1.45.11-3.02 0 0 .94-.31 3.09 1.15a10.69 10.69 0 0 1 5.62 0c2.15-1.46 3.09-1.15 3.09-1.15.61 1.57.23 2.73.11 3.02.71.79 1.15 1.79 1.15 3.02 0 4.33-2.62 5.28-5.13 5.57.4.34.75 1 .75 2.02 0 1.45-.01 2.62-.01 2.98 0 .3.2.65.78.54 4.46-1.5 7.67-5.71 7.67-10.68C23.25 5.54 18.21.5 12 .5Z"/>
+                    </svg>
+                </span>
+                <span id="repo_star_count" class="repo-stars-count">--</span>
+            </a>
+
             <button id="mobile_nav_toggle" class="mobile-nav-toggle" type="button" aria-expanded="false" aria-controls="docs_sidebar">
                 <span></span>
                 <span></span>

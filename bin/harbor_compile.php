@@ -25,15 +25,8 @@ function harbor_run_compile(string $router_source_path): void
     }
 
     $routes_output_path = harbor_resolve_routes_output_path($normalized_path);
-    $router_content = file_get_contents($normalized_path);
-
-    if (false === $router_content) {
-        fwrite(STDERR, sprintf('Failed to read route source file: %s%s', $normalized_path, PHP_EOL));
-
-        exit(1);
-    }
-
-    $routes = harbor_compile_routes_from_content($router_content);
+    $preprocessed_content = harbor_pre_process_routes_file($normalized_path);
+    $routes = harbor_compile_routes_from_content($preprocessed_content);
 
     $routes_directory = dirname($routes_output_path);
     if (! is_dir($routes_directory) && ! mkdir($routes_directory, 0o777, true) && ! is_dir($routes_directory)) {
@@ -52,27 +45,105 @@ function harbor_run_compile(string $router_source_path): void
     fwrite(STDOUT, sprintf('Routes file generated: %s%s', $routes_output_path, PHP_EOL));
 }
 
+function harbor_pre_process_routes_file(string $router_source_path, array $include_stack = []): string
+{
+    $resolved_source_path = realpath($router_source_path);
+    if (false === $resolved_source_path) {
+        $resolved_source_path = $router_source_path;
+    }
+
+    if (in_array($resolved_source_path, $include_stack, true)) {
+        $full_stack = array_merge($include_stack, [$resolved_source_path]);
+
+        fwrite(STDERR, sprintf('Circular #include detected: %s%s', implode(' -> ', $full_stack), PHP_EOL));
+
+        exit(1);
+    }
+
+    $router_content = file_get_contents($resolved_source_path);
+    if (false === $router_content) {
+        fwrite(STDERR, sprintf('Failed to read route source file: %s%s', $resolved_source_path, PHP_EOL));
+
+        exit(1);
+    }
+
+    $line_parts = preg_split('/\R/u', $router_content);
+    $lines = is_array($line_parts) ? $line_parts : [];
+    $current_stack = array_merge($include_stack, [$resolved_source_path]);
+    $processed_parts = [];
+
+    foreach ($lines as $line) {
+        $include_path = harbor_parse_include_path($line);
+        if (null === $include_path) {
+            $processed_parts[] = $line;
+
+            continue;
+        }
+
+        $resolved_include_path = $include_path;
+        if (! harbor_is_absolute_path($include_path)) {
+            $resolved_include_path = dirname($resolved_source_path).'/'.$include_path;
+        }
+
+        if (! is_file($resolved_include_path)) {
+            fwrite(STDERR, sprintf('Failed to read included file: %s (from %s)%s', $resolved_include_path, $resolved_source_path, PHP_EOL));
+
+            exit(1);
+        }
+
+        $processed_parts[] = harbor_pre_process_routes_file($resolved_include_path, $current_stack);
+    }
+
+    return implode(PHP_EOL, $processed_parts);
+}
+
+function harbor_parse_include_path(string $line): ?string
+{
+    if (1 !== preg_match('/^\s*#include\s+["\'](.+)["\']\s*$/', trim($line), $matches)) {
+        return null;
+    }
+
+    $path = trim($matches[1]);
+
+    return '' === $path ? null : $path;
+}
+
+function harbor_is_absolute_path(string $path): bool
+{
+    return 1 === preg_match('#^([a-zA-Z]:[\\\\/]|/)#', $path);
+}
+
 function harbor_compile_routes_from_content(string $router_content): array
 {
     $routes = [];
     $parsed_route = [];
-    $line = strtok($router_content, PHP_EOL);
+    $line_parts = preg_split('/\R/u', $router_content);
+    $lines = is_array($line_parts) ? $line_parts : [];
 
-    while (false !== $line) {
-        if ('#route' === $line) {
-            $parsed_route = [];
-        } elseif ('#endroute' === $line) {
-            $routes[] = $parsed_route;
-        } else {
-            $parts = explode(':', $line, 2);
-            if (2 === count($parts)) {
-                $key = trim($parts[0]);
-                $value = trim($parts[1]);
-                $parsed_route[$key] = $value;
-            }
+    foreach ($lines as $line) {
+        $normalized_line = trim($line);
+        if ('' === $normalized_line) {
+            continue;
         }
 
-        $line = strtok(PHP_EOL);
+        if ('#route' === $normalized_line) {
+            $parsed_route = [];
+
+            continue;
+        }
+
+        if ('#endroute' === $normalized_line) {
+            $routes[] = $parsed_route;
+
+            continue;
+        }
+
+        $parts = explode(':', $normalized_line, 2);
+        if (2 === count($parts)) {
+            $key = trim($parts[0]);
+            $value = trim($parts[1]);
+            $parsed_route[$key] = $value;
+        }
     }
 
     $routes[] = [

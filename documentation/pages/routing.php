@@ -32,11 +32,12 @@ require __DIR__.'/../shared/header.php';
   name: docs.guide
   entry: pages/routing.php
 #endroute</code></pre>
+    <pre><code class="language-ini">#include "./routes/shared.router"</code></pre>
     <pre><code class="language-bash">./bin/harbor documentation/.router
 ./bin/harbor .</code></pre>
 
     <h3>What it does</h3>
-    <p>Compiles <code>.router</code> entries into <code>routes.php</code> for runtime matching.</p>
+    <p>Preprocesses <code>#include</code> lines first, then compiles final route entries into <code>routes.php</code>.</p>
 
     <h3>API</h3>
     <details class="api-details">
@@ -61,9 +62,65 @@ entry: pages/routing.php
 # PHP file loaded when route matches.
 # Can be relative to project or absolute.
 
+#include "./routes/shared.router"
+# Imports another .router file before compile.
+# Included content replaces the include line.
+
 path: /404
 # Fallback path used when no route matches.
 # Keep one final 404 route in .router.</code></pre>
+        </div>
+    </details>
+</section>
+
+<section class="docs-section">
+    <h2>Route Includes</h2>
+
+    <h3>Example</h3>
+    <pre><code class="language-ini"># File: ./.router
+#route
+  path: /
+  method: GET
+  entry: pages/home.php
+#endroute
+
+#include "./routes/blog.router"
+#include "/absolute/path/to/admin.router"</code></pre>
+    <pre><code class="language-ini"># File: ./routes/blog.router
+#route
+  path: /blog/$
+  method: GET
+  entry: pages/blog.php
+#endroute</code></pre>
+
+    <h3>What it does</h3>
+    <p>Each include is expanded before parsing routes. Nested includes are supported and processed recursively.</p>
+
+    <h3>API</h3>
+    <details class="api-details">
+        <summary class="api-summary">
+            <span>Include Preprocess API</span>
+            <span class="api-state"><span class="api-state-closed">Hidden - click to open</span><span class="api-state-open">Open</span></span>
+        </summary>
+        <div class="api-body">
+            <pre><code class="language-php">function harbor_pre_process_routes_file(string $router_source_path, array $include_stack = []): string
+// Reads the source .router file and expands #include lines.
+// Returns one final router string used by the compiler.
+$content = harbor_pre_process_routes_file(__DIR__.'/.router');
+
+function harbor_parse_include_path(string $line): ?string
+// Parses include syntax: #include "path/to/file.router".
+// Returns null when line is not a valid include directive.
+$path = harbor_parse_include_path('#include "./routes/shared.router"');
+
+function harbor_is_absolute_path(string $path): bool
+// Detects Unix and Windows absolute paths.
+// Relative paths are resolved from the including file directory.
+$is_absolute = harbor_is_absolute_path('/var/www/site/.router');
+
+// Compile order:
+// 1) preprocess includes, 2) parse routes, 3) append /404 fallback.
+// Missing files or circular includes stop compilation with an error.</code></pre>
         </div>
     </details>
 </section>
@@ -279,7 +336,11 @@ $router->render(['name' => 'Ada']);</code></pre>
 
 ./bin/harbor &lt;path-to-.router&gt;
 # Compiles a specific router file path.
-# Use when route file is outside default location.</code></pre>
+# Use when route file is outside default location.
+
+#include "./routes/api.router"
+# Include directives are expanded before route parsing.
+# Supports nested includes and absolute/relative paths.</code></pre>
         </div>
     </details>
 </section>

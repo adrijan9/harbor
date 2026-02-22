@@ -22,7 +22,7 @@ require __DIR__.'/../shared/header.php';
 ./bin/harbor documentation/.router
 ./bin/harbor init my-site</code></pre>
     <h3>What it does</h3>
-    <p>Compiles routes by default and scaffolds sites with <code>init</code>.</p>
+    <p>Compiles routes by default (with <code>#include</code> preprocessing) and scaffolds sites with <code>init</code>.</p>
     <h3>API</h3>
     <details class="api-details">
         <summary class="api-summary">
@@ -34,6 +34,8 @@ require __DIR__.'/../shared/header.php';
                 <li><code>./bin/harbor .</code> Compile <code>./.router</code>.</li>
                 <li><code>./bin/harbor &lt;directory&gt;</code> Compile <code>&lt;directory&gt;/.router</code>.</li>
                 <li><code>./bin/harbor &lt;path-to-.router&gt;</code> Compile route file.</li>
+                <li><code>#include "./path/to/file.router"</code> Include files are expanded before parsing routes.</li>
+                <li><code>Nested includes</code> Recursively processed; circular include chains fail compile.</li>
                 <li><code>./bin/harbor init [site-name]</code> Create site scaffold.</li>
                 <li><code>./bin/harbor -h</code> Show CLI help.</li>
             </ul>
