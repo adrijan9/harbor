@@ -1,6 +1,7 @@
 # Harbor
 
-![Harbor Logo](documentation/assets/images/harbor_logo.png)
+![Harbor Logo](documentation/assets/images/harbor_logo.png#gh-light-mode-only)
+![Harbor Logo](documentation/assets/images/harbor_dark_logo.png#gh-dark-mode-only)
 
 > ⚠️ Warning: Harbor is under active development and is not production-ready yet.
 
