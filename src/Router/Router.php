@@ -22,6 +22,7 @@ class Router
         private readonly string $config_path,
     ) {
         $this->routes = require $router_path;
+        $GLOBALS['routes'] = $this->routes;
 
         config_init($this->config_path);
     }

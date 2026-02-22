@@ -17,6 +17,8 @@ final class RouterTest extends TestCase
     private bool $had_global_env = false;
     private mixed $original_route = null;
     private bool $had_route = false;
+    private mixed $original_routes = null;
+    private bool $had_routes = false;
     private string $fixtures_dir;
 
     public function test_get_uri_returns_path_without_query_string(): void
@@ -113,6 +115,8 @@ final class RouterTest extends TestCase
         $this->original_global_env = $this->had_global_env ? $GLOBALS['_ENV'] : null;
         $this->had_route = array_key_exists('route', $GLOBALS);
         $this->original_route = $this->had_route ? $GLOBALS['route'] : null;
+        $this->had_routes = array_key_exists('routes', $GLOBALS);
+        $this->original_routes = $this->had_routes ? $GLOBALS['routes'] : null;
         $this->fixtures_dir = dirname(__DIR__).'/Fixtures/router';
 
         $_SERVER = [];
@@ -131,6 +135,12 @@ final class RouterTest extends TestCase
             $GLOBALS['route'] = $this->original_route;
         } else {
             unset($GLOBALS['route']);
+        }
+
+        if ($this->had_routes) {
+            $GLOBALS['routes'] = $this->original_routes;
+        } else {
+            unset($GLOBALS['routes']);
         }
 
         if ($this->had_global_env) {

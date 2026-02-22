@@ -130,18 +130,25 @@ $is_absolute = harbor_is_absolute_path('/var/www/site/.router');
 
     <h3>Example</h3>
     <pre><code class="language-php">use Harbor\HelperLoader;
+use function Harbor\Router\route;
+use function Harbor\Router\route_exists;
+use function Harbor\Router\route_name_is;
 use function Harbor\Router\route_query;
 use function Harbor\Router\route_segment;
 
 HelperLoader::load('route');
 
 $guide_slug = route_segment(0, 'overview');
-$tab = route_query('tab', 'general');</code></pre>
+$tab = route_query('tab', 'general');
+$guide_link = route('docs.guide', [$guide_slug]);
+$has_home = route_exists('docs.home');
+$is_guide_page = route_name_is('docs.guide');</code></pre>
 
     <h3>What it does</h3>
     <p>Reads matched path segments and query values from the current route context.</p>
+    <p>Also builds paths from route names with positional parameters.</p>
     <p>Example URL: <code>/guides/php?tab=general</code> with route path <code>/guides/$</code>.</p>
-    <p>Result: <code>route_segment(0)</code> returns <code>'php'</code>, <code>route_query('tab')</code> returns <code>'general'</code>.</p>
+    <p>Result: <code>route_segment(0)</code> returns <code>'php'</code>, <code>route_query('tab')</code> returns <code>'general'</code>, and <code>route('docs.guide', ['php'])</code> returns <code>/guides/php</code>.</p>
 
     <h3>API</h3>
     <details class="api-details">
@@ -264,6 +271,24 @@ function route_query_exists(string $key): bool
 // Checks if one query key exists.
 // Supports dot notation for nested keys.
 $has_tab = route_query_exists('tab');</code></pre>
+            </div>
+
+            <div class="api-group">
+                <p class="api-group-title">Named Route Helpers</p>
+                <pre><code class="language-php">function route_exists(string $name): bool
+// Checks if one named route exists in compiled route definitions.
+// Route names come from the "name" key in .router entries.
+$has_route = route_exists('docs.guide');
+
+function route_name_is(string $name): bool
+// Checks if current matched route has the given name.
+// Useful for active nav state checks in templates.
+$is_current = route_name_is('docs.guide');
+
+function route(string $name, array $parameters = []): string
+// Builds path from a route name.
+// "$" segments in route path are replaced by parameters by index.
+$guide_path = route('docs.guide', ['php']); // "/guides/php"</code></pre>
             </div>
         </div>
     </details>

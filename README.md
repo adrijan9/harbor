@@ -52,7 +52,7 @@ This command will serve the documentation site on `http://localhost:<SOME_PORT>`
   - Injects matched route data into `$GLOBALS['route']`
   - Requires the matched PHP entry file directly
 - `HelperLoader`:
-  - `route` for route segment/query access helpers
+  - `route` for route segment/query access and named route path/current checks
   - `config` for config file loading and typed env reads
   - `value` for shared blank/null checks (`harbor_is_blank`, `harbor_is_null`)
   - `request` for typed request metadata/body/header helpers

@@ -56,9 +56,11 @@ final class HelperLoader
             // Route
             'route_segments' => __DIR__.'/Router/helpers/route_segments.php',
             'route_query' => __DIR__.'/Router/helpers/route_query.php',
+            'route_named' => __DIR__.'/Router/helpers/route_named.php',
             'route' => [
                 __DIR__.'/Router/helpers/route_segments.php',
                 __DIR__.'/Router/helpers/route_query.php',
+                __DIR__.'/Router/helpers/route_named.php',
             ],
             // Config
             'config' => __DIR__.'/Config/config.php',

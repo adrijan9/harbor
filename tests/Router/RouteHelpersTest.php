@@ -27,11 +27,16 @@ use function Harbor\Router\route_segment_int;
 use function Harbor\Router\route_segment_json;
 use function Harbor\Router\route_segment_obj;
 use function Harbor\Router\route_segments_count;
+use function Harbor\Router\route as route_path;
+use function Harbor\Router\route_exists;
+use function Harbor\Router\route_name_is;
 
 final class RouteHelpersTest extends TestCase
 {
     private bool $had_route = false;
     private mixed $original_route = null;
+    private bool $had_routes = false;
+    private mixed $original_routes = null;
 
     #[BeforeClass]
     public static function load_route_helpers(): void
@@ -82,13 +87,55 @@ final class RouteHelpersTest extends TestCase
         self::assertSame(6, route_queries_count());
     }
 
+    public function test_named_route_helpers_build_paths_and_check_presence(): void
+    {
+        self::assertTrue(route_exists('posts.show'));
+        self::assertTrue(route_exists('teams.members.show'));
+        self::assertFalse(route_exists('missing.route'));
+        self::assertTrue(route_name_is('posts.show'));
+        self::assertFalse(route_name_is('home'));
+
+        self::assertSame('/posts/42', route_path('posts.show', [42]));
+        self::assertSame('/teams/9/members/3', route_path('teams.members.show', [9, 3]));
+        self::assertSame('/search/hello%20world', route_path('search.query', ['hello world']));
+        self::assertSame('/', route_path('home'));
+    }
+
+    public function test_named_route_helper_throws_when_route_is_missing(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Route "unknown.route" is not defined.');
+
+        route_path('unknown.route');
+    }
+
+    public function test_named_route_helper_throws_when_parameters_do_not_match_placeholders(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Missing parameter at index 1 for route "teams.members.show".');
+
+        route_path('teams.members.show', [9]);
+    }
+
+    public function test_named_route_helper_throws_when_too_many_parameters_are_provided(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Too many parameters for route "posts.show". Expected 1, got 2.');
+
+        route_path('posts.show', [42, 55]);
+    }
+
     #[Before]
     protected function prepare_route_globals(): void
     {
         $this->had_route = array_key_exists('route', $GLOBALS);
         $this->original_route = $this->had_route ? $GLOBALS['route'] : null;
+        $this->had_routes = array_key_exists('routes', $GLOBALS);
+        $this->original_routes = $this->had_routes ? $GLOBALS['routes'] : null;
 
         $GLOBALS['route'] = [
+            'name' => 'posts.show',
+            'path' => '/posts/$',
             'segments' => [
                 '42',
                 'true',
@@ -106,6 +153,33 @@ final class RouteHelpersTest extends TestCase
                 'payload' => rawurlencode('{"name":"Ada"}'),
             ],
         ];
+
+        $GLOBALS['routes'] = [
+            [
+                'method' => 'GET',
+                'path' => '/',
+                'name' => 'home',
+                'entry' => 'pages/index.php',
+            ],
+            [
+                'method' => 'GET',
+                'path' => '/posts/$',
+                'name' => 'posts.show',
+                'entry' => 'pages/post.php',
+            ],
+            [
+                'method' => 'GET',
+                'path' => '/teams/$/members/$',
+                'name' => 'teams.members.show',
+                'entry' => 'pages/member.php',
+            ],
+            [
+                'method' => 'GET',
+                'path' => '/search/$',
+                'name' => 'search.query',
+                'entry' => 'pages/search.php',
+            ],
+        ];
     }
 
     #[After]
@@ -113,10 +187,14 @@ final class RouteHelpersTest extends TestCase
     {
         if ($this->had_route) {
             $GLOBALS['route'] = $this->original_route;
-
-            return;
+        } else {
+            unset($GLOBALS['route']);
         }
 
-        unset($GLOBALS['route']);
+        if ($this->had_routes) {
+            $GLOBALS['routes'] = $this->original_routes;
+        } else {
+            unset($GLOBALS['routes']);
+        }
     }
 }

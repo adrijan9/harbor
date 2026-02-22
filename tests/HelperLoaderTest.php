@@ -22,6 +22,7 @@ final class HelperLoaderTest extends TestCase
         self::assertContains('route', $helpers);
         self::assertContains('route_segments', $helpers);
         self::assertContains('route_query', $helpers);
+        self::assertContains('route_named', $helpers);
         self::assertContains('config', $helpers);
         self::assertContains('value', $helpers);
         self::assertContains('request', $helpers);
@@ -43,6 +44,9 @@ final class HelperLoaderTest extends TestCase
 
         self::assertTrue(function_exists('Harbor\Router\route_segment'));
         self::assertTrue(function_exists('Harbor\Router\route_query'));
+        self::assertTrue(function_exists('Harbor\Router\route_exists'));
+        self::assertTrue(function_exists('Harbor\Router\route_name_is'));
+        self::assertTrue(function_exists('Harbor\Router\route'));
     }
 
     public function test_load_request_helper_registers_namespaced_functions(): void
