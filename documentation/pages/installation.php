@@ -38,7 +38,7 @@ require __DIR__.'/../shared/header.php';
 </section>
 
 <section class="docs-section">
-    <h2>Run Locally</h2>
+    <h2>Documentation</h2>
     <p>Serve documentation with the package CLI:</p>
     <pre><code class="language-bash">./bin/harbor-docs</code></pre>
     <p>
