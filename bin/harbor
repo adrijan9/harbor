@@ -1,0 +1,205 @@
+#!/usr/bin/env php
+<?php
+
+$argv = $_SERVER['argv'] ?? [];
+$command = $argv[1] ?? null;
+
+if (null === $command || in_array($command, ['-h', '--help'], true)) {
+    print_usage();
+
+    exit(null === $command ? 1 : 0);
+}
+
+if ('init' === $command) {
+    run_init($argv[2] ?? null);
+
+    exit(0);
+}
+
+fwrite(STDERR, sprintf('Unknown command: %s%s', $command, PHP_EOL));
+print_usage();
+exit(1);
+
+function run_init(?string $site_name_from_argument = null): void
+{
+    $site_name = is_string($site_name_from_argument) ? trim($site_name_from_argument) : '';
+
+    if ('' === $site_name) {
+        fwrite(STDOUT, 'Site name (default: public): ');
+        $input = fgets(STDIN);
+        $site_name = trim(false === $input ? '' : $input);
+    }
+
+    if ('' === $site_name) {
+        $site_name = 'public';
+    }
+
+    if (!preg_match('/^[A-Za-z0-9._-]+$/', $site_name)) {
+        fwrite(STDERR, 'Invalid site name. Use only letters, numbers, ".", "_" and "-".'.PHP_EOL);
+
+        exit(1);
+    }
+
+    $working_directory = getcwd();
+    if (false === $working_directory) {
+        fwrite(STDERR, 'Unable to resolve current working directory.'.PHP_EOL);
+
+        exit(1);
+    }
+
+    $site_path = $working_directory.'/'.$site_name;
+    $pages_path = $site_path.'/pages';
+
+    if (file_exists($site_path) && !is_dir($site_path)) {
+        fwrite(STDERR, sprintf('Cannot create site in "%s": path exists and is not a directory.%s', $site_path, PHP_EOL));
+
+        exit(1);
+    }
+
+    if (is_dir($site_path) && !is_directory_empty($site_path)) {
+        fwrite(STDERR, sprintf('Directory "%s" already exists and is not empty.%s', $site_path, PHP_EOL));
+
+        exit(1);
+    }
+
+    create_directory($site_path);
+    create_directory($pages_path);
+
+    copy_template(__DIR__.'/../public/.htaccess', $site_path.'/.htaccess');
+    copy_template(__DIR__.'/../public/index.php', $site_path.'/index.php');
+
+    write_file($site_path.'/.router', get_default_router_template());
+    write_file($pages_path.'/index.php', get_default_home_page_template());
+    write_file($site_path.'/not_found.php', get_default_not_found_template());
+    write_file($site_path.'/routes.php', get_default_routes_template());
+    ensure_parent_serve_script($working_directory);
+
+    fwrite(STDOUT, sprintf('Site initialized: %s%s', $site_path, PHP_EOL));
+    fwrite(STDOUT, sprintf('Next step: run "./bin/router --path=%s" after editing .router.%s', $site_path, PHP_EOL));
+}
+
+function print_usage(): void
+{
+    fwrite(STDOUT, 'Usage: harbor <command> [options]'.PHP_EOL);
+    fwrite(STDOUT, PHP_EOL);
+    fwrite(STDOUT, 'Commands:'.PHP_EOL);
+    fwrite(STDOUT, '  init [site-name]   Initialize a new site scaffold.'.PHP_EOL);
+}
+
+function create_directory(string $path): void
+{
+    if (is_dir($path)) {
+        return;
+    }
+
+    if (!mkdir($path, 0777, true) && !is_dir($path)) {
+        fwrite(STDERR, sprintf('Failed to create directory: %s%s', $path, PHP_EOL));
+
+        exit(1);
+    }
+}
+
+function copy_template(string $source_path, string $destination_path): void
+{
+    if (!is_file($source_path)) {
+        fwrite(STDERR, sprintf('Template not found: %s%s', $source_path, PHP_EOL));
+
+        exit(1);
+    }
+
+    if (!copy($source_path, $destination_path)) {
+        fwrite(STDERR, sprintf('Failed to copy template to: %s%s', $destination_path, PHP_EOL));
+
+        exit(1);
+    }
+}
+
+function write_file(string $path, string $contents): void
+{
+    $written = file_put_contents($path, $contents);
+    if (false === $written) {
+        fwrite(STDERR, sprintf('Failed to write file: %s%s', $path, PHP_EOL));
+
+        exit(1);
+    }
+}
+
+function ensure_parent_serve_script(string $working_directory): void
+{
+    $serve_script_path = $working_directory.'/serve.sh';
+    if (file_exists($serve_script_path)) {
+        return;
+    }
+
+    copy_template(__DIR__.'/../serve.sh', $serve_script_path);
+
+    if (! chmod($serve_script_path, 0755)) {
+        fwrite(STDERR, sprintf('Warning: Failed to set executable permissions for: %s%s', $serve_script_path, PHP_EOL));
+    }
+
+    fwrite(STDOUT, sprintf('Serve script created: %s%s', $serve_script_path, PHP_EOL));
+}
+
+function is_directory_empty(string $directory): bool
+{
+    $items = scandir($directory);
+    if (false === $items) {
+        return false;
+    }
+
+    return 2 === count($items);
+}
+
+function get_default_router_template(): string
+{
+    return <<<'ROUTER'
+#route
+  path: /
+  method: GET
+  name: home
+  entry: pages/index.php
+#endroute
+
+ROUTER;
+}
+
+function get_default_home_page_template(): string
+{
+    return <<<'PHP'
+<?php
+
+echo 'Home page';
+
+PHP;
+}
+
+function get_default_not_found_template(): string
+{
+    return <<<'PHP'
+<?php
+
+http_response_code(404);
+
+echo 'Page not found';
+
+PHP;
+}
+
+function get_default_routes_template(): string
+{
+    $routes = [
+        [
+            'path' => '/',
+            'method' => 'GET',
+            'name' => 'home',
+            'entry' => 'pages/index.php',
+        ],
+        [
+            'method' => 'GET',
+            'path' => '/404',
+            'entry' => 'not_found.php',
+        ],
+    ];
+
+    return '<?php return '.var_export($routes, true).';';
+}
