@@ -76,6 +76,16 @@ harbor/
     Filesystem/
     Log/
     HelperLoader.php
+  templates/
+    site/
+      .router
+      .htaccess
+      config.php
+      index.php
+      not_found.php
+      routes.php
+      pages/
+        index.php
   documentation/
     index.php
     routes.php
@@ -126,6 +136,8 @@ Harbor uses strict front-controller routing by default:
 - Every request is sent to `index.php`
 - Only paths declared in `.router` (compiled to `routes.php`) are reachable
 - Static files are not directly accessible unless you expose them through routes/entries
+
+The `init` command copies files from `templates/site/`, so you can customize future scaffolds by editing that directory.
 
 You can also run the built-in documentation site:
 

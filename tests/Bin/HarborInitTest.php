@@ -32,9 +32,14 @@ final class HarborInitTest extends TestCase
         \harbor_run_init('demo-site');
 
         $site_path = $this->workspace_path.'/demo-site';
+        $template_path = dirname(__DIR__, 2).'/templates/site';
         self::assertFileExists($site_path.'/config.php');
         self::assertFileExists($site_path.'/index.php');
         self::assertFileExists($site_path.'/.htaccess');
+        self::assertFileExists($site_path.'/.router');
+        self::assertFileExists($site_path.'/routes.php');
+        self::assertFileExists($site_path.'/not_found.php');
+        self::assertFileExists($site_path.'/pages/index.php');
 
         $config = require $site_path.'/config.php';
         self::assertIsArray($config);
@@ -53,6 +58,19 @@ final class HarborInitTest extends TestCase
         self::assertStringContainsString('RewriteRule ^ index.php [L,QSA]', $htaccess_content);
         self::assertStringNotContainsString('RewriteCond %{REQUEST_FILENAME} !-f', $htaccess_content);
         self::assertStringNotContainsString('RewriteCond %{REQUEST_FILENAME} !-d', $htaccess_content);
+
+        self::assertSame(
+            file_get_contents($template_path.'/.router'),
+            file_get_contents($site_path.'/.router'),
+        );
+        self::assertSame(
+            file_get_contents($template_path.'/routes.php'),
+            file_get_contents($site_path.'/routes.php'),
+        );
+        self::assertSame(
+            file_get_contents($template_path.'/pages/index.php'),
+            file_get_contents($site_path.'/pages/index.php'),
+        );
     }
 
     #[After]

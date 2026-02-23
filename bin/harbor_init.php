@@ -34,7 +34,6 @@ function harbor_run_init(?string $site_name_from_argument = null): void
     }
 
     $site_path = $working_directory.'/'.$site_name;
-    $pages_path = $site_path.'/pages';
 
     if (file_exists($site_path) && ! is_dir($site_path)) {
         fwrite(STDERR, sprintf('Cannot create site in "%s": path exists and is not a directory.%s', $site_path, PHP_EOL));
@@ -48,20 +47,25 @@ function harbor_run_init(?string $site_name_from_argument = null): void
         exit(1);
     }
 
-    harbor_create_directory($site_path);
-    harbor_create_directory($pages_path);
-
-    harbor_write_file($site_path.'/.htaccess', harbor_default_htaccess_template());
-    harbor_write_file($site_path.'/config.php', harbor_default_config_template());
-    harbor_write_file($site_path.'/index.php', harbor_default_site_index_template());
-    harbor_write_file($site_path.'/.router', harbor_default_router_template());
-    harbor_write_file($pages_path.'/index.php', harbor_default_home_page_template());
-    harbor_write_file($site_path.'/not_found.php', harbor_default_not_found_template());
-    harbor_write_file($site_path.'/routes.php', harbor_default_routes_template());
+    $template_directory_path = harbor_resolve_site_template_directory_path();
+    harbor_copy_directory($template_directory_path, $site_path);
     harbor_ensure_parent_serve_script($working_directory);
 
     fwrite(STDOUT, sprintf('Site initialized: %s%s', $site_path, PHP_EOL));
     fwrite(STDOUT, sprintf('Next step: run "./bin/harbor %s" after editing .router.%s', $site_name, PHP_EOL));
+}
+
+function harbor_resolve_site_template_directory_path(): string
+{
+    $template_directory_path = realpath(__DIR__.'/../templates/site');
+
+    if (false === $template_directory_path || ! is_dir($template_directory_path)) {
+        fwrite(STDERR, sprintf('Site template directory not found: %s%s', __DIR__.'/../templates/site', PHP_EOL));
+
+        exit(1);
+    }
+
+    return $template_directory_path;
 }
 
 function harbor_create_directory(string $path): void
@@ -77,26 +81,51 @@ function harbor_create_directory(string $path): void
     }
 }
 
-function harbor_copy_template(string $source_path, string $destination_path): void
+function harbor_copy_directory(string $source_directory_path, string $destination_directory_path): void
+{
+    if (! is_dir($source_directory_path)) {
+        fwrite(STDERR, sprintf('Source template directory not found: %s%s', $source_directory_path, PHP_EOL));
+
+        exit(1);
+    }
+
+    harbor_create_directory($destination_directory_path);
+
+    $entries = scandir($source_directory_path);
+    if (false === $entries) {
+        fwrite(STDERR, sprintf('Failed to read template directory: %s%s', $source_directory_path, PHP_EOL));
+
+        exit(1);
+    }
+
+    foreach ($entries as $entry) {
+        if ('.' === $entry || '..' === $entry) {
+            continue;
+        }
+
+        $source_entry_path = $source_directory_path.'/'.$entry;
+        $destination_entry_path = $destination_directory_path.'/'.$entry;
+
+        if (is_dir($source_entry_path)) {
+            harbor_copy_directory($source_entry_path, $destination_entry_path);
+
+            continue;
+        }
+
+        harbor_copy_template_file($source_entry_path, $destination_entry_path);
+    }
+}
+
+function harbor_copy_template_file(string $source_path, string $destination_path): void
 {
     if (! is_file($source_path)) {
-        fwrite(STDERR, sprintf('Template not found: %s%s', $source_path, PHP_EOL));
+        fwrite(STDERR, sprintf('Template file not found: %s%s', $source_path, PHP_EOL));
 
         exit(1);
     }
 
     if (! copy($source_path, $destination_path)) {
-        fwrite(STDERR, sprintf('Failed to copy template to: %s%s', $destination_path, PHP_EOL));
-
-        exit(1);
-    }
-}
-
-function harbor_write_file(string $path, string $contents): void
-{
-    $written = file_put_contents($path, $contents);
-    if (false === $written) {
-        fwrite(STDERR, sprintf('Failed to write file: %s%s', $path, PHP_EOL));
+        fwrite(STDERR, sprintf('Failed to copy template file to: %s%s', $destination_path, PHP_EOL));
 
         exit(1);
     }
@@ -109,7 +138,7 @@ function harbor_ensure_parent_serve_script(string $working_directory): void
         return;
     }
 
-    harbor_copy_template(__DIR__.'/../serve.sh', $serve_script_path);
+    harbor_copy_template_file(__DIR__.'/../serve.sh', $serve_script_path);
 
     if (! chmod($serve_script_path, 0o755)) {
         fwrite(STDERR, sprintf('Warning: Failed to set executable permissions for: %s%s', $serve_script_path, PHP_EOL));
@@ -126,110 +155,4 @@ function harbor_is_directory_empty(string $directory): bool
     }
 
     return 2 === count($items);
-}
-
-function harbor_default_router_template(): string
-{
-    return <<<'ROUTER'
-#route
-  path: /
-  method: GET
-  name: home
-  entry: pages/index.php
-#endroute
-
-ROUTER;
-}
-
-function harbor_default_home_page_template(): string
-{
-    return <<<'PHP'
-<?php
-
-echo 'Home page';
-
-PHP;
-}
-
-function harbor_default_site_index_template(): string
-{
-    return <<<'PHP'
-<?php
-
-declare(strict_types=1);
-
-require __DIR__.'/../vendor/autoload.php';
-
-use Harbor\Router\Router;
-
-new Router(
-    __DIR__.'/routes.php',
-    __DIR__.'/config.php',
-)->render();
-
-PHP;
-}
-
-function harbor_default_config_template(): string
-{
-    return <<<'PHP'
-<?php
-
-declare(strict_types=1);
-
-/*
- * This file contains global configuration environment variables for the site.
- * You can access these variables in your route entries using the `config()` function.
- * For example, `config('app_name')` will return "Harbor Site".
- */
-return [
-    'app_name' => 'Harbor Site',
-    'environment' => 'local',
-];
-
-PHP;
-}
-
-function harbor_default_htaccess_template(): string
-{
-    return <<<'HTACCESS'
-RewriteEngine On
-# Do not rewrite direct requests to the front controller itself.
-RewriteRule ^index\.php$ - [L]
-
-# Route every request through index.php.
-RewriteRule ^ index.php [L,QSA]
-
-HTACCESS;
-}
-
-function harbor_default_not_found_template(): string
-{
-    return <<<'PHP'
-<?php
-
-http_response_code(404);
-
-echo 'Page not found';
-
-PHP;
-}
-
-function harbor_default_routes_template(): string
-{
-    $routes = [
-        [
-            'path' => '/',
-            'method' => 'GET',
-            'name' => 'home',
-            'entry' => 'pages/index.php',
-        ],
-        [
-            'method' => 'GET',
-            'path' => '/404',
-            'entry' => 'not_found.php',
-        ],
-    ];
-
-    return '<?php return '.var_export($routes, true).';';
 }

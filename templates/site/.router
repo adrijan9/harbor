@@ -1,0 +1,6 @@
+#route
+  path: /
+  method: GET
+  name: home
+  entry: pages/index.php
+#endroute
