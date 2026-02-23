@@ -19,19 +19,19 @@ require __DIR__.'/../shared/header.php';
     <h2>Define Routes</h2>
 
     <h3>Example</h3>
-    <pre><code class="language-ini">#route
+    <pre><code class="language-ini">&lt;route&gt;
   path: /
   method: GET
   name: docs.home
   entry: pages/index.php
-#endroute
+&lt;/route&gt;
 
-#route
+&lt;route&gt;
   path: /guides/$
   method: GET
   name: docs.guide
   entry: pages/routing.php
-#endroute</code></pre>
+&lt;/route&gt;</code></pre>
     <pre><code class="language-ini">#include "./routes/shared.router"</code></pre>
     <pre><code class="language-bash">./bin/harbor documentation/.router
 ./bin/harbor .</code></pre>
@@ -78,20 +78,20 @@ path: /404
 
     <h3>Example</h3>
     <pre><code class="language-ini"># File: ./.router
-#route
+&lt;route&gt;
   path: /
   method: GET
   entry: pages/home.php
-#endroute
+&lt;/route&gt;
 
 #include "./routes/blog.router"
 #include "/absolute/path/to/admin.router"</code></pre>
     <pre><code class="language-ini"># File: ./routes/blog.router
-#route
+&lt;route&gt;
   path: /blog/$
   method: GET
   entry: pages/blog.php
-#endroute</code></pre>
+&lt;/route&gt;</code></pre>
 
     <h3>What it does</h3>
     <p>Each include is expanded before parsing routes. Nested includes are supported and processed recursively.</p>

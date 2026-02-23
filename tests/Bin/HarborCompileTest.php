@@ -23,30 +23,30 @@ final class HarborCompileTest extends TestCase
         $main_routes_path = $workspace_path.'/.router';
 
         file_put_contents($shared_routes_path, <<<'ROUTER'
-#route
+<route>
   path: /posts/$
   method: GET
   entry: pages/post.php
-#endroute
+</route>
 ROUTER
         );
 
         file_put_contents($extra_routes_path, <<<'ROUTER'
 #include "shared.router"
-#route
+<route>
   path: /health
   method: GET
   entry: pages/health.php
-#endroute
+</route>
 ROUTER
         );
 
         file_put_contents($main_routes_path, <<<'ROUTER'
-#route
+<route>
   path: /
   method: GET
   entry: pages/home.php
-#endroute
+</route>
 
 #include "extra.router"
 ROUTER
@@ -75,11 +75,11 @@ ROUTER
         $main_routes_path = $workspace_path.'/.router';
 
         file_put_contents($included_routes_path, <<<'ROUTER'
-#route
+<route>
   path: /about
   method: GET
   entry: pages/about.php
-#endroute
+</route>
 ROUTER
         );
 

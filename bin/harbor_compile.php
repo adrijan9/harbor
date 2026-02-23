@@ -131,13 +131,13 @@ function harbor_compile_routes_from_content(string $router_content): array
             continue;
         }
 
-        if ('#route' === $normalized_line) {
+        if (harbor_is_route_open_tag($normalized_line)) {
             $parsed_route = [];
 
             continue;
         }
 
-        if ('#endroute' === $normalized_line) {
+        if (harbor_is_route_close_tag($normalized_line)) {
             $routes[] = $parsed_route;
 
             continue;
@@ -158,6 +158,16 @@ function harbor_compile_routes_from_content(string $router_content): array
     ];
 
     return $routes;
+}
+
+function harbor_is_route_open_tag(string $line): bool
+{
+    return in_array($line, ['<route>', '#route'], true);
+}
+
+function harbor_is_route_close_tag(string $line): bool
+{
+    return in_array($line, ['</route>', '#endroute'], true);
 }
 
 function harbor_resolve_routes_output_path(string $router_source_path): string
