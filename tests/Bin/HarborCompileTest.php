@@ -136,6 +136,40 @@ ROUTER
         self::assertSame('/404', $compiled_router['routes'][1]['path'] ?? null);
     }
 
+    public function test_run_compile_from_non_root_working_directory(): void
+    {
+        $workspace_path = $this->create_workspace();
+        $router_path = $workspace_path.'/.router';
+
+        file_put_contents($router_path, <<<'ROUTER'
+<route>
+  path: /
+  method: GET
+  entry: pages/home.php
+</route>
+ROUTER
+        );
+
+        $original_working_directory = getcwd();
+        if (false === $original_working_directory) {
+            throw new \RuntimeException('Failed to get current working directory.');
+        }
+
+        chdir($workspace_path);
+
+        try {
+            harbor_run_compile('./.router');
+        } finally {
+            chdir($original_working_directory);
+        }
+
+        $compiled_router = require $workspace_path.'/routes.php';
+
+        self::assertIsArray($compiled_router);
+        self::assertIsArray($compiled_router['routes'] ?? null);
+        self::assertSame('/', $compiled_router['routes'][0]['path'] ?? null);
+    }
+
     #[After]
     protected function cleanup_workspaces(): void
     {

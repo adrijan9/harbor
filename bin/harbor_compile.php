@@ -47,7 +47,109 @@ function harbor_run_compile(string $router_source_path): void
         exit(1);
     }
 
+    harbor_format_generated_routes_file($routes_output_path);
+
     fwrite(STDOUT, sprintf('Routes file generated: %s%s', $routes_output_path, PHP_EOL));
+}
+
+function harbor_format_generated_routes_file(string $routes_output_path): void
+{
+    $php_cs_fixer_binary_path = harbor_resolve_php_cs_fixer_binary_path();
+    if (harbor_is_null($php_cs_fixer_binary_path)) {
+        return;
+    }
+
+    $php_binary_path = harbor_is_blank(PHP_BINARY) ? 'php' : PHP_BINARY;
+    $command_parts = [
+        escapeshellarg($php_binary_path),
+        escapeshellarg($php_cs_fixer_binary_path),
+        'fix',
+        '--path-mode=override',
+        '--using-cache=no',
+        '--quiet',
+    ];
+
+    $php_cs_fixer_config_path = harbor_resolve_php_cs_fixer_config_path();
+    if (! harbor_is_null($php_cs_fixer_config_path)) {
+        $command_parts[] = '--config='.escapeshellarg($php_cs_fixer_config_path);
+    }
+
+    $command_parts[] = escapeshellarg($routes_output_path);
+    $command = implode(' ', $command_parts).' 2>&1';
+
+    $project_root_path = harbor_resolve_project_root_path();
+    if (! harbor_is_null($project_root_path)) {
+        $command = 'cd '.escapeshellarg($project_root_path).' && '.$command;
+    }
+
+    $output_lines = [];
+    $exit_code = 0;
+    exec($command, $output_lines, $exit_code);
+
+    if (0 === $exit_code) {
+        return;
+    }
+
+    fwrite(STDERR, sprintf('Failed to run php-cs-fixer for routes file: %s%s', $routes_output_path, PHP_EOL));
+
+    if (! empty($output_lines)) {
+        fwrite(STDERR, implode(PHP_EOL, $output_lines).PHP_EOL);
+    }
+
+    exit(1);
+}
+
+function harbor_resolve_php_cs_fixer_binary_path(): ?string
+{
+    $project_root_path = harbor_resolve_project_root_path();
+    if (harbor_is_null($project_root_path)) {
+        return null;
+    }
+
+    $candidate_paths = [
+        $project_root_path.'/vendor/bin/php-cs-fixer',
+        $project_root_path.'/vendor/bin/php-cs-fixer.phar',
+    ];
+
+    if ('\\' === DIRECTORY_SEPARATOR) {
+        $candidate_paths[] = $project_root_path.'/vendor/bin/php-cs-fixer.bat';
+    }
+
+    foreach ($candidate_paths as $candidate_path) {
+        if (is_file($candidate_path)) {
+            return $candidate_path;
+        }
+    }
+
+    return null;
+}
+
+function harbor_resolve_php_cs_fixer_config_path(): ?string
+{
+    $project_root_path = harbor_resolve_project_root_path();
+    if (harbor_is_null($project_root_path)) {
+        return null;
+    }
+
+    $candidate_paths = [
+        $project_root_path.'/.php-cs-fixer.php',
+        $project_root_path.'/.php-cs-fixer.dist.php',
+    ];
+
+    foreach ($candidate_paths as $candidate_path) {
+        if (is_file($candidate_path)) {
+            return $candidate_path;
+        }
+    }
+
+    return null;
+}
+
+function harbor_resolve_project_root_path(): ?string
+{
+    $project_root_path = realpath(__DIR__.'/..');
+
+    return false === $project_root_path ? null : $project_root_path;
 }
 
 function harbor_pre_process_routes_file(string $router_source_path, array $include_stack = []): string
