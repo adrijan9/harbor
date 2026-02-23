@@ -121,6 +121,12 @@ composer install
 ./serve.sh my-site
 ```
 
+Harbor uses strict front-controller routing by default:
+
+- Every request is sent to `index.php`
+- Only paths declared in `.router` (compiled to `routes.php`) are reachable
+- Static files are not directly accessible unless you expose them through routes/entries
+
 You can also run the built-in documentation site:
 
 ```bash

@@ -18,6 +18,13 @@ if (false === $documentation_path || ! is_dir($documentation_path)) {
     exit(1);
 }
 
+$front_controller_path = $documentation_path.'/index.php';
+if (! is_file($front_controller_path)) {
+    fwrite(STDERR, sprintf('Documentation front controller not found: %s%s', $front_controller_path, PHP_EOL));
+
+    exit(1);
+}
+
 $preferred_port = parse_port_argument($arguments);
 if (8080 === $preferred_port) {
     fwrite(STDERR, 'Port 8080 is reserved. Use a different port.'.PHP_EOL);
@@ -40,7 +47,13 @@ fwrite(STDOUT, sprintf('Serving documentation from %s%s', $documentation_path, P
 fwrite(STDOUT, sprintf('Open %s%s', $base_url, PHP_EOL));
 fwrite(STDOUT, 'Press Ctrl+C to stop.'.PHP_EOL);
 
-$command = sprintf('%s -S 127.0.0.1:%d -t %s', escapeshellarg(PHP_BINARY), $port, escapeshellarg($documentation_path));
+$command = sprintf(
+    '%s -S 127.0.0.1:%d -t %s %s',
+    escapeshellarg(PHP_BINARY),
+    $port,
+    escapeshellarg($documentation_path),
+    escapeshellarg($front_controller_path),
+);
 passthru($command, $exit_code);
 
 exit($exit_code);

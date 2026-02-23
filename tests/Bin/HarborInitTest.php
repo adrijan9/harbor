@@ -34,6 +34,7 @@ final class HarborInitTest extends TestCase
         $site_path = $this->workspace_path.'/demo-site';
         self::assertFileExists($site_path.'/config.php');
         self::assertFileExists($site_path.'/index.php');
+        self::assertFileExists($site_path.'/.htaccess');
 
         $config = require $site_path.'/config.php';
         self::assertIsArray($config);
@@ -45,6 +46,13 @@ final class HarborInitTest extends TestCase
         self::assertStringContainsString("new Router(", $index_content);
         self::assertStringContainsString("__DIR__.'/routes.php'", $index_content);
         self::assertStringContainsString("__DIR__.'/config.php'", $index_content);
+
+        $htaccess_content = file_get_contents($site_path.'/.htaccess');
+        self::assertIsString($htaccess_content);
+        self::assertStringContainsString('RewriteRule ^index\.php$ - [L]', $htaccess_content);
+        self::assertStringContainsString('RewriteRule ^ index.php [L,QSA]', $htaccess_content);
+        self::assertStringNotContainsString('RewriteCond %{REQUEST_FILENAME} !-f', $htaccess_content);
+        self::assertStringNotContainsString('RewriteCond %{REQUEST_FILENAME} !-d', $htaccess_content);
     }
 
     #[After]

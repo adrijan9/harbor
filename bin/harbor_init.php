@@ -194,8 +194,10 @@ function harbor_default_htaccess_template(): string
 {
     return <<<'HTACCESS'
 RewriteEngine On
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
+# Do not rewrite direct requests to the front controller itself.
+RewriteRule ^index\.php$ - [L]
+
+# Route every request through index.php.
 RewriteRule ^ index.php [L,QSA]
 
 HTACCESS;
