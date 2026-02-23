@@ -31,7 +31,7 @@ function harbor_run_compile(string $router_source_path): void
 
     $routes_output_path = harbor_resolve_routes_output_path($normalized_path);
     $preprocessed_content = harbor_pre_process_routes_file($normalized_path);
-    $routes = harbor_compile_routes_from_content($preprocessed_content);
+    $compiled_router = harbor_compile_router_from_content($preprocessed_content);
 
     $routes_directory = dirname($routes_output_path);
     if (! is_dir($routes_directory) && ! mkdir($routes_directory, 0o777, true) && ! is_dir($routes_directory)) {
@@ -40,7 +40,7 @@ function harbor_run_compile(string $router_source_path): void
         exit(1);
     }
 
-    $written = file_put_contents($routes_output_path, '<?php return '.var_export($routes, true).';');
+    $written = file_put_contents($routes_output_path, '<?php return '.var_export($compiled_router, true).';');
     if (false === $written) {
         fwrite(STDERR, sprintf('Failed to write routes file: %s%s', $routes_output_path, PHP_EOL));
 
@@ -118,18 +118,47 @@ function harbor_is_absolute_path(string $path): bool
     return 1 === preg_match('#^([a-zA-Z]:[\\\\/]|/)#', $path);
 }
 
-function harbor_compile_routes_from_content(string $router_content): array
+function harbor_compile_router_from_content(string $router_content): array
 {
     $routes = [];
     $parsed_route = [];
+    $assets_path = null;
     $line_parts = preg_split('/\R/u', $router_content);
     $lines = is_array($line_parts) ? $line_parts : [];
+    $saw_non_assets_definition = false;
 
     foreach ($lines as $line) {
         $normalized_line = trim($line);
         if (harbor_is_blank($normalized_line)) {
             continue;
         }
+
+        $assets_candidate = harbor_parse_assets_path($normalized_line);
+        if (! harbor_is_null($assets_candidate)) {
+            if ($saw_non_assets_definition) {
+                fwrite(STDERR, 'The <assets> directive must be defined at the top of the .router file.'.PHP_EOL);
+
+                exit(1);
+            }
+
+            if (! harbor_is_null($assets_path)) {
+                fwrite(STDERR, 'Duplicate <assets> directive found. Define it only once.'.PHP_EOL);
+
+                exit(1);
+            }
+
+            $assets_path = harbor_normalize_assets_path($assets_candidate);
+
+            continue;
+        }
+
+        if (harbor_is_assets_tag($normalized_line)) {
+            fwrite(STDERR, sprintf('Invalid <assets> directive: %s%s', $normalized_line, PHP_EOL));
+
+            exit(1);
+        }
+
+        $saw_non_assets_definition = true;
 
         if (harbor_is_route_open_tag($normalized_line)) {
             $parsed_route = [];
@@ -157,7 +186,18 @@ function harbor_compile_routes_from_content(string $router_content): array
         'entry' => 'not_found.php',
     ];
 
-    return $routes;
+    return [
+        'assets' => $assets_path,
+        'routes' => $routes,
+    ];
+}
+
+function harbor_compile_routes_from_content(string $router_content): array
+{
+    $compiled_router = harbor_compile_router_from_content($router_content);
+    $routes = $compiled_router['routes'] ?? [];
+
+    return is_array($routes) ? $routes : [];
 }
 
 function harbor_is_route_open_tag(string $line): bool
@@ -168,6 +208,36 @@ function harbor_is_route_open_tag(string $line): bool
 function harbor_is_route_close_tag(string $line): bool
 {
     return in_array($line, ['</route>', '#endroute'], true);
+}
+
+function harbor_is_assets_tag(string $line): bool
+{
+    return 1 === preg_match('/^<assets>.*<\/assets>$/', $line);
+}
+
+function harbor_parse_assets_path(string $line): ?string
+{
+    if (1 !== preg_match('/^<assets>(.*)<\/assets>$/', $line, $matches)) {
+        return null;
+    }
+
+    $assets_path = trim($matches[1]);
+
+    return harbor_is_blank($assets_path) ? null : $assets_path;
+}
+
+function harbor_normalize_assets_path(string $assets_path): string
+{
+    $normalized_assets_path = str_replace('\\', '/', trim($assets_path));
+    $normalized_assets_path = '/'.ltrim($normalized_assets_path, '/');
+
+    if ('/' === $normalized_assets_path) {
+        fwrite(STDERR, 'The <assets> directive path cannot be "/".'.PHP_EOL);
+
+        exit(1);
+    }
+
+    return rtrim($normalized_assets_path, '/');
 }
 
 function harbor_resolve_routes_output_path(string $router_source_path): string

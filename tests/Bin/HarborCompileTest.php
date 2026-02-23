@@ -92,6 +92,50 @@ ROUTER
         self::assertSame('/404', $compiled_routes[1]['path']);
     }
 
+    public function test_compile_router_from_content_extracts_assets_path_and_routes(): void
+    {
+        $compiled_router = harbor_compile_router_from_content(<<<'ROUTER'
+<assets>/assets</assets>
+<route>
+  path: /
+  method: GET
+  entry: pages/home.php
+</route>
+ROUTER
+        );
+
+        self::assertSame('/assets', $compiled_router['assets']);
+        self::assertIsArray($compiled_router['routes']);
+        self::assertSame('/', $compiled_router['routes'][0]['path']);
+        self::assertSame('/404', $compiled_router['routes'][1]['path']);
+    }
+
+    public function test_run_compile_writes_assets_configuration_to_routes_file(): void
+    {
+        $workspace_path = $this->create_workspace();
+        $router_path = $workspace_path.'/.router';
+
+        file_put_contents($router_path, <<<'ROUTER'
+<assets>/assets</assets>
+<route>
+  path: /
+  method: GET
+  entry: pages/home.php
+</route>
+ROUTER
+        );
+
+        harbor_run_compile($router_path);
+
+        $compiled_router = require $workspace_path.'/routes.php';
+
+        self::assertIsArray($compiled_router);
+        self::assertSame('/assets', $compiled_router['assets'] ?? null);
+        self::assertIsArray($compiled_router['routes'] ?? null);
+        self::assertSame('/', $compiled_router['routes'][0]['path'] ?? null);
+        self::assertSame('/404', $compiled_router['routes'][1]['path'] ?? null);
+    }
+
     #[After]
     protected function cleanup_workspaces(): void
     {
@@ -144,4 +188,3 @@ ROUTER
         rmdir($directory_path);
     }
 }
-

@@ -19,6 +19,8 @@ final class RouterTest extends TestCase
     private bool $had_route = false;
     private mixed $original_routes = null;
     private bool $had_routes = false;
+    private mixed $original_route_assets_path = null;
+    private bool $had_route_assets_path = false;
     private string $fixtures_dir;
 
     public function test_get_uri_returns_path_without_query_string(): void
@@ -95,6 +97,65 @@ final class RouterTest extends TestCase
         $router->render();
     }
 
+    public function test_render_serves_asset_file_when_assets_are_configured(): void
+    {
+        $_SERVER['REQUEST_URI'] = '/assets/site.css';
+
+        $router = $this->create_router('routes_with_assets.php');
+        ob_start();
+
+        try {
+            $router->render();
+            $output = ob_get_clean();
+        } catch (\Throwable $exception) {
+            ob_end_clean();
+
+            throw $exception;
+        }
+
+        $expected_asset_content = file_get_contents($this->fixtures_dir.'/assets/site.css');
+        self::assertIsString($expected_asset_content);
+        self::assertSame($expected_asset_content, $output);
+    }
+
+    public function test_render_does_not_serve_assets_when_assets_are_not_configured(): void
+    {
+        $_SERVER['REQUEST_URI'] = '/assets/site.css';
+
+        $router = $this->create_router('routes.php');
+        ob_start();
+
+        try {
+            $router->render();
+            $output = ob_get_clean();
+        } catch (\Throwable $exception) {
+            ob_end_clean();
+
+            throw $exception;
+        }
+
+        self::assertSame('Not Found', $output);
+    }
+
+    public function test_render_blocks_asset_directory_traversal_attempts(): void
+    {
+        $_SERVER['REQUEST_URI'] = '/assets/../config.php';
+
+        $router = $this->create_router('routes_with_assets.php');
+        ob_start();
+
+        try {
+            $router->render();
+            $output = ob_get_clean();
+        } catch (\Throwable $exception) {
+            ob_end_clean();
+
+            throw $exception;
+        }
+
+        self::assertSame('Not Found', $output);
+    }
+
     public function test_constructor_loads_config_file_into_env_as_global_values(): void
     {
         $_SERVER['REQUEST_URI'] = '/';
@@ -120,12 +181,15 @@ final class RouterTest extends TestCase
         $this->original_route = $this->had_route ? $GLOBALS['route'] : null;
         $this->had_routes = array_key_exists('routes', $GLOBALS);
         $this->original_routes = $this->had_routes ? $GLOBALS['routes'] : null;
+        $this->had_route_assets_path = array_key_exists('route_assets_path', $GLOBALS);
+        $this->original_route_assets_path = $this->had_route_assets_path ? $GLOBALS['route_assets_path'] : null;
         $this->fixtures_dir = dirname(__DIR__).'/Fixtures/router';
 
         $_SERVER = [];
         $_ENV = [];
         $GLOBALS['_ENV'] = $_ENV;
         unset($GLOBALS['route']);
+        unset($GLOBALS['route_assets_path']);
     }
 
     #[After]
@@ -144,6 +208,12 @@ final class RouterTest extends TestCase
             $GLOBALS['routes'] = $this->original_routes;
         } else {
             unset($GLOBALS['routes']);
+        }
+
+        if ($this->had_route_assets_path) {
+            $GLOBALS['route_assets_path'] = $this->original_route_assets_path;
+        } else {
+            unset($GLOBALS['route_assets_path']);
         }
 
         if ($this->had_global_env) {

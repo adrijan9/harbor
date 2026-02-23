@@ -9,6 +9,7 @@ require_once __DIR__.'/../Support/value.php';
 
 use function Harbor\Config\config_init_global;
 use function Harbor\Support\harbor_is_blank;
+use function Harbor\Support\harbor_is_null;
 
 /**
  * Class Router.
@@ -16,13 +17,16 @@ use function Harbor\Support\harbor_is_blank;
 class Router
 {
     private array $routes;
+    private ?string $assets_path = null;
 
     public function __construct(
         private readonly string $router_path,
         private readonly string $config_path,
     ) {
-        $this->routes = require $router_path;
+        $compiled_router = require $router_path;
+        [$this->routes, $this->assets_path] = $this->normalize_compiled_router($compiled_router);
         $GLOBALS['routes'] = $this->routes;
+        $GLOBALS['route_assets_path'] = $this->assets_path;
 
         config_init_global($this->config_path);
     }
@@ -40,7 +44,16 @@ class Router
         $query_params = $this->get_query_params();
 
         foreach ($this->routes as $route) {
-            $segments = $this->extract_route_segments($route['path'], $current_uri);
+            if (! is_array($route)) {
+                continue;
+            }
+
+            $route_path = $route['path'] ?? null;
+            if (! is_string($route_path)) {
+                continue;
+            }
+
+            $segments = $this->extract_route_segments($route_path, $current_uri);
 
             if (null !== $segments) {
                 $route['segments'] = $segments;
@@ -50,7 +63,7 @@ class Router
             }
         }
 
-        $route = $this->routes[count($this->routes) - 1];
+        $route = $this->resolve_not_found_route();
         $route['segments'] = [];
         $route['query'] = $query_params;
 
@@ -59,6 +72,10 @@ class Router
 
     public function render(array $variables = []): void
     {
+        if ($this->render_asset_if_configured()) {
+            return;
+        }
+
         $current_route = $this->current();
         $entry = $current_route['entry'] ?? null;
         $normalized_entry = is_string($entry) ? trim($entry) : '';
@@ -151,6 +168,170 @@ class Router
         extract($variables, EXTR_SKIP);
 
         require $entry_path;
+    }
+
+    private function normalize_compiled_router(mixed $compiled_router): array
+    {
+        if (! is_array($compiled_router)) {
+            throw new \RuntimeException('Compiled routes payload is invalid.');
+        }
+
+        if (array_key_exists('routes', $compiled_router)) {
+            $compiled_routes = $compiled_router['routes'];
+            if (! is_array($compiled_routes)) {
+                throw new \RuntimeException('Compiled routes payload is invalid.');
+            }
+
+            $compiled_assets_path = $compiled_router['assets'] ?? null;
+            if (! harbor_is_null($compiled_assets_path) && ! is_string($compiled_assets_path)) {
+                throw new \RuntimeException('Compiled assets path is invalid.');
+            }
+
+            return [$compiled_routes, is_string($compiled_assets_path) ? $compiled_assets_path : null];
+        }
+
+        return [$compiled_router, null];
+    }
+
+    private function resolve_not_found_route(): array
+    {
+        for ($index = count($this->routes) - 1; $index >= 0; --$index) {
+            $route = $this->routes[$index];
+            if (is_array($route)) {
+                return $route;
+            }
+        }
+
+        throw new \RuntimeException('No routes are defined.');
+    }
+
+    private function render_asset_if_configured(): bool
+    {
+        if (harbor_is_blank($this->assets_path)) {
+            return false;
+        }
+
+        $request_uri_path = $this->get_uri();
+        $normalized_assets_uri_path = $this->normalize_assets_uri_path($this->assets_path);
+
+        if ($request_uri_path !== $normalized_assets_uri_path && ! str_starts_with($request_uri_path, $normalized_assets_uri_path.'/')) {
+            return false;
+        }
+
+        $requested_asset_relative_path = trim(substr($request_uri_path, strlen($normalized_assets_uri_path)), '/');
+        if (harbor_is_blank($requested_asset_relative_path)) {
+            return false;
+        }
+
+        $asset_file_path = $this->resolve_asset_file_path($requested_asset_relative_path);
+        if (harbor_is_null($asset_file_path)) {
+            return false;
+        }
+
+        $this->render_asset_file($asset_file_path);
+
+        return true;
+    }
+
+    private function normalize_assets_uri_path(string $assets_path): string
+    {
+        $normalized_path = '/'.ltrim($assets_path, '/');
+
+        return rtrim($normalized_path, '/');
+    }
+
+    private function resolve_asset_file_path(string $asset_relative_path): ?string
+    {
+        $normalized_assets_path = is_string($this->assets_path) ? trim($this->assets_path) : '';
+        if (harbor_is_blank($normalized_assets_path)) {
+            return null;
+        }
+
+        $site_root_path = dirname($this->router_path);
+        $assets_directory_path = $site_root_path.'/'.ltrim(str_replace('\\', '/', $normalized_assets_path), '/');
+
+        if (! is_dir($assets_directory_path)) {
+            return null;
+        }
+
+        $resolved_assets_directory_path = realpath($assets_directory_path);
+        if (false === $resolved_assets_directory_path) {
+            return null;
+        }
+
+        $decoded_relative_path = rawurldecode($asset_relative_path);
+        $normalized_relative_path = ltrim(str_replace('\\', '/', $decoded_relative_path), '/');
+        if (harbor_is_blank($normalized_relative_path)) {
+            return null;
+        }
+
+        $resolved_asset_file_path = realpath($resolved_assets_directory_path.'/'.$normalized_relative_path);
+        if (false === $resolved_asset_file_path || ! is_file($resolved_asset_file_path)) {
+            return null;
+        }
+
+        if (! str_starts_with($resolved_asset_file_path, $resolved_assets_directory_path.'/')) {
+            return null;
+        }
+
+        return $resolved_asset_file_path;
+    }
+
+    private function render_asset_file(string $asset_file_path): void
+    {
+        if (! headers_sent()) {
+            header('Content-Type: '.$this->resolve_asset_mime_type($asset_file_path));
+
+            $asset_file_size = filesize($asset_file_path);
+            if (false !== $asset_file_size) {
+                header('Content-Length: '.(string) $asset_file_size);
+            }
+        }
+
+        readfile($asset_file_path);
+    }
+
+    private function resolve_asset_mime_type(string $asset_file_path): string
+    {
+        $extension = strtolower(pathinfo($asset_file_path, PATHINFO_EXTENSION));
+        $known_mime_types = [
+            'css' => 'text/css',
+            'js' => 'application/javascript',
+            'mjs' => 'application/javascript',
+            'json' => 'application/json',
+            'map' => 'application/json',
+            'html' => 'text/html; charset=UTF-8',
+            'txt' => 'text/plain; charset=UTF-8',
+            'svg' => 'image/svg+xml',
+            'png' => 'image/png',
+            'jpg' => 'image/jpeg',
+            'jpeg' => 'image/jpeg',
+            'gif' => 'image/gif',
+            'webp' => 'image/webp',
+            'ico' => 'image/x-icon',
+            'woff' => 'font/woff',
+            'woff2' => 'font/woff2',
+            'ttf' => 'font/ttf',
+            'otf' => 'font/otf',
+            'eot' => 'application/vnd.ms-fontobject',
+            'pdf' => 'application/pdf',
+            'xml' => 'application/xml',
+            'mp4' => 'video/mp4',
+            'webm' => 'video/webm',
+            'mp3' => 'audio/mpeg',
+            'wav' => 'audio/wav',
+        ];
+
+        if (array_key_exists($extension, $known_mime_types)) {
+            return $known_mime_types[$extension];
+        }
+
+        $detected_mime_type = function_exists('mime_content_type') ? mime_content_type($asset_file_path) : null;
+        if (is_string($detected_mime_type) && ! harbor_is_blank($detected_mime_type)) {
+            return $detected_mime_type;
+        }
+
+        return 'application/octet-stream';
     }
 
     private function is_absolute_path(string $path): bool

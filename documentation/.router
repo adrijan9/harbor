@@ -1,3 +1,5 @@
+<assets>/assets</assets>
+
 <route>
   path: /
   method: GET

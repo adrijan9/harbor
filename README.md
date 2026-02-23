@@ -139,6 +139,14 @@ Harbor uses strict front-controller routing by default:
 
 The `init` command copies files from `templates/site/`, so you can customize future scaffolds by editing that directory.
 
+To expose static files explicitly, declare assets at the top of `.router`:
+
+```ini
+<assets>/assets</assets>
+```
+
+This enables URLs like `/assets/app.css` and `/assets/logo.png`. If the `<assets>` directive is missing, asset files are not served.
+
 You can also run the built-in documentation site:
 
 ```bash

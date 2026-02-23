@@ -19,7 +19,9 @@ require __DIR__.'/../shared/header.php';
     <h2>Define Routes</h2>
 
     <h3>Example</h3>
-    <pre><code class="language-ini">&lt;route&gt;
+    <pre><code class="language-ini">&lt;assets&gt;/assets&lt;/assets&gt;
+
+&lt;route&gt;
   path: /
   method: GET
   name: docs.home
@@ -38,6 +40,7 @@ require __DIR__.'/../shared/header.php';
 
     <h3>What it does</h3>
     <p>Preprocesses <code>#include</code> lines first, then compiles final route entries into <code>routes.php</code>.</p>
+    <p>When <code>&lt;assets&gt;...&lt;/assets&gt;</code> is present at the top of <code>.router</code>, requests under that URL prefix are served as static files from that directory.</p>
 
     <h3>API</h3>
     <details class="api-details">
@@ -65,6 +68,10 @@ entry: pages/routing.php
 #include "./routes/shared.router"
 # Imports another .router file before compile.
 # Included content replaces the include line.
+
+&lt;assets&gt;/assets&lt;/assets&gt;
+# Optional static assets URL/directory prefix.
+# Must be declared before any route definitions.
 
 path: /404
 # Fallback path used when no route matches.
