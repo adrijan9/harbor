@@ -15,29 +15,29 @@ function config_init(string ...$config_files): void
         return;
     }
 
-    $environment = is_array($_ENV) ? $_ENV : [];
+    $environment = config_all();
 
     foreach ($config_files as $config_file) {
-        $normalized_path = trim($config_file);
-        if (harbor_is_blank($normalized_path)) {
-            throw new \InvalidArgumentException('Config file path cannot be empty.');
-        }
-
-        if (! is_file($normalized_path)) {
-            throw new \RuntimeException(sprintf('Config file not found: %s', $normalized_path));
-        }
-
-        $loaded_config = require $normalized_path;
-        if (! is_array($loaded_config)) {
-            throw new \RuntimeException(sprintf('Config file "%s" must return an array.', $normalized_path));
-        }
-
+        $normalized_path = config_normalize_file_path($config_file);
+        $loaded_config = config_load_file($normalized_path);
         $config_key = config_file_key($normalized_path);
         $environment[$config_key] = $loaded_config;
     }
 
-    $_ENV = $environment;
-    $GLOBALS['_ENV'] = $_ENV;
+    config_write_environment($environment);
+}
+
+function config_init_global(string $config_file): void
+{
+    $normalized_path = config_normalize_file_path($config_file);
+    $loaded_config = config_load_file($normalized_path);
+    $environment = config_all();
+
+    foreach ($loaded_config as $config_key => $config_value) {
+        $environment[$config_key] = $config_value;
+    }
+
+    config_write_environment($environment);
 }
 
 function config(?string $key = null, mixed $default = null): mixed
@@ -134,6 +134,36 @@ function config_file_key(string $config_path): string
     }
 
     return $file_key;
+}
+
+function config_normalize_file_path(string $config_file): string
+{
+    $normalized_path = trim($config_file);
+    if (harbor_is_blank($normalized_path)) {
+        throw new \InvalidArgumentException('Config file path cannot be empty.');
+    }
+
+    return $normalized_path;
+}
+
+function config_load_file(string $config_file): array
+{
+    if (! is_file($config_file)) {
+        throw new \RuntimeException(sprintf('Config file not found: %s', $config_file));
+    }
+
+    $loaded_config = require $config_file;
+    if (! is_array($loaded_config)) {
+        throw new \RuntimeException(sprintf('Config file "%s" must return an array.', $config_file));
+    }
+
+    return $loaded_config;
+}
+
+function config_write_environment(array $environment): void
+{
+    $_ENV = $environment;
+    $GLOBALS['_ENV'] = $_ENV;
 }
 
 function config_array_has(array $array, string $key): bool

@@ -61,6 +61,11 @@ config_init(
 // Stores each file by filename key inside $_ENV.
 config_init(__DIR__.'/config/app.php', __DIR__.'/config/database.php');
 
+function config_init_global(string $config_file): void
+// Loads one config file and merges values into top-level $_ENV.
+// Useful for site-level config.php loaded by Router.
+config_init_global(__DIR__.'/config.php');
+
 function config_all(): array
 // Returns full runtime config map from $_ENV.
 // Useful for debug snapshots.
@@ -160,7 +165,7 @@ new Router(
     __DIR__.'/config.php',
 )->render();</code></pre>
     <h3>What it does</h3>
-    <p>Router constructor requires a config path and calls <code>config_init()</code> before route render.</p>
+    <p>Router constructor requires a config path and calls <code>config_init_global()</code> before route render.</p>
     <h3>API</h3>
     <details class="api-details">
         <summary class="api-summary">
@@ -170,7 +175,7 @@ new Router(
         <div class="api-body">
             <pre><code class="language-php">public function __construct(string $router_path, string $config_path)
 // Loads routes from file.
-// Always loads the provided config file into $_ENV by filename key.
+// Loads the provided config file into top-level $_ENV keys.
 $router = new Router(__DIR__.'/routes.php', __DIR__.'/config.php');</code></pre>
         </div>
     </details>

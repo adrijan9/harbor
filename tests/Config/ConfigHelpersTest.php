@@ -18,6 +18,7 @@ use function Harbor\Config\config_exists;
 use function Harbor\Config\config_float;
 use function Harbor\Config\config_get;
 use function Harbor\Config\config_init;
+use function Harbor\Config\config_init_global;
 use function Harbor\Config\config_int;
 use function Harbor\Config\config_json;
 use function Harbor\Config\config_obj;
@@ -70,6 +71,29 @@ final class ConfigHelpersTest extends TestCase
         self::assertTrue(config_exists('database.profile.team'));
         self::assertSame(2, config_count());
         self::assertSame($_ENV, config_all());
+    }
+
+    public function test_config_init_global_registers_file_values_as_top_level_keys(): void
+    {
+        $config_file = $this->create_temp_config_file('config.php', [
+            'app_name' => 'Harbor Site',
+            'environment' => 'local',
+            'feature' => ['enabled' => true],
+        ]);
+
+        $_ENV = [
+            'app' => ['app_name' => 'legacy'],
+            'keep' => 'value',
+        ];
+        $GLOBALS['_ENV'] = $_ENV;
+
+        config_init_global($config_file);
+
+        self::assertSame('Harbor Site', config('app_name'));
+        self::assertSame('local', config_get('environment'));
+        self::assertTrue(config_bool('feature.enabled'));
+        self::assertSame('legacy', config_get('app.app_name'));
+        self::assertSame('value', config_get('keep'));
     }
 
     public function test_config_helpers_return_defaults_for_missing_or_invalid_values(): void

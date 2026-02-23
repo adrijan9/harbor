@@ -7,7 +7,7 @@ namespace Harbor\Router;
 require_once __DIR__.'/../Config/config.php';
 require_once __DIR__.'/../Support/value.php';
 
-use function Harbor\Config\config_init;
+use function Harbor\Config\config_init_global;
 use function Harbor\Support\harbor_is_blank;
 
 /**
@@ -24,7 +24,7 @@ class Router
         $this->routes = require $router_path;
         $GLOBALS['routes'] = $this->routes;
 
-        config_init($this->config_path);
+        config_init_global($this->config_path);
     }
 
     public function get_uri(): string

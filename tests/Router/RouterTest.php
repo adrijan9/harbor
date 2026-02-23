@@ -95,15 +95,18 @@ final class RouterTest extends TestCase
         $router->render();
     }
 
-    public function test_constructor_loads_config_file_into_env_under_filename_key(): void
+    public function test_constructor_loads_config_file_into_env_as_global_values(): void
     {
         $_SERVER['REQUEST_URI'] = '/';
 
         $this->create_router(config_file: 'config.php');
 
-        self::assertSame('fixture-site', $_ENV['config']['app_name'] ?? null);
-        self::assertSame('true', $_ENV['config']['feature_enabled'] ?? null);
-        self::assertSame('3306', $_ENV['config']['db']['port'] ?? null);
+        self::assertSame('fixture-site', $_ENV['app_name'] ?? null);
+        self::assertSame('true', $_ENV['feature_enabled'] ?? null);
+        self::assertSame('3306', $_ENV['db']['port'] ?? null);
+        self::assertSame('fixture-site', \Harbor\Config\config('app_name'));
+        self::assertSame('true', \Harbor\Config\config('feature_enabled'));
+        self::assertSame('3306', \Harbor\Config\config('db.port'));
     }
 
     #[Before]
