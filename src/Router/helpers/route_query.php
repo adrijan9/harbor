@@ -27,7 +27,7 @@ function route_query(?string $key = null, mixed $default = null): mixed
 
 function route_query_only(string ...$keys): array
 {
-    if ([] === $keys) {
+    if (empty($keys)) {
         return [];
     }
 

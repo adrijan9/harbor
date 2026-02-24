@@ -450,7 +450,7 @@ function request_input(?string $key = null, mixed $default = null): mixed
 
 function request_only(string ...$keys): array
 {
-    if ([] === $keys) {
+    if (empty($keys)) {
         return [];
     }
 
