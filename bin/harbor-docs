@@ -11,9 +11,16 @@ if (in_array('--help', $arguments, true) || in_array('-h', $arguments, true)) {
     exit(0);
 }
 
-$documentation_path = realpath(__DIR__.'/../documentation');
-if (false === $documentation_path || ! is_dir($documentation_path)) {
+$documentation_root_path = realpath(__DIR__.'/../documentation');
+if (false === $documentation_root_path || ! is_dir($documentation_root_path)) {
     fwrite(STDERR, sprintf('Documentation directory not found: %s%s', __DIR__.'/../documentation', PHP_EOL));
+
+    exit(1);
+}
+
+$documentation_path = $documentation_root_path.'/public';
+if (! is_dir($documentation_path)) {
+    fwrite(STDERR, sprintf('Documentation public directory not found: %s%s', $documentation_path, PHP_EOL));
 
     exit(1);
 }

@@ -53,7 +53,7 @@ require __DIR__.'/../shared/header.php';
     <pre><code class="language-bash">./bin/harbor documentation/.router
 ./bin/harbor documentation</code></pre>
     <h3>What it does</h3>
-    <p>Compiles route definitions into <code>routes.php</code>.</p>
+    <p>Compiles route definitions into <code>public/routes.php</code> when <code>public/</code> exists, otherwise <code>routes.php</code>.</p>
     <h3>API</h3>
     <details class="api-details">
         <summary class="api-summary">

@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 $page_title = 'Harbor Docs - Routing';
-$page_description = 'Define routes with .router files and compile to routes.php.';
+$page_description = 'Define routes with .router files and compile to public/routes.php when public exists.';
 $page_id = 'routing';
 
 require __DIR__.'/../shared/header.php';
@@ -12,7 +12,7 @@ require __DIR__.'/../shared/header.php';
 <section class="hero">
     <span class="hero-eyebrow">Routing</span>
     <h1>Routing</h1>
-    <p>Write routes in <code>.router</code>, compile to <code>routes.php</code>, then match by path segments.</p>
+    <p>Write routes in <code>.router</code>, compile to <code>public/routes.php</code> when <code>public/</code> exists (otherwise <code>routes.php</code>), then match by path segments.</p>
 </section>
 
 <section class="docs-section">
@@ -39,7 +39,7 @@ require __DIR__.'/../shared/header.php';
 ./bin/harbor .</code></pre>
 
     <h3>What it does</h3>
-    <p>Preprocesses <code>#include</code> lines first, then compiles final route entries into <code>routes.php</code>.</p>
+    <p>Preprocesses <code>#include</code> lines first, then compiles final route entries into a routes file.</p>
     <p>When <code>&lt;assets&gt;...&lt;/assets&gt;</code> is present at the top of <code>.router</code>, requests under that URL prefix are served as static files from that directory.</p>
 
     <h3>API</h3>
@@ -323,7 +323,7 @@ $guide_path = route('docs.guide', ['php']); // "/guides/php"</code></pre>
 
 require __DIR__.'/../vendor/autoload.php';
 
-new Router(__DIR__.'/routes.php', __DIR__.'/config.php')->render();</code></pre>
+new Router(__DIR__.'/routes.php', __DIR__.'/../global.php')->render();</code></pre>
 
     <h3>What it does</h3>
     <p>Loads routes, resolves the current route, then includes the matched entry file.</p>
@@ -338,7 +338,7 @@ new Router(__DIR__.'/routes.php', __DIR__.'/config.php')->render();</code></pre>
             <pre><code class="language-php">public function __construct(string $router_path, string $config_path)
 // Creates router using compiled routes file.
 // The config path is required and loaded into $_ENV.
-$router = new Router(__DIR__.'/routes.php', __DIR__.'/config.php');
+$router = new Router(__DIR__.'/routes.php', __DIR__.'/../global.php');
 
 public function get_uri(): string
 // Returns current request path.
@@ -374,15 +374,15 @@ $router->render(['name' => 'Ada']);</code></pre>
         <div class="api-body">
             <pre><code class="language-bash">./bin/harbor .
 # Compiles ./.router by default.
-# Best for project root usage.
+# Writes ./public/routes.php when ./public exists.
 
 ./bin/harbor &lt;project-dir&gt;
 # Compiles &lt;project-dir&gt;/.router.
-# Good for multi-project workspace.
+# Writes &lt;project-dir&gt;/public/routes.php when &lt;project-dir&gt;/public exists.
 
 ./bin/harbor &lt;path-to-.router&gt;
 # Compiles a specific router file path.
-# Use when route file is outside default location.
+# Writes sibling public/routes.php when that public directory exists.
 
 #include "./routes/api.router"
 # Include directives are expanded before route parsing.

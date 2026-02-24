@@ -63,8 +63,8 @@ config_init(__DIR__.'/config/app.php', __DIR__.'/config/database.php');
 
 function config_init_global(string $config_file): void
 // Loads one config file and merges values into top-level $_ENV.
-// Useful for site-level config.php loaded by Router.
-config_init_global(__DIR__.'/config.php');
+// Useful for site-level global.php loaded by Router.
+config_init_global(__DIR__.'/../global.php');
 
 function config_all(): array
 // Returns full runtime config map from $_ENV.
@@ -162,7 +162,7 @@ $meta = config_json('database.meta', []);</code></pre>
 
 new Router(
     __DIR__.'/routes.php',
-    __DIR__.'/config.php',
+    __DIR__.'/../global.php',
 )->render();</code></pre>
     <h3>What it does</h3>
     <p>Router constructor requires a config path and calls <code>config_init_global()</code> before route render.</p>
@@ -176,7 +176,7 @@ new Router(
             <pre><code class="language-php">public function __construct(string $router_path, string $config_path)
 // Loads routes from file.
 // Loads the provided config file into top-level $_ENV keys.
-$router = new Router(__DIR__.'/routes.php', __DIR__.'/config.php');</code></pre>
+$router = new Router(__DIR__.'/routes.php', __DIR__.'/../global.php');</code></pre>
         </div>
     </details>
 </section>

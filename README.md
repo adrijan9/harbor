@@ -1,7 +1,7 @@
 # Harbor
 
-![Harbor Logo](documentation/assets/images/harbor_logo.png#gh-light-mode-only)
-![Harbor Logo](documentation/assets/images/harbor_dark_logo.png#gh-dark-mode-only)
+![Harbor Logo](documentation/public/assets/images/harbor_logo.png#gh-light-mode-only)
+![Harbor Logo](documentation/public/assets/images/harbor_dark_logo.png#gh-dark-mode-only)
 
 > ⚠️ Warning: Harbor is under active development and is not production-ready yet.
 
@@ -93,9 +93,12 @@ harbor/
         pages/
           index.php
   documentation/
-    index.php
-    routes.php
-    pages/
+    .router
+    global.php
+    public/
+      index.php
+      routes.php
+      pages/
   tests/
   serve.sh
 ```
