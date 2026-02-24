@@ -47,16 +47,20 @@ $request_data = request();</code></pre>
     <h2>Read Request Data</h2>
     <h3>Example</h3>
     <pre><code class="language-php">use function Harbor\Request\request_body_int;
+use function Harbor\Request\request_except;
 use function Harbor\Request\request_full_url;
 use function Harbor\Request\request_header_bool;
 use function Harbor\Request\request_input_str;
 use function Harbor\Request\request_method;
+use function Harbor\Request\request_only;
 
 $method = request_method();
 $url = request_full_url();
 $user_id = request_body_int('user.id');
 $trace_enabled = request_header_bool('x-trace-enabled');
-$search_query = request_input_str('search', '');</code></pre>
+$search_query = request_input_str('search', '');
+$payload = request_only('first', 'second');
+$without_token = request_except('token');</code></pre>
 
     <h3>What it does</h3>
     <p>Reads request values with typed helpers and defaults.</p>
@@ -321,6 +325,16 @@ $settings = request_body_json('settings', []);</code></pre>
 // Returns request input value.
 // Alias of request_body() in Harbor runtime.
 $input = request_input('name', '');
+
+function request_only(string ...$keys): array
+// Returns only listed input keys.
+// Accepts multiple keys and dot notation.
+$only = request_only('first', 'second');
+
+function request_except(string ...$keys): array
+// Returns input except listed keys.
+// Accepts multiple keys and dot notation.
+$filtered = request_except('token', 'password');
 
 function request_input_int(string $key, int $default = 0): int
 // Returns input value as int.

@@ -44,6 +44,7 @@ use function Harbor\Request\request_is_json;
 use function Harbor\Request\request_is_post;
 use function Harbor\Request\request_is_secure;
 use function Harbor\Request\request_method;
+use function Harbor\Request\request_only;
 use function Harbor\Request\request_path;
 use function Harbor\Request\request_port;
 use function Harbor\Request\request_query_string;
@@ -53,6 +54,7 @@ use function Harbor\Request\request_server;
 use function Harbor\Request\request_uri;
 use function Harbor\Request\request_url;
 use function Harbor\Request\request_user_agent;
+use function Harbor\Request\request_except;
 use function Harbor\Support\harbor_is_null;
 
 #[RunTestsInSeparateProcesses]
@@ -159,6 +161,41 @@ final class RequestHelpersTest extends TestCase
         self::assertInstanceOf(\stdClass::class, $body_object);
         self::assertSame(9, $body_object->id);
         self::assertSame('Ada', request_body_all()['name']);
+    }
+
+    public function test_request_only_and_except_helpers_filter_input_data(): void
+    {
+        $this->boot_request_helper(
+            server: [
+                'REQUEST_METHOD' => 'POST',
+                'REQUEST_URI' => '/submit',
+                'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
+            ],
+            post: [
+                'first' => 'Ada',
+                'second' => 'Lovelace',
+                'third' => 'Framework',
+                'filters' => ['owner' => ['id' => '44']],
+            ],
+        );
+
+        self::assertSame(
+            [
+                'first' => 'Ada',
+                'second' => 'Lovelace',
+                'filters.owner.id' => '44',
+            ],
+            request_only('first', 'second', 'filters.owner.id', 'missing')
+        );
+
+        self::assertSame(
+            [
+                'first' => 'Ada',
+                'third' => 'Framework',
+                'filters' => ['owner' => ['id' => '44']],
+            ],
+            request_except('second', 'missing')
+        );
     }
 
     public function test_request_cookie_file_server_and_snapshot_helpers(): void

@@ -446,6 +446,41 @@ function request_input(?string $key = null, mixed $default = null): mixed
     return request_body($key, $default);
 }
 
+function request_only(string ...$keys): array
+{
+    if ([] === $keys) {
+        return [];
+    }
+
+    $input = request_body_all();
+    $only = [];
+
+    foreach ($keys as $key) {
+        if (harbor_is_blank($key) || ! request_array_has($input, $key)) {
+            continue;
+        }
+
+        $only[$key] = request_array_get($input, $key);
+    }
+
+    return $only;
+}
+
+function request_except(string ...$keys): array
+{
+    $input = request_body_all();
+
+    foreach ($keys as $key) {
+        if (harbor_is_blank($key)) {
+            continue;
+        }
+
+        request_array_forget($input, $key);
+    }
+
+    return $input;
+}
+
 function request_input_int(string $key, int $default = 0): int
 {
     return request_value_to_int(request_input($key), $default);
@@ -644,6 +679,33 @@ function request_array_has(array $array, string $key): bool
     }
 
     return true;
+}
+
+function request_array_forget(array &$array, string $key): void
+{
+    if (array_key_exists($key, $array)) {
+        unset($array[$key]);
+
+        return;
+    }
+
+    $keys = explode('.', $key);
+    $current = &$array;
+    $last_index = count($keys) - 1;
+
+    foreach ($keys as $index => $segment_key) {
+        if (! is_array($current) || ! array_key_exists($segment_key, $current)) {
+            return;
+        }
+
+        if ($index === $last_index) {
+            unset($current[$segment_key]);
+
+            return;
+        }
+
+        $current = &$current[$segment_key];
+    }
 }
 
 function request_decode_json(string $value, bool $assoc): mixed
