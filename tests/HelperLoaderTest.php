@@ -29,6 +29,10 @@ final class HelperLoaderTest extends TestCase
         self::assertContains('request', $helpers);
         self::assertContains('filesystem', $helpers);
         self::assertContains('log', $helpers);
+        self::assertContains('lang', $helpers);
+        self::assertContains('language', $helpers);
+        self::assertContains('translation', $helpers);
+        self::assertContains('translations', $helpers);
     }
 
     public function test_load_throws_for_unknown_helper(): void
@@ -96,6 +100,22 @@ final class HelperLoaderTest extends TestCase
 
         self::assertTrue(function_exists('Harbor\Log\log_init'));
         self::assertTrue(function_exists('Harbor\Log\log_error'));
+    }
+
+    public function test_load_lang_helper_registers_namespaced_functions(): void
+    {
+        HelperLoader::load('lang');
+
+        self::assertTrue(function_exists('Harbor\Lang\lang_get'));
+        self::assertTrue(function_exists('Harbor\Lang\lang_set'));
+    }
+
+    public function test_load_translation_helper_registers_namespaced_functions(): void
+    {
+        HelperLoader::load('translation');
+
+        self::assertTrue(function_exists('Harbor\Lang\translation_init'));
+        self::assertTrue(function_exists('Harbor\Lang\t'));
     }
 
     #[Before]

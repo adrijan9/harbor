@@ -30,36 +30,42 @@ return [
             'entry' => 'pages/config.php',
         ],
         4 => [
+            'path' => '/lang',
+            'method' => 'GET',
+            'name' => 'docs.lang',
+            'entry' => 'pages/lang.php',
+        ],
+        5 => [
             'path' => '/support',
             'method' => 'GET',
             'name' => 'docs.support',
             'entry' => 'pages/support.php',
         ],
-        5 => [
+        6 => [
             'path' => '/request',
             'method' => 'GET',
             'name' => 'docs.request',
             'entry' => 'pages/request.php',
         ],
-        6 => [
+        7 => [
             'path' => '/filesystem',
             'method' => 'GET',
             'name' => 'docs.filesystem',
             'entry' => 'pages/filesystem.php',
         ],
-        7 => [
+        8 => [
             'path' => '/logging',
             'method' => 'GET',
             'name' => 'docs.logging',
             'entry' => 'pages/logging.php',
         ],
-        8 => [
+        9 => [
             'path' => '/cli',
             'method' => 'GET',
             'name' => 'docs.cli',
             'entry' => 'pages/cli.php',
         ],
-        9 => [
+        10 => [
             'method' => 'GET',
             'path' => '/404',
             'entry' => 'not_found.php',

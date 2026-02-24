@@ -40,17 +40,26 @@ final class HarborInitTest extends TestCase
         self::assertFileExists($site_path.'/routes.php');
         self::assertFileExists($site_path.'/not_found.php');
         self::assertFileExists($site_path.'/pages/index.php');
+        self::assertFileExists($site_path.'/lang/en.php');
+        self::assertFileDoesNotExist($site_path.'/lang/es.php');
 
         $config = require $site_path.'/config.php';
         self::assertIsArray($config);
         self::assertSame('Harbor Site', $config['app_name'] ?? null);
         self::assertSame('local', $config['environment'] ?? null);
+        self::assertSame('en', $config['lang'] ?? null);
 
         $index_content = file_get_contents($site_path.'/index.php');
         self::assertIsString($index_content);
         self::assertStringContainsString("new Router(", $index_content);
         self::assertStringContainsString("__DIR__.'/routes.php'", $index_content);
         self::assertStringContainsString("__DIR__.'/config.php'", $index_content);
+
+        $page_index_content = file_get_contents($site_path.'/pages/index.php');
+        self::assertIsString($page_index_content);
+        self::assertStringContainsString("HelperLoader::load('translation');", $page_index_content);
+        self::assertStringContainsString('translation_init([', $page_index_content);
+        self::assertStringContainsString("__DIR__.'/../lang/en.php'", $page_index_content);
 
         $htaccess_content = file_get_contents($site_path.'/.htaccess');
         self::assertIsString($htaccess_content);

@@ -29,6 +29,13 @@
 </route>
 
 <route>
+  path: /lang
+  method: GET
+  name: docs.lang
+  entry: pages/lang.php
+</route>
+
+<route>
   path: /support
   method: GET
   name: docs.support

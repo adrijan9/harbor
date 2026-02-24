@@ -37,6 +37,10 @@ require __DIR__.'/../shared/header.php';
             <h3>Config Helpers</h3>
             <p>Load one or many config files and read typed values from env.</p>
         </a>
+        <a class="card" href="/lang">
+            <h3>Lang &amp; Translation</h3>
+            <p>Locale helpers and Laravel-style translation keys.</p>
+        </a>
         <a class="card" href="/support">
             <h3>Support Helpers</h3>
             <p>Shared value checks for blank and null behavior.</p>

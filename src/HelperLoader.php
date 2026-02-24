@@ -73,6 +73,11 @@ final class HelperLoader
             'filesystem' => __DIR__.'/Filesystem/filesystem.php',
             // Log
             'log' => __DIR__.'/Log/log.php',
+            // Lang
+            'lang' => __DIR__.'/Lang/language.php',
+            'language' => __DIR__.'/Lang/language.php',
+            'translation' => __DIR__.'/Lang/translations.php',
+            'translations' => __DIR__.'/Lang/translations.php',
         ];
     }
 }
