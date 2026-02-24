@@ -23,6 +23,41 @@ function route_query(?string $key = null, mixed $default = null): mixed
     return route_array_get($query, $key, $default);
 }
 
+function route_query_only(string ...$keys): array
+{
+    if ([] === $keys) {
+        return [];
+    }
+
+    $query = route_queries();
+    $only = [];
+
+    foreach ($keys as $key) {
+        if (harbor_is_blank($key) || ! route_array_has($query, $key)) {
+            continue;
+        }
+
+        $only[$key] = route_array_get($query, $key);
+    }
+
+    return $only;
+}
+
+function route_query_except(string ...$keys): array
+{
+    $query = route_queries();
+
+    foreach ($keys as $key) {
+        if (harbor_is_blank($key)) {
+            continue;
+        }
+
+        route_array_forget($query, $key);
+    }
+
+    return $query;
+}
+
 function route_query_int(string $key, int $default = 0): int
 {
     $value = route_query($key);
@@ -234,4 +269,31 @@ function route_array_has(array $array, string $key): bool
     }
 
     return true;
+}
+
+function route_array_forget(array &$array, string $key): void
+{
+    if (array_key_exists($key, $array)) {
+        unset($array[$key]);
+
+        return;
+    }
+
+    $keys = explode('.', $key);
+    $current = &$array;
+    $last_index = count($keys) - 1;
+
+    foreach ($keys as $index => $segment_key) {
+        if (! is_array($current) || ! array_key_exists($segment_key, $current)) {
+            return;
+        }
+
+        if ($index === $last_index) {
+            unset($current[$segment_key]);
+
+            return;
+        }
+
+        $current = &$current[$segment_key];
+    }
 }

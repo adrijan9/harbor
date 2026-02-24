@@ -15,9 +15,11 @@ use function Harbor\Router\route_query;
 use function Harbor\Router\route_query_arr;
 use function Harbor\Router\route_query_bool;
 use function Harbor\Router\route_query_exists;
+use function Harbor\Router\route_query_except;
 use function Harbor\Router\route_query_int;
 use function Harbor\Router\route_query_json;
 use function Harbor\Router\route_query_obj;
+use function Harbor\Router\route_query_only;
 use function Harbor\Router\route_query_str;
 use function Harbor\Router\route_segment;
 use function Harbor\Router\route_segment_arr;
@@ -85,6 +87,28 @@ final class RouteHelpersTest extends TestCase
         self::assertSame([], route_query_arr('missing', []));
         self::assertSame($GLOBALS['route']['query'], route_query());
         self::assertSame(6, route_queries_count());
+    }
+
+    public function test_query_only_and_except_helpers_filter_query_data(): void
+    {
+        self::assertSame(
+            [
+                'page' => '7',
+                'enabled' => '1',
+                'filters.author.id' => '9',
+            ],
+            route_query_only('page', 'enabled', 'filters.author.id', 'missing')
+        );
+
+        self::assertSame(
+            [
+                'page' => '7',
+                'tags' => 'php,tests',
+                'filters' => ['author' => ['id' => '9']],
+                'payload' => rawurlencode('{"name":"Ada"}'),
+            ],
+            route_query_except('enabled', 'meta', 'missing')
+        );
     }
 
     public function test_named_route_helpers_build_paths_and_check_presence(): void

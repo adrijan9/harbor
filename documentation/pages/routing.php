@@ -141,12 +141,16 @@ use function Harbor\Router\route;
 use function Harbor\Router\route_exists;
 use function Harbor\Router\route_name_is;
 use function Harbor\Router\route_query;
+use function Harbor\Router\route_query_except;
+use function Harbor\Router\route_query_only;
 use function Harbor\Router\route_segment;
 
 HelperLoader::load('route');
 
 $guide_slug = route_segment(0, 'overview');
 $tab = route_query('tab', 'general');
+$query_only = route_query_only('tab', 'page');
+$query_except = route_query_except('token');
 $guide_link = route('docs.guide', [$guide_slug]);
 $has_home = route_exists('docs.home');
 $is_guide_page = route_name_is('docs.guide');</code></pre>
@@ -228,6 +232,16 @@ $has_first = route_segment_exists(0);</code></pre>
 // Gets one query value or full query array.
 // Supports dot notation for nested keys.
 $tab = route_query('tab', 'general');
+
+function route_query_only(string ...$keys): array
+// Returns only listed query keys.
+// Accepts multiple keys and dot notation.
+$only = route_query_only('tab', 'page');
+
+function route_query_except(string ...$keys): array
+// Returns query array except listed keys.
+// Accepts multiple keys and dot notation.
+$filtered = route_query_except('token', 'signature');
 
 function route_query_int(string $key, int $default = 0): int
 // Gets one query value as int.
