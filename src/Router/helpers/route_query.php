@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Harbor\Router;
 
+require_once __DIR__.'/../../Support/array.php';
 require_once __DIR__.'/../../Support/value.php';
 
+use function Harbor\Support\array_forget;
 use function Harbor\Support\harbor_is_blank;
 use function Harbor\Support\harbor_is_null;
 
@@ -52,7 +54,7 @@ function route_query_except(string ...$keys): array
             continue;
         }
 
-        route_array_forget($query, $key);
+        array_forget($query, $key);
     }
 
     return $query;
@@ -269,31 +271,4 @@ function route_array_has(array $array, string $key): bool
     }
 
     return true;
-}
-
-function route_array_forget(array &$array, string $key): void
-{
-    if (array_key_exists($key, $array)) {
-        unset($array[$key]);
-
-        return;
-    }
-
-    $keys = explode('.', $key);
-    $current = &$array;
-    $last_index = count($keys) - 1;
-
-    foreach ($keys as $index => $segment_key) {
-        if (! is_array($current) || ! array_key_exists($segment_key, $current)) {
-            return;
-        }
-
-        if ($index === $last_index) {
-            unset($current[$segment_key]);
-
-            return;
-        }
-
-        $current = &$current[$segment_key];
-    }
 }

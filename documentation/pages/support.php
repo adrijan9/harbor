@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-$page_title = 'Harbor Docs - Support Value Helpers';
-$page_description = 'Shared value helpers for blank and null checks.';
+$page_title = 'Harbor Docs - Support Helpers';
+$page_description = 'Shared support helpers for value checks and array mutation.';
 $page_id = 'support';
 
 require __DIR__.'/../shared/header.php';
@@ -11,8 +11,8 @@ require __DIR__.'/../shared/header.php';
 
 <section class="hero">
     <span class="hero-eyebrow">Helpers</span>
-    <h1>Support Value Helpers</h1>
-    <p>Reusable checks for blank and null values with explicit <code>'0'</code> behavior.</p>
+    <h1>Support Helpers</h1>
+    <p>Reusable helpers for value checks and array key mutation.</p>
 </section>
 
 <section class="docs-section">
@@ -20,20 +20,23 @@ require __DIR__.'/../shared/header.php';
     <h3>Example</h3>
     <pre><code class="language-php">use Harbor\HelperLoader;
 
-HelperLoader::load('value');</code></pre>
+HelperLoader::load('value');
+HelperLoader::load('array');</code></pre>
     <h3>What it does</h3>
-    <p>Loads support value helper functions into the <code>Harbor\Support</code> namespace.</p>
+    <p>Loads support helper functions into the <code>Harbor\Support</code> namespace.</p>
     <h3>API</h3>
     <details class="api-details">
         <summary class="api-summary">
-            <span>Value Loader API</span>
+            <span>Support Loader API</span>
             <span class="api-state"><span class="api-state-closed">Hidden - click to open</span><span class="api-state-open">Open</span></span>
         </summary>
         <div class="api-body">
             <pre><code class="language-php">HelperLoader::load(string $helper_name): void
 // Loads helper module by name.
-// Use "value" to register support value helpers.
-HelperLoader::load('value');</code></pre>
+// Use "value" for blank/null checks.
+HelperLoader::load('value');
+// Use "array" for array mutation helpers.
+HelperLoader::load('array');</code></pre>
         </div>
     </details>
 </section>
@@ -66,6 +69,35 @@ function harbor_is_null(mixed $value): bool
 // Returns true only when the value is null.
 // Useful when default fallback should trigger only for null.
 $is_null = harbor_is_null($value);</code></pre>
+        </div>
+    </details>
+</section>
+
+<section class="docs-section">
+    <h2>Array Mutation</h2>
+    <h3>Example</h3>
+    <pre><code class="language-php">use function Harbor\Support\array_forget;
+
+$filters = [
+    'owner' => ['id' => '44', 'name' => 'Ada'],
+    'active' => true,
+];
+
+array_forget($filters, 'owner.id');
+// $filters is now: ['owner' => ['name' => 'Ada'], 'active' => true]</code></pre>
+    <h3>What it does</h3>
+    <p>Removes one key by exact name or dot notation path from an array.</p>
+    <h3>API</h3>
+    <details class="api-details">
+        <summary class="api-summary">
+            <span>Array Helper API</span>
+            <span class="api-state"><span class="api-state-closed">Hidden - click to open</span><span class="api-state-open">Open</span></span>
+        </summary>
+        <div class="api-body">
+            <pre><code class="language-php">function array_forget(array &$array, string $key): void
+// Removes one key from array by exact key or dot notation path.
+// Does nothing when key/path is missing.
+array_forget($payload, 'filters.owner.id');</code></pre>
         </div>
     </details>
 </section>

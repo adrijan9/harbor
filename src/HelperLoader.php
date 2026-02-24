@@ -66,6 +66,7 @@ final class HelperLoader
             'config' => __DIR__.'/Config/config.php',
             // Support
             'value' => __DIR__.'/Support/value.php',
+            'array' => __DIR__.'/Support/array.php',
             // Request
             'request' => __DIR__.'/Request/request.php',
             // Filesystem

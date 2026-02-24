@@ -25,6 +25,7 @@ final class HelperLoaderTest extends TestCase
         self::assertContains('route_named', $helpers);
         self::assertContains('config', $helpers);
         self::assertContains('value', $helpers);
+        self::assertContains('array', $helpers);
         self::assertContains('request', $helpers);
         self::assertContains('filesystem', $helpers);
         self::assertContains('log', $helpers);
@@ -72,6 +73,13 @@ final class HelperLoaderTest extends TestCase
 
         self::assertTrue(function_exists('Harbor\Support\harbor_is_blank'));
         self::assertTrue(function_exists('Harbor\Support\harbor_is_null'));
+    }
+
+    public function test_load_array_helper_registers_namespaced_functions(): void
+    {
+        HelperLoader::load('array');
+
+        self::assertTrue(function_exists('Harbor\Support\array_forget'));
     }
 
     public function test_load_filesystem_helper_registers_namespaced_functions(): void

@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Harbor\Request;
 
+require_once __DIR__.'/../Support/array.php';
 require_once __DIR__.'/../Support/value.php';
 
+use function Harbor\Support\array_forget;
 use function Harbor\Support\harbor_is_blank;
 
 /**
@@ -475,7 +477,7 @@ function request_except(string ...$keys): array
             continue;
         }
 
-        request_array_forget($input, $key);
+        array_forget($input, $key);
     }
 
     return $input;
@@ -679,33 +681,6 @@ function request_array_has(array $array, string $key): bool
     }
 
     return true;
-}
-
-function request_array_forget(array &$array, string $key): void
-{
-    if (array_key_exists($key, $array)) {
-        unset($array[$key]);
-
-        return;
-    }
-
-    $keys = explode('.', $key);
-    $current = &$array;
-    $last_index = count($keys) - 1;
-
-    foreach ($keys as $index => $segment_key) {
-        if (! is_array($current) || ! array_key_exists($segment_key, $current)) {
-            return;
-        }
-
-        if ($index === $last_index) {
-            unset($current[$segment_key]);
-
-            return;
-        }
-
-        $current = &$current[$segment_key];
-    }
 }
 
 function request_decode_json(string $value, bool $assoc): mixed

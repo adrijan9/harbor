@@ -55,6 +55,7 @@ This command will serve the documentation site on `http://localhost:<SOME_PORT>`
   - `route` for route segment/query access and named route path/current checks
   - `config` for config file loading and typed env reads
   - `value` for shared blank/null checks (`harbor_is_blank`, `harbor_is_null`)
+  - `array` for shared array mutation helpers (`array_forget`)
   - `request` for typed request metadata/body/header helpers
   - `filesystem` for explicit file/directory operations
   - `log` for structured logging helpers and levels
