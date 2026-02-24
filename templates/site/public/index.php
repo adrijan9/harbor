@@ -8,5 +8,5 @@ use Harbor\Router\Router;
 
 new Router(
     __DIR__.'/routes.php',
-    __DIR__.'/config.php',
+    __DIR__.'/../global.php',
 )->render();

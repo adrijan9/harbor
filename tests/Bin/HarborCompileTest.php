@@ -136,10 +136,37 @@ ROUTER
         self::assertSame('/404', $compiled_router['routes'][1]['path'] ?? null);
     }
 
+    public function test_run_compile_writes_routes_into_public_directory_when_present(): void
+    {
+        $workspace_path = $this->create_workspace();
+        $router_path = $workspace_path.'/.router';
+        mkdir($workspace_path.'/public', 0o777, true);
+
+        file_put_contents($router_path, <<<'ROUTER'
+<route>
+  path: /
+  method: GET
+  entry: pages/home.php
+</route>
+ROUTER
+        );
+
+        harbor_run_compile($router_path);
+
+        self::assertFileDoesNotExist($workspace_path.'/routes.php');
+        self::assertFileExists($workspace_path.'/public/routes.php');
+
+        $compiled_router = require $workspace_path.'/public/routes.php';
+        self::assertIsArray($compiled_router);
+        self::assertIsArray($compiled_router['routes'] ?? null);
+        self::assertSame('/', $compiled_router['routes'][0]['path'] ?? null);
+    }
+
     public function test_run_compile_from_non_root_working_directory(): void
     {
         $workspace_path = $this->create_workspace();
         $router_path = $workspace_path.'/.router';
+        mkdir($workspace_path.'/public', 0o777, true);
 
         file_put_contents($router_path, <<<'ROUTER'
 <route>
@@ -163,7 +190,7 @@ ROUTER
             chdir($original_working_directory);
         }
 
-        $compiled_router = require $workspace_path.'/routes.php';
+        $compiled_router = require $workspace_path.'/public/routes.php';
 
         self::assertIsArray($compiled_router);
         self::assertIsArray($compiled_router['routes'] ?? null);

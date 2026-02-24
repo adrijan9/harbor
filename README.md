@@ -15,7 +15,7 @@ It does not enforce architecture.
 
 ## What Harbor Is
 
-- A route compiler (`.router` -> `routes.php`)
+- A route compiler (`.router` -> `public/routes.php` when `public/` exists, otherwise `routes.php`)
 - Route include preprocessing via `#include "path/to/file.router"` (recursive)
 - A small runtime router that resolves and includes PHP entry files
 - An optional helper loader for focused modules
@@ -47,7 +47,7 @@ This command will serve the documentation site on `http://localhost:<SOME_PORT>`
 
 - `Router` runtime:
   - Loads route arrays from `routes.php`
-  - Requires `config.php` path and loads it into `$_ENV` as top-level keys
+  - Requires a config file path (for example `global.php`) and loads it into `$_ENV` as top-level keys
   - Matches path segments (supports `$` as a dynamic segment placeholder)
   - Injects matched route data into `$GLOBALS['route']`
   - Requires the matched PHP entry file directly
@@ -62,7 +62,7 @@ This command will serve the documentation site on `http://localhost:<SOME_PORT>`
   - `filesystem` for explicit file/directory operations
   - `log` for structured logging helpers and levels
 - CLI:
-  - `bin/harbor` compiles `.router` files into `routes.php` by default
+  - `bin/harbor` compiles `.router` files into `public/routes.php` when `public/` exists, otherwise `routes.php`
   - `bin/harbor init` scaffolds a site structure
   - `bin/harbor-docs` serves the local docs site
 
@@ -82,13 +82,16 @@ harbor/
   templates/
     site/
       .router
-      .htaccess
-      config.php
-      index.php
-      not_found.php
-      routes.php
-      pages/
+      global.php
+      config/
+      lang/
+      public/
+        .htaccess
         index.php
+        not_found.php
+        routes.php
+        pages/
+          index.php
   documentation/
     index.php
     routes.php
@@ -102,14 +105,15 @@ Example generated site layout:
 ```text
 my-site/
   .router
-  config.php
-  routes/
-    shared.router
-  routes.php
-  index.php
-  not_found.php
-  pages/
+  global.php
+  config/
+  lang/
+  public/
+    routes.php
     index.php
+    not_found.php
+    pages/
+      index.php
 ```
 
 Include example:
@@ -127,7 +131,7 @@ composer install
 # Scaffold a site directory
 ./bin/harbor init my-site
 
-# Compile my-site/.router -> my-site/routes.php
+# Compile my-site/.router -> my-site/public/routes.php (when my-site/public exists)
 ./bin/harbor my-site/.router
 
 # Serve a site directory (default: public)
@@ -137,7 +141,7 @@ composer install
 Harbor uses strict front-controller routing by default:
 
 - Every request is sent to `index.php`
-- Only paths declared in `.router` (compiled to `routes.php`) are reachable
+- Only paths declared in `.router` (compiled to `public/routes.php` when `public/` exists) are reachable
 - Static files are not directly accessible unless you expose them through routes/entries
 
 The `init` command copies files from `templates/site/`, so you can customize future scaffolds by editing that directory.
@@ -158,7 +162,7 @@ You can also run the built-in documentation site:
 
 ## Runtime Example
 
-Minimal `index.php` for a site:
+Minimal `public/index.php` for a site:
 
 ```php
 <?php
@@ -169,7 +173,7 @@ use Harbor\Router\Router;
 
 require __DIR__.'/../vendor/autoload.php';
 
-new Router(__DIR__.'/routes.php', __DIR__.'/config.php')->render();
+new Router(__DIR__.'/routes.php', __DIR__.'/../global.php')->render();
 ```
 
 ## Multi-Site Positioning
@@ -179,7 +183,7 @@ This makes Harbor a practical microservice-style runtime/framework for teams tha
 
 Current model:
 
-- Each site has its own `.router`, `routes.php`, and entry files
+- Each site has its own `.router`, compiled `routes.php`, and entry files
 - You run one site root at a time via your server target (`./serve.sh <site-dir>`)
 - There is no built-in host-based multi-site dispatcher in the runtime layer
 

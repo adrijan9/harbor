@@ -41,7 +41,7 @@ require __DIR__.'/../shared/header.php';
             <ul class="api-method-list">
                 <li><code>composer install</code> Install PHP dependencies.</li>
                 <li><code>./bin/harbor init [site-name]</code> Generate new site scaffold.</li>
-                <li><code>site-name</code> Optional site directory name (default: <code>public</code>).</li>
+                <li><code>site-name</code> Optional site directory name (default: <code>example.site</code>).</li>
             </ul>
         </div>
     </details>
@@ -64,7 +64,8 @@ require __DIR__.'/../shared/header.php';
             <ul class="api-method-list">
                 <li><code>./bin/harbor &lt;path-to-.router&gt;</code> Compile route file.</li>
                 <li><code>./bin/harbor &lt;directory&gt;</code> Compile <code>&lt;directory&gt;/.router</code>.</li>
-                <li><code>routes.php</code> Output file generated beside input.</li>
+                <li><code>public/routes.php</code> Output file is generated there when <code>public/</code> exists beside <code>.router</code>.</li>
+                <li><code>routes.php</code> Output file is generated beside input when no <code>public/</code> directory exists.</li>
             </ul>
         </div>
     </details>

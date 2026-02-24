@@ -17,7 +17,7 @@ final class HarborInitTest extends TestCase
     private string $workspace_path = '';
     private string $original_working_directory = '';
 
-    public function test_init_generates_config_file_and_loads_it_in_index(): void
+    public function test_init_generates_global_config_and_public_entrypoint_structure(): void
     {
         $working_directory = getcwd();
         $this->original_working_directory = false === $working_directory ? '' : $working_directory;
@@ -33,35 +33,36 @@ final class HarborInitTest extends TestCase
 
         $site_path = $this->workspace_path.'/demo-site';
         $template_path = dirname(__DIR__, 2).'/templates/site';
-        self::assertFileExists($site_path.'/config.php');
-        self::assertFileExists($site_path.'/index.php');
-        self::assertFileExists($site_path.'/.htaccess');
+        self::assertFileExists($site_path.'/global.php');
         self::assertFileExists($site_path.'/.router');
-        self::assertFileExists($site_path.'/routes.php');
-        self::assertFileExists($site_path.'/not_found.php');
-        self::assertFileExists($site_path.'/pages/index.php');
+        self::assertFileExists($site_path.'/public/.htaccess');
+        self::assertFileExists($site_path.'/public/index.php');
+        self::assertFileExists($site_path.'/public/not_found.php');
+        self::assertFileExists($site_path.'/public/routes.php');
+        self::assertFileExists($site_path.'/public/pages/index.php');
         self::assertFileExists($site_path.'/lang/en.php');
-        self::assertFileDoesNotExist($site_path.'/lang/es.php');
+        self::assertFileExists($site_path.'/lang/.keep');
+        self::assertFileExists($site_path.'/config/.gitkeep');
 
-        $config = require $site_path.'/config.php';
+        $config = require $site_path.'/global.php';
         self::assertIsArray($config);
         self::assertSame('Harbor Site', $config['app_name'] ?? null);
         self::assertSame('local', $config['environment'] ?? null);
         self::assertSame('en', $config['lang'] ?? null);
 
-        $index_content = file_get_contents($site_path.'/index.php');
+        $index_content = file_get_contents($site_path.'/public/index.php');
         self::assertIsString($index_content);
         self::assertStringContainsString("new Router(", $index_content);
         self::assertStringContainsString("__DIR__.'/routes.php'", $index_content);
-        self::assertStringContainsString("__DIR__.'/config.php'", $index_content);
+        self::assertStringContainsString("__DIR__.'/../global.php'", $index_content);
 
-        $page_index_content = file_get_contents($site_path.'/pages/index.php');
+        $page_index_content = file_get_contents($site_path.'/public/pages/index.php');
         self::assertIsString($page_index_content);
         self::assertStringContainsString("HelperLoader::load('translation');", $page_index_content);
         self::assertStringContainsString('translation_init([', $page_index_content);
-        self::assertStringContainsString("__DIR__.'/../lang/en.php'", $page_index_content);
+        self::assertStringContainsString("__DIR__.'/../../lang/en.php'", $page_index_content);
 
-        $htaccess_content = file_get_contents($site_path.'/.htaccess');
+        $htaccess_content = file_get_contents($site_path.'/public/.htaccess');
         self::assertIsString($htaccess_content);
         self::assertStringContainsString('RewriteRule ^index\.php$ - [L]', $htaccess_content);
         self::assertStringContainsString('RewriteRule ^ index.php [L,QSA]', $htaccess_content);
@@ -73,12 +74,12 @@ final class HarborInitTest extends TestCase
             file_get_contents($site_path.'/.router'),
         );
         self::assertSame(
-            file_get_contents($template_path.'/routes.php'),
-            file_get_contents($site_path.'/routes.php'),
+            file_get_contents($template_path.'/public/routes.php'),
+            file_get_contents($site_path.'/public/routes.php'),
         );
         self::assertSame(
-            file_get_contents($template_path.'/pages/index.php'),
-            file_get_contents($site_path.'/pages/index.php'),
+            file_get_contents($template_path.'/public/pages/index.php'),
+            file_get_contents($site_path.'/public/pages/index.php'),
         );
     }
 

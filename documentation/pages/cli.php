@@ -34,6 +34,8 @@ require __DIR__.'/../shared/header.php';
                 <li><code>./bin/harbor .</code> Compile <code>./.router</code>.</li>
                 <li><code>./bin/harbor &lt;directory&gt;</code> Compile <code>&lt;directory&gt;/.router</code>.</li>
                 <li><code>./bin/harbor &lt;path-to-.router&gt;</code> Compile route file.</li>
+                <li><code>public/routes.php</code> Output target when a sibling <code>public/</code> directory exists.</li>
+                <li><code>routes.php</code> Output target when no sibling <code>public/</code> directory exists.</li>
                 <li><code>#include "./path/to/file.router"</code> Include files are expanded before parsing routes.</li>
                 <li><code>Nested includes</code> Recursively processed; circular include chains fail compile.</li>
                 <li><code>./bin/harbor init [site-name]</code> Create site scaffold.</li>

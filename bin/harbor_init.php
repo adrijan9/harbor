@@ -11,13 +11,13 @@ function harbor_run_init(?string $site_name_from_argument = null): void
     $site_name = is_string($site_name_from_argument) ? trim($site_name_from_argument) : '';
 
     if (harbor_is_blank($site_name)) {
-        fwrite(STDOUT, 'Site name (default: public): ');
+        fwrite(STDOUT, 'Site name (default: example.site): ');
         $input = fgets(STDIN);
         $site_name = trim(false === $input ? '' : $input);
     }
 
     if (harbor_is_blank($site_name)) {
-        $site_name = 'public';
+        $site_name = 'example.site';
     }
 
     if (! preg_match('/^[A-Za-z0-9._-]+$/', $site_name)) {

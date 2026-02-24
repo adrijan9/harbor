@@ -10,7 +10,7 @@ use function Harbor\Lang\translation_init;
 HelperLoader::load('translation');
 
 translation_init([
-    'en' => [__DIR__.'/../lang/en.php'],
+    'en' => [__DIR__.'/../../lang/en.php'],
 ]);
 
 echo t('home.welcome', ['app_name' => config('app_name', 'Harbor Site')]);

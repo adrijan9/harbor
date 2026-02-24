@@ -345,12 +345,16 @@ function harbor_normalize_assets_path(string $assets_path): string
 function harbor_resolve_routes_output_path(string $router_source_path): string
 {
     $resolved_path = realpath($router_source_path);
+    $base_directory = false !== $resolved_path
+        ? dirname($resolved_path)
+        : dirname($router_source_path);
 
-    if (false !== $resolved_path) {
-        return dirname($resolved_path).'/routes.php';
+    $public_directory = $base_directory.'/public';
+    if (is_dir($public_directory)) {
+        return $public_directory.'/routes.php';
     }
 
-    return dirname($router_source_path).'/routes.php';
+    return $base_directory.'/routes.php';
 }
 
 function harbor_resolve_router_source_path(string $input_path): string
