@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use Harbor\Environment;
+
 /*
  * This file contains global configuration environment variables for the site.
  * You can access these variables in your route entries using the `config()` function.
@@ -9,6 +11,6 @@ declare(strict_types=1);
  */
 return [
     'app_name' => 'Harbor Site',
-    'environment' => 'local',
+    'environment' => Environment::LOCAL,
     'lang' => 'en',
 ];

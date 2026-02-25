@@ -264,7 +264,7 @@ function harbor_parse_include_path(string $line): ?string
 
 function harbor_is_absolute_path(string $path): bool
 {
-    return 1 === preg_match('#^([a-zA-Z]:[\\\\/]|/)#', $path);
+    return 1 === preg_match('#^([a-zA-Z]:[\\\/]|/)#', $path);
 }
 
 function harbor_compile_router_from_content(string $router_content): array
@@ -332,7 +332,7 @@ function harbor_compile_router_from_content(string $router_content): array
     $routes[] = [
         'method' => 'GET',
         'path' => '/404',
-        'entry' => 'not_found.php',
+        'entry' => 'pages/error/404.php',
     ];
 
     return [

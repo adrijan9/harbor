@@ -76,6 +76,7 @@ final class RouterTest extends TestCase
         self::assertSame('/404', $current_route['path']);
         self::assertSame([], $current_route['segments']);
         self::assertSame(['foo' => 'bar'], $current_route['query']);
+        self::assertSame(404, $current_route['status']);
     }
 
     public function test_render_includes_entry_and_extracted_variables(): void
@@ -97,28 +98,48 @@ final class RouterTest extends TestCase
         self::assertSame('Hello Ada from /', $output);
     }
 
-    public function test_render_throws_when_entry_is_invalid(): void
+    public function test_render_returns_internal_server_error_when_entry_is_invalid(): void
     {
         $_SERVER['REQUEST_URI'] = '/';
 
         $router = $this->create_router('invalid_entry_routes.php');
+        http_response_code(200);
+        ob_start();
 
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Current route entry is invalid.');
+        try {
+            $router->render();
+            $output = ob_get_clean();
+        } catch (\Throwable $exception) {
+            ob_end_clean();
 
-        $router->render();
+            throw $exception;
+        }
+
+        self::assertStringContainsString('Exception Page | RuntimeException | Current route entry is invalid.', $output);
+        self::assertSame(500, http_response_code());
+        http_response_code(200);
     }
 
-    public function test_render_throws_when_entry_file_cannot_be_found(): void
+    public function test_render_returns_not_found_when_entry_file_cannot_be_found(): void
     {
         $_SERVER['REQUEST_URI'] = '/';
 
         $router = $this->create_router('missing_entry_routes.php');
+        http_response_code(200);
+        ob_start();
 
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Route entry "entries/missing.php" not found.');
+        try {
+            $router->render();
+            $output = ob_get_clean();
+        } catch (\Throwable $exception) {
+            ob_end_clean();
 
-        $router->render();
+            throw $exception;
+        }
+
+        self::assertSame('Not Found', $output);
+        self::assertSame(404, http_response_code());
+        http_response_code(200);
     }
 
     public function test_render_serves_asset_file_when_assets_are_configured(): void
@@ -203,7 +224,7 @@ final class RouterTest extends TestCase
             throw $exception;
         }
 
-        self::assertSame('{"message":"Method Not Allowed","status":405,"allowed_methods":["POST"]}', $output);
+        self::assertSame('{"error":"Method Not Allowed","status":405}', $output);
         self::assertSame(405, http_response_code());
         http_response_code(200);
     }
@@ -227,8 +248,127 @@ final class RouterTest extends TestCase
             throw $exception;
         }
 
-        self::assertSame('{"message":"Method Not Allowed","status":405,"allowed_methods":["POST"]}', $output);
+        self::assertSame('{"error":"Method Not Allowed","status":405}', $output);
         self::assertSame(405, http_response_code());
+        http_response_code(200);
+    }
+
+    public function test_render_returns_json_for_method_not_allowed_when_request_is_ajax(): void
+    {
+        $_SERVER['REQUEST_URI'] = '/forms';
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        $_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
+
+        $router = $this->create_router('routes_with_method_restrictions.php');
+        http_response_code(200);
+        ob_start();
+
+        try {
+            $router->render();
+            $output = ob_get_clean();
+        } catch (\Throwable $exception) {
+            ob_end_clean();
+
+            throw $exception;
+        }
+
+        self::assertSame('{"error":"Method Not Allowed","status":405}', $output);
+        self::assertSame(405, http_response_code());
+        http_response_code(200);
+    }
+
+    public function test_render_returns_internal_server_error_page_when_entry_throws_exception(): void
+    {
+        $_SERVER['REQUEST_URI'] = '/';
+
+        $router = $this->create_router('exception_routes.php');
+        http_response_code(200);
+        ob_start();
+
+        try {
+            $router->render();
+            $output = ob_get_clean();
+        } catch (\Throwable $exception) {
+            ob_end_clean();
+
+            throw $exception;
+        }
+
+        self::assertStringContainsString('Exception Page | RuntimeException | Fixture failure', $output);
+        self::assertSame(500, http_response_code());
+        http_response_code(200);
+    }
+
+    public function test_render_returns_production_500_page_when_environment_is_production(): void
+    {
+        $_SERVER['REQUEST_URI'] = '/';
+
+        $router = $this->create_router('exception_routes.php', 'config_production.php');
+        http_response_code(200);
+        ob_start();
+
+        try {
+            $router->render();
+            $output = ob_get_clean();
+        } catch (\Throwable $exception) {
+            ob_end_clean();
+
+            throw $exception;
+        }
+
+        self::assertStringContainsString('Internal Server Error | Fixture failure', $output);
+        self::assertSame(500, http_response_code());
+        http_response_code(200);
+    }
+
+    public function test_render_returns_exception_details_in_json_for_internal_server_error_when_not_production(): void
+    {
+        $_SERVER['REQUEST_URI'] = '/';
+        $_SERVER['HTTP_ACCEPT'] = 'application/json';
+
+        $router = $this->create_router('exception_routes.php');
+        http_response_code(200);
+        ob_start();
+
+        try {
+            $router->render();
+            $output = ob_get_clean();
+        } catch (\Throwable $exception) {
+            ob_end_clean();
+
+            throw $exception;
+        }
+
+        $payload = json_decode($output, true);
+        self::assertIsArray($payload);
+        self::assertSame('Internal Server Error', $payload['error'] ?? null);
+        self::assertSame(500, $payload['status'] ?? null);
+        self::assertIsArray($payload['exception'] ?? null);
+        self::assertSame('Fixture failure', $payload['exception']['message'] ?? null);
+        self::assertSame(500, http_response_code());
+        http_response_code(200);
+    }
+
+    public function test_render_returns_generic_json_for_internal_server_error_when_production(): void
+    {
+        $_SERVER['REQUEST_URI'] = '/';
+        $_SERVER['HTTP_ACCEPT'] = 'application/json';
+
+        $router = $this->create_router('exception_routes.php', 'config_production.php');
+        http_response_code(200);
+        ob_start();
+
+        try {
+            $router->render();
+            $output = ob_get_clean();
+        } catch (\Throwable $exception) {
+            ob_end_clean();
+
+            throw $exception;
+        }
+
+        self::assertSame('{"error":"Internal Server Error","status":500}', $output);
+        self::assertSame(500, http_response_code());
         http_response_code(200);
     }
 
@@ -283,8 +423,7 @@ final class RouterTest extends TestCase
         $_SERVER = [];
         $_ENV = [];
         $GLOBALS['_ENV'] = $_ENV;
-        unset($GLOBALS['route']);
-        unset($GLOBALS['route_assets_path']);
+        unset($GLOBALS['route'], $GLOBALS['route_assets_path']);
     }
 
     #[After]

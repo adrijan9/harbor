@@ -5,7 +5,11 @@ declare(strict_types=1);
 namespace Harbor\Router;
 
 require_once __DIR__.'/../Config/config.php';
+
 require_once __DIR__.'/../Support/value.php';
+
+use Harbor\Environment;
+use Harbor\Error\ExceptionRenderer;
 
 use function Harbor\Config\config_init_global;
 use function Harbor\Support\harbor_is_blank;
@@ -18,6 +22,7 @@ class Router
 {
     private array $routes;
     private ?string $assets_path = null;
+    private bool $fatal_error_handler_registered = false;
 
     public function __construct(
         private readonly string $router_path,
@@ -82,35 +87,47 @@ class Router
         $route = $this->resolve_not_found_route();
         $route['segments'] = [];
         $route['query'] = $query_params;
+        $route['status'] = 404;
 
         return $route;
     }
 
     public function render(array $variables = []): void
     {
-        if ($this->render_asset_if_configured()) {
-            return;
+        $this->register_fatal_error_handler();
+
+        try {
+            if ($this->render_asset_if_configured()) {
+                return;
+            }
+
+            $current_route = $this->current();
+            $GLOBALS['route'] = $current_route;
+
+            if ($this->is_method_not_allowed_route($current_route)) {
+                $this->render_method_not_allowed_response($current_route);
+
+                return;
+            }
+
+            $entry = $current_route['entry'] ?? null;
+            $normalized_entry = is_string($entry) ? trim($entry) : '';
+            if (! is_string($entry) || harbor_is_blank($normalized_entry)) {
+                throw new \RuntimeException('Current route entry is invalid.');
+            }
+
+            $entry_path = $this->resolve_entry_path($entry);
+            if (harbor_is_null($entry_path)) {
+                $this->render_not_found_response();
+
+                return;
+            }
+
+            $this->send_route_status_header($current_route);
+            $this->include_entry($entry_path, $variables);
+        } catch (\Throwable $exception) {
+            $this->render_internal_server_error_response($exception);
         }
-
-        $current_route = $this->current();
-        $GLOBALS['route'] = $current_route;
-
-        if ($this->is_method_not_allowed_route($current_route)) {
-            $this->render_method_not_allowed_response($current_route);
-
-            return;
-        }
-
-        $entry = $current_route['entry'] ?? null;
-        $normalized_entry = is_string($entry) ? trim($entry) : '';
-
-        if (! is_string($entry) || harbor_is_blank($normalized_entry)) {
-            throw new \RuntimeException('Current route entry is invalid.');
-        }
-
-        $entry_path = $this->resolve_entry_path($entry);
-
-        $this->include_entry($entry_path, $variables);
     }
 
     private function extract_route_segments(string $route_path, string $current_uri): ?array
@@ -216,7 +233,7 @@ class Router
     private function render_method_not_allowed_response(array $route): void
     {
         $allowed_methods = $this->normalize_allowed_methods($route['allowed_methods'] ?? []);
-        $prefers_json_response = $this->request_prefers_json_response();
+        $expects_json_response = $this->request_expects_json_response();
 
         if (! headers_sent()) {
             http_response_code(405);
@@ -224,24 +241,187 @@ class Router
                 header('Allow: '.implode(', ', $allowed_methods));
             }
 
-            if ($prefers_json_response) {
+            if ($expects_json_response) {
                 header('Content-Type: application/json; charset=UTF-8');
             }
         }
 
-        if ($prefers_json_response) {
+        if ($expects_json_response) {
             $json_response = json_encode([
-                'message' => 'Method Not Allowed',
+                'error' => 'Method Not Allowed',
                 'status' => 405,
-                'allowed_methods' => $allowed_methods,
             ]);
 
-            echo is_string($json_response) ? $json_response : '{"message":"Method Not Allowed","status":405}';
+            echo is_string($json_response) ? $json_response : '{"error":"Method Not Allowed","status":405}';
 
             return;
         }
 
+        if ($this->render_error_page('405.php')) {
+            return;
+        }
+
         echo 'Method Not Allowed';
+    }
+
+    private function send_route_status_header(array $route): void
+    {
+        if (headers_sent()) {
+            return;
+        }
+
+        $status = $route['status'] ?? null;
+        if (is_int($status)) {
+            http_response_code($status);
+        }
+    }
+
+    private function render_not_found_response(): void
+    {
+        if (! headers_sent()) {
+            http_response_code(404);
+        }
+
+        if ($this->render_error_page('404.php')) {
+            return;
+        }
+
+        $not_found_route = $this->resolve_not_found_route();
+        $not_found_entry = $not_found_route['entry'] ?? null;
+        if (is_string($not_found_entry) && ! harbor_is_blank(trim($not_found_entry))) {
+            $entry_path = $this->resolve_entry_path($not_found_entry);
+            if (is_string($entry_path)) {
+                $this->include_entry($entry_path, []);
+
+                return;
+            }
+        }
+
+        echo 'Not Found';
+    }
+
+    private function render_internal_server_error_response(\Throwable $exception): void
+    {
+        if (! headers_sent()) {
+            http_response_code(500);
+        }
+
+        $exception_renderer = new ExceptionRenderer();
+        $error = $exception_renderer->exception_payload($exception);
+        $is_production_environment = $this->is_production_environment();
+
+        if ($this->request_expects_json_response()) {
+            if (! headers_sent()) {
+                header('Content-Type: application/json; charset=UTF-8');
+            }
+
+            $json_payload = [
+                'error' => 'Internal Server Error',
+                'status' => 500,
+            ];
+            if (! $is_production_environment) {
+                $json_payload['exception'] = $error;
+            }
+
+            $json_response = json_encode($json_payload);
+
+            echo is_string($json_response) ? $json_response : '{"error":"Internal Server Error","status":500}';
+
+            return;
+        }
+
+        if (! $is_production_environment && $this->render_exception_page($exception_renderer, $exception)) {
+            return;
+        }
+
+        if ($this->render_error_page('500.php', ['error' => $error])) {
+            return;
+        }
+
+        $exception_renderer->render_fallback($error);
+    }
+
+    private function render_exception_page(ExceptionRenderer $exception_renderer, \Throwable $exception): bool
+    {
+        $exception_payload = $exception_renderer->exception_template_payload($exception);
+        $exception_json = json_encode(
+            $exception_payload,
+            JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE
+        );
+
+        if (! is_string($exception_json)) {
+            $exception_json = '{"type":"Exception","message":"Failed to serialize exception payload","file":"unknown","line":0,"trace":[]}';
+        }
+
+        return $this->render_error_page('exception.php', [
+            '_EXCEPTION' => [
+                'FULL' => $exception_json,
+            ],
+            'error' => $exception_payload,
+        ]);
+    }
+
+    private function register_fatal_error_handler(): void
+    {
+        if ($this->fatal_error_handler_registered) {
+            return;
+        }
+
+        $this->fatal_error_handler_registered = true;
+
+        register_shutdown_function(function (): void {
+            $last_error = error_get_last();
+            if (! is_array($last_error)) {
+                return;
+            }
+
+            $fatal_error_types = [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR, E_USER_ERROR];
+            $error_type = $last_error['type'] ?? null;
+            if (! is_int($error_type) || ! in_array($error_type, $fatal_error_types, true)) {
+                return;
+            }
+
+            $message = is_string($last_error['message'] ?? null) ? $last_error['message'] : 'Fatal error';
+            $file = is_string($last_error['file'] ?? null) ? $last_error['file'] : 'unknown';
+            $line = is_int($last_error['line'] ?? null) ? $last_error['line'] : 0;
+
+            $this->render_internal_server_error_response(new \ErrorException($message, 0, $error_type, $file, $line));
+        });
+    }
+
+    private function render_error_page(string $error_page_name, array $variables = []): bool
+    {
+        $error_page_path = $this->resolve_error_page_path($error_page_name);
+        if (harbor_is_null($error_page_path)) {
+            return false;
+        }
+
+        $this->include_entry($error_page_path, $variables);
+
+        return true;
+    }
+
+    private function resolve_error_page_path(string $error_page_name): ?string
+    {
+        $normalized_page_name = trim($error_page_name);
+        if (harbor_is_blank($normalized_page_name)) {
+            return null;
+        }
+
+        $normalized_page_name = ltrim($normalized_page_name, '/');
+        $site_root_path = dirname($this->router_path);
+        $candidates = [
+            $site_root_path.'/pages/error/'.$normalized_page_name,
+            __DIR__.'/../../public/pages/error/'.$normalized_page_name,
+        ];
+
+        foreach ($candidates as $candidate) {
+            if (is_file($candidate)) {
+                return $candidate;
+            }
+        }
+
+        return null;
     }
 
     private function normalize_allowed_methods(mixed $allowed_methods): array
@@ -268,8 +448,13 @@ class Router
         return array_values($normalized_allowed_methods);
     }
 
-    private function request_prefers_json_response(): bool
+    private function request_expects_json_response(): bool
     {
+        $x_requested_with = $_SERVER['HTTP_X_REQUESTED_WITH'] ?? null;
+        if (is_string($x_requested_with) && 'xmlhttprequest' === strtolower(trim($x_requested_with))) {
+            return true;
+        }
+
         $accept_header = $_SERVER['HTTP_ACCEPT'] ?? null;
         if (! is_string($accept_header) || harbor_is_blank($accept_header)) {
             return false;
@@ -291,7 +476,30 @@ class Router
         return false;
     }
 
-    private function resolve_entry_path(string $entry): string
+    private function is_production_environment(): bool
+    {
+        $environment = $_ENV['environment'] ?? null;
+        if ($environment instanceof Environment) {
+            return Environment::PRODUCTION === $environment;
+        }
+
+        if ($environment instanceof \UnitEnum) {
+            $environment = $environment->name;
+        }
+
+        if (! is_string($environment)) {
+            return false;
+        }
+
+        $normalized_environment = strtoupper(trim($environment));
+        if (harbor_is_blank($normalized_environment)) {
+            return false;
+        }
+
+        return Environment::PRODUCTION->name === $normalized_environment;
+    }
+
+    private function resolve_entry_path(string $entry): ?string
     {
         if ($this->is_absolute_path($entry) && is_file($entry)) {
             return $entry;
@@ -310,7 +518,7 @@ class Router
             }
         }
 
-        throw new \RuntimeException(sprintf('Route entry "%s" not found.', $entry));
+        return null;
     }
 
     private function include_entry(string $entry_path, array $variables): void

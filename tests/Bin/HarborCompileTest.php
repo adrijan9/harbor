@@ -65,6 +65,7 @@ ROUTER
         self::assertSame('/posts/$', $compiled_routes[1]['path']);
         self::assertSame('/health', $compiled_routes[2]['path']);
         self::assertSame('/404', $compiled_routes[3]['path']);
+        self::assertSame('pages/error/404.php', $compiled_routes[3]['entry']);
     }
 
     public function test_pre_process_routes_file_supports_absolute_include_paths(): void
@@ -90,6 +91,7 @@ ROUTER
 
         self::assertSame('/about', $compiled_routes[0]['path']);
         self::assertSame('/404', $compiled_routes[1]['path']);
+        self::assertSame('pages/error/404.php', $compiled_routes[1]['entry']);
     }
 
     public function test_compile_router_from_content_extracts_assets_path_and_routes(): void
@@ -108,6 +110,7 @@ ROUTER
         self::assertIsArray($compiled_router['routes']);
         self::assertSame('/', $compiled_router['routes'][0]['path']);
         self::assertSame('/404', $compiled_router['routes'][1]['path']);
+        self::assertSame('pages/error/404.php', $compiled_router['routes'][1]['entry']);
     }
 
     public function test_run_compile_writes_assets_configuration_to_routes_file(): void
@@ -134,6 +137,7 @@ ROUTER
         self::assertIsArray($compiled_router['routes'] ?? null);
         self::assertSame('/', $compiled_router['routes'][0]['path'] ?? null);
         self::assertSame('/404', $compiled_router['routes'][1]['path'] ?? null);
+        self::assertSame('pages/error/404.php', $compiled_router['routes'][1]['entry'] ?? null);
 
         $generated_content = file_get_contents($workspace_path.'/routes.php');
         self::assertIsString($generated_content);

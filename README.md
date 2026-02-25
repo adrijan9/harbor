@@ -88,9 +88,12 @@ harbor/
       public/
         .htaccess
         index.php
-        not_found.php
         routes.php
         pages/
+          error/
+            404.php
+            405.php
+            500.php
           index.php
   documentation/
     .router
@@ -114,8 +117,11 @@ my-site/
   public/
     routes.php
     index.php
-    not_found.php
     pages/
+      error/
+        404.php
+        405.php
+        500.php
       index.php
 ```
 
@@ -192,7 +198,7 @@ Current model:
 
 ## Current Gaps (Code vs Idea)
 
-- Route definitions include `method`, but runtime matching is currently path-based.
+- No production-focused exception sanitization yet (errors currently expose stack details for debugging).
 
 ## Development
 

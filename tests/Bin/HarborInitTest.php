@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace Harbor\Tests\Bin;
 
+use Harbor\Environment;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\TestCase;
 
 require_once dirname(__DIR__, 2).'/bin/harbor_init.php';
+
 require_once dirname(__DIR__, 2).'/src/Support/value.php';
 
 use function Harbor\Support\harbor_is_blank;
@@ -37,9 +39,12 @@ final class HarborInitTest extends TestCase
         self::assertFileExists($site_path.'/.router');
         self::assertFileExists($site_path.'/public/.htaccess');
         self::assertFileExists($site_path.'/public/index.php');
-        self::assertFileExists($site_path.'/public/not_found.php');
         self::assertFileExists($site_path.'/public/routes.php');
         self::assertFileExists($site_path.'/public/pages/index.php');
+        self::assertFileExists($site_path.'/public/pages/error/404.php');
+        self::assertFileExists($site_path.'/public/pages/error/405.php');
+        self::assertFileExists($site_path.'/public/pages/error/500.php');
+        self::assertFileExists($site_path.'/public/pages/error/exception.php');
         self::assertFileExists($site_path.'/lang/en.php');
         self::assertFileExists($site_path.'/lang/.keep');
         self::assertFileExists($site_path.'/config/.gitkeep');
@@ -47,12 +52,12 @@ final class HarborInitTest extends TestCase
         $config = require $site_path.'/global.php';
         self::assertIsArray($config);
         self::assertSame('Harbor Site', $config['app_name'] ?? null);
-        self::assertSame('local', $config['environment'] ?? null);
+        self::assertSame(Environment::LOCAL, $config['environment'] ?? null);
         self::assertSame('en', $config['lang'] ?? null);
 
         $index_content = file_get_contents($site_path.'/public/index.php');
         self::assertIsString($index_content);
-        self::assertStringContainsString("new Router(", $index_content);
+        self::assertStringContainsString('new Router(', $index_content);
         self::assertStringContainsString("__DIR__.'/routes.php'", $index_content);
         self::assertStringContainsString("__DIR__.'/../global.php'", $index_content);
 

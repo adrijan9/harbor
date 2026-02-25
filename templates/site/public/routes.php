@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'assets' => null,
     'routes' => [
@@ -12,7 +14,7 @@ return [
         [
             'method' => 'GET',
             'path' => '/404',
-            'entry' => 'not_found.php',
+            'entry' => 'pages/error/404.php',
         ],
     ],
 ];

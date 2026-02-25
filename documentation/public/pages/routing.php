@@ -354,7 +354,7 @@ $current_route = $router->current();
 public function render(array $variables = []): void
 // Renders current route entry file.
 // Variables are extracted before including the entry.
-// For 405 responses, returns JSON when Accept requests a JSON media type.
+// For 405 responses, returns JSON when Accept requests JSON or request is AJAX.
 $router->render(['name' => 'Ada']);</code></pre>
         </div>
     </details>
