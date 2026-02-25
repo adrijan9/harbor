@@ -24,7 +24,7 @@ http_response_code(404);
             padding: 24px;
         }
         main {
-            width: min(680px, 100%);
+            width: min(640px, 100%);
             border: 1px solid rgba(30, 164, 221, 0.42);
             border-radius: 12px;
             padding: 24px;
@@ -34,18 +34,12 @@ http_response_code(404);
         h1 { margin: 0 0 12px; font-size: 30px; }
         .accent { color: var(--accent); }
         p { margin: 0; color: var(--muted); line-height: 1.6; }
-        a {
-            color: var(--accent);
-            text-decoration: none;
-            border-bottom: 1px solid rgba(30, 164, 221, 0.45);
-        }
     </style>
 </head>
 <body>
 <main>
     <h1><span class="accent">404</span> Not Found</h1>
-    <p>The requested documentation page could not be found.</p>
-    <p><a href="/">Back to docs overview</a></p>
+    <p>The requested resource could not be found.</p>
 </main>
 </body>
 </html>

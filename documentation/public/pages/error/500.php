@@ -61,7 +61,7 @@ $escape = static fn (mixed $value): string => htmlspecialchars((string) $value, 
     <p class="meta"><span class="label">Message:</span> <?= $escape($error_data['message'] ?? 'Unknown error'); ?></p>
     <p class="meta"><span class="label">File:</span> <?= $escape($error_data['file'] ?? 'unknown'); ?></p>
     <p class="meta"><span class="label">Line:</span> <?= $escape($error_data['line'] ?? 0); ?></p>
-    <pre><?php foreach ($trace as $frame) : ?>#<?= $escape($frame['index'] ?? 0); ?> <?= $escape($frame['file'] ?? '[internal]'); ?>:<?= $escape($frame['line'] ?? 0); ?> <?= $escape($frame['call'] ?? '{main}'); . PHP_EOL; ?><?php endforeach; ?></pre>
+    <pre><?php foreach ($trace as $frame) : ?>#<?= $escape($frame['index'] ?? 0); ?> <?= $escape($frame['file'] ?? '[internal]'); ?>:<?= $escape($frame['line'] ?? 0); ?> <?= $escape($frame['call'] ?? '{main}') . PHP_EOL; ?><?php endforeach; ?></pre>
 </main>
 </body>
 </html>

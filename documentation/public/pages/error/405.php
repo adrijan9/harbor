@@ -43,10 +43,7 @@ $allowed_methods = is_array($allowed_methods) ? array_values(array_filter($allow
 <body>
 <main>
     <h1><span class="accent">405</span> Method Not Allowed</h1>
-    <p>This route exists, but the request method is not allowed.</p>
-    <?php if (! empty($allowed_methods)) { ?>
-        <p class="meta">Allowed methods: <?php echo htmlspecialchars(implode(', ', $allowed_methods), ENT_QUOTES, 'UTF-8'); ?></p>
-    <?php } ?>
+    <p>The route exists, but this HTTP method is not allowed.</p>
 </main>
 </body>
 </html>
