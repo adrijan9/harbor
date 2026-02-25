@@ -143,9 +143,12 @@ composer install
 # Compile my-site/.router -> my-site/public/routes.php (when my-site/public exists)
 ./bin/harbor my-site/.router
 
-# Serve a site directory (default: public)
+# Serve a site root or public directory (optional: start port, default 8000)
 ./serve.sh my-site
+./serve.sh my-site/public 8080
 ```
+
+If the requested port is already in use, `serve.sh` automatically increments (`+1`) until it finds an available port.
 
 Harbor uses strict front-controller routing by default:
 
