@@ -43,6 +43,30 @@ final class RouterTest extends TestCase
         self::assertSame(['draft' => '1', 'tag' => 'php'], $current_route['query']);
     }
 
+    public function test_current_falls_back_to_not_found_route_when_method_does_not_match(): void
+    {
+        $_SERVER['REQUEST_URI'] = '/forms';
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+
+        $current_route = $this->create_router('routes_with_method_restrictions.php')->current();
+
+        self::assertSame('/404', $current_route['path']);
+        self::assertSame([], $current_route['segments']);
+        self::assertSame(405, $current_route['status']);
+        self::assertSame(['POST'], $current_route['allowed_methods']);
+    }
+
+    public function test_current_matches_route_when_request_method_matches_case_insensitively(): void
+    {
+        $_SERVER['REQUEST_URI'] = '/forms';
+        $_SERVER['REQUEST_METHOD'] = 'post';
+
+        $current_route = $this->create_router('routes_with_method_restrictions.php')->current();
+
+        self::assertSame('/forms', $current_route['path']);
+        self::assertSame([], $current_route['segments']);
+    }
+
     public function test_current_falls_back_to_not_found_route_when_no_match_exists(): void
     {
         $_SERVER['REQUEST_URI'] = '/missing?foo=bar';
@@ -135,6 +159,77 @@ final class RouterTest extends TestCase
         }
 
         self::assertSame('Not Found', $output);
+    }
+
+    public function test_render_returns_method_not_allowed_when_path_exists_with_different_method(): void
+    {
+        $_SERVER['REQUEST_URI'] = '/forms';
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+
+        $router = $this->create_router('routes_with_method_restrictions.php');
+        http_response_code(200);
+        ob_start();
+
+        try {
+            $router->render();
+            $output = ob_get_clean();
+        } catch (\Throwable $exception) {
+            ob_end_clean();
+
+            throw $exception;
+        }
+
+        self::assertSame('Method Not Allowed', $output);
+        self::assertSame(405, http_response_code());
+        http_response_code(200);
+    }
+
+    public function test_render_returns_json_for_method_not_allowed_when_accept_header_requests_json(): void
+    {
+        $_SERVER['REQUEST_URI'] = '/forms';
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        $_SERVER['HTTP_ACCEPT'] = 'application/json';
+
+        $router = $this->create_router('routes_with_method_restrictions.php');
+        http_response_code(200);
+        ob_start();
+
+        try {
+            $router->render();
+            $output = ob_get_clean();
+        } catch (\Throwable $exception) {
+            ob_end_clean();
+
+            throw $exception;
+        }
+
+        self::assertSame('{"message":"Method Not Allowed","status":405,"allowed_methods":["POST"]}', $output);
+        self::assertSame(405, http_response_code());
+        http_response_code(200);
+    }
+
+    public function test_render_returns_json_for_method_not_allowed_when_accept_header_uses_json_suffix(): void
+    {
+        $_SERVER['REQUEST_URI'] = '/forms';
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        $_SERVER['HTTP_ACCEPT'] = 'application/problem+json';
+
+        $router = $this->create_router('routes_with_method_restrictions.php');
+        http_response_code(200);
+        ob_start();
+
+        try {
+            $router->render();
+            $output = ob_get_clean();
+        } catch (\Throwable $exception) {
+            ob_end_clean();
+
+            throw $exception;
+        }
+
+        self::assertSame('{"message":"Method Not Allowed","status":405,"allowed_methods":["POST"]}', $output);
+        self::assertSame(405, http_response_code());
+        http_response_code(200);
     }
 
     public function test_render_blocks_asset_directory_traversal_attempts(): void

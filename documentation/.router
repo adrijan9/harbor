@@ -69,3 +69,10 @@
   name: docs.cli
   entry: pages/cli.php
 </route>
+
+<route>
+  path: /test
+  method: POST
+  name: docs.cli
+  entry: pages/cli.php
+</route>

@@ -41,7 +41,9 @@ class Router
     public function current()
     {
         $current_uri = $this->get_uri();
+        $request_method = $this->get_request_method();
         $query_params = $this->get_query_params();
+        $allowed_methods_for_matched_path = [];
 
         foreach ($this->routes as $route) {
             if (! is_array($route)) {
@@ -54,13 +56,27 @@ class Router
             }
 
             $segments = $this->extract_route_segments($route_path, $current_uri);
-
-            if (null !== $segments) {
-                $route['segments'] = $segments;
-                $route['query'] = $query_params;
-
-                return $route;
+            if (null === $segments) {
+                continue;
             }
+
+            if (! $this->route_allows_request_method($route, $request_method)) {
+                $route_method = $this->resolve_route_method($route);
+                if (is_string($route_method)) {
+                    $allowed_methods_for_matched_path[$route_method] = $route_method;
+                }
+
+                continue;
+            }
+
+            $route['segments'] = $segments;
+            $route['query'] = $query_params;
+
+            return $route;
+        }
+
+        if (! empty($allowed_methods_for_matched_path)) {
+            return $this->resolve_method_not_allowed_route($query_params, array_values($allowed_methods_for_matched_path));
         }
 
         $route = $this->resolve_not_found_route();
@@ -77,6 +93,14 @@ class Router
         }
 
         $current_route = $this->current();
+        $GLOBALS['route'] = $current_route;
+
+        if ($this->is_method_not_allowed_route($current_route)) {
+            $this->render_method_not_allowed_response($current_route);
+
+            return;
+        }
+
         $entry = $current_route['entry'] ?? null;
         $normalized_entry = is_string($entry) ? trim($entry) : '';
 
@@ -85,8 +109,6 @@ class Router
         }
 
         $entry_path = $this->resolve_entry_path($entry);
-
-        $GLOBALS['route'] = $current_route;
 
         $this->include_entry($entry_path, $variables);
     }
@@ -139,6 +161,134 @@ class Router
         parse_str($query, $params);
 
         return is_array($params) ? $params : [];
+    }
+
+    private function get_request_method(): string
+    {
+        $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+
+        return strtoupper(is_string($method) ? $method : 'GET');
+    }
+
+    private function route_allows_request_method(array $route, string $request_method): bool
+    {
+        $normalized_route_method = $this->resolve_route_method($route);
+        if (harbor_is_null($normalized_route_method)) {
+            return true;
+        }
+
+        return $normalized_route_method === $request_method;
+    }
+
+    private function resolve_route_method(array $route): ?string
+    {
+        $route_method = $route['method'] ?? null;
+        if (! is_string($route_method)) {
+            return null;
+        }
+
+        $normalized_route_method = strtoupper(trim($route_method));
+        if (harbor_is_blank($normalized_route_method)) {
+            return null;
+        }
+
+        return $normalized_route_method;
+    }
+
+    private function resolve_method_not_allowed_route(array $query_params, array $allowed_methods): array
+    {
+        $route = $this->resolve_not_found_route();
+        $route['segments'] = [];
+        $route['query'] = $query_params;
+        $route['status'] = 405;
+        $route['allowed_methods'] = $allowed_methods;
+
+        return $route;
+    }
+
+    private function is_method_not_allowed_route(array $route): bool
+    {
+        $status = $route['status'] ?? null;
+
+        return is_int($status) && 405 === $status;
+    }
+
+    private function render_method_not_allowed_response(array $route): void
+    {
+        $allowed_methods = $this->normalize_allowed_methods($route['allowed_methods'] ?? []);
+        $prefers_json_response = $this->request_prefers_json_response();
+
+        if (! headers_sent()) {
+            http_response_code(405);
+            if (! empty($allowed_methods)) {
+                header('Allow: '.implode(', ', $allowed_methods));
+            }
+
+            if ($prefers_json_response) {
+                header('Content-Type: application/json; charset=UTF-8');
+            }
+        }
+
+        if ($prefers_json_response) {
+            $json_response = json_encode([
+                'message' => 'Method Not Allowed',
+                'status' => 405,
+                'allowed_methods' => $allowed_methods,
+            ]);
+
+            echo is_string($json_response) ? $json_response : '{"message":"Method Not Allowed","status":405}';
+
+            return;
+        }
+
+        echo 'Method Not Allowed';
+    }
+
+    private function normalize_allowed_methods(mixed $allowed_methods): array
+    {
+        if (! is_array($allowed_methods)) {
+            return [];
+        }
+
+        $normalized_allowed_methods = [];
+
+        foreach ($allowed_methods as $allowed_method) {
+            if (! is_string($allowed_method)) {
+                continue;
+            }
+
+            $normalized_allowed_method = strtoupper(trim($allowed_method));
+            if (harbor_is_blank($normalized_allowed_method)) {
+                continue;
+            }
+
+            $normalized_allowed_methods[$normalized_allowed_method] = $normalized_allowed_method;
+        }
+
+        return array_values($normalized_allowed_methods);
+    }
+
+    private function request_prefers_json_response(): bool
+    {
+        $accept_header = $_SERVER['HTTP_ACCEPT'] ?? null;
+        if (! is_string($accept_header) || harbor_is_blank($accept_header)) {
+            return false;
+        }
+
+        $accepted_media_types = array_map('trim', explode(',', strtolower($accept_header)));
+
+        foreach ($accepted_media_types as $accepted_media_type) {
+            if (harbor_is_blank($accepted_media_type)) {
+                continue;
+            }
+
+            $media_type = trim(explode(';', $accepted_media_type, 2)[0]);
+            if ('application/json' === $media_type || str_ends_with($media_type, '+json')) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function resolve_entry_path(string $entry): string

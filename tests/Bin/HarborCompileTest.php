@@ -134,6 +134,10 @@ ROUTER
         self::assertIsArray($compiled_router['routes'] ?? null);
         self::assertSame('/', $compiled_router['routes'][0]['path'] ?? null);
         self::assertSame('/404', $compiled_router['routes'][1]['path'] ?? null);
+
+        $generated_content = file_get_contents($workspace_path.'/routes.php');
+        self::assertIsString($generated_content);
+        self::assertDoesNotMatchRegularExpression('/^\s*\d+\s*=>\s*\[/m', $generated_content);
     }
 
     public function test_run_compile_writes_routes_into_public_directory_when_present(): void

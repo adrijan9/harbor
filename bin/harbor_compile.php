@@ -40,7 +40,8 @@ function harbor_run_compile(string $router_source_path): void
         exit(1);
     }
 
-    $written = file_put_contents($routes_output_path, '<?php return '.var_export($compiled_router, true).';');
+    $routes_file_content = harbor_render_compiled_router_file_contents($compiled_router);
+    $written = file_put_contents($routes_output_path, $routes_file_content);
     if (false === $written) {
         fwrite(STDERR, sprintf('Failed to write routes file: %s%s', $routes_output_path, PHP_EOL));
 
@@ -50,6 +51,52 @@ function harbor_run_compile(string $router_source_path): void
     harbor_format_generated_routes_file($routes_output_path);
 
     fwrite(STDOUT, sprintf('Routes file generated: %s%s', $routes_output_path, PHP_EOL));
+}
+
+function harbor_render_compiled_router_file_contents(array $compiled_router): string
+{
+    return "<?php\n\nreturn ".harbor_export_php_value($compiled_router).";\n";
+}
+
+function harbor_export_php_value(mixed $value, int $indent_level = 0): string
+{
+    if (! is_array($value)) {
+        return var_export($value, true);
+    }
+
+    if (empty($value)) {
+        return '[]';
+    }
+
+    $is_list = array_is_list($value);
+    $current_indentation = str_repeat('    ', $indent_level);
+    $item_indentation = str_repeat('    ', $indent_level + 1);
+    $lines = ['['];
+
+    foreach ($value as $key => $item) {
+        $serialized_item = harbor_export_php_value($item, $indent_level + 1);
+        if ($is_list) {
+            $lines[] = $item_indentation.$serialized_item.',';
+
+            continue;
+        }
+
+        $serialized_key = harbor_export_php_array_key($key);
+        $lines[] = $item_indentation.$serialized_key.' => '.$serialized_item.',';
+    }
+
+    $lines[] = $current_indentation.']';
+
+    return implode(PHP_EOL, $lines);
+}
+
+function harbor_export_php_array_key(int|string $key): string
+{
+    if (is_int($key)) {
+        return (string) $key;
+    }
+
+    return var_export($key, true);
 }
 
 function harbor_format_generated_routes_file(string $routes_output_path): void

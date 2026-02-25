@@ -347,12 +347,14 @@ $uri = $router->get_uri();
 
 public function current()
 // Resolves current route with segments and query.
-// Falls back to final /404 route when no match exists.
+// Falls back to final /404 route when no path match exists.
+// Returns 405 metadata when path matches but method does not.
 $current_route = $router->current();
 
 public function render(array $variables = []): void
 // Renders current route entry file.
 // Variables are extracted before including the entry.
+// For 405 responses, returns JSON when Accept requests a JSON media type.
 $router->render(['name' => 'Ada']);</code></pre>
         </div>
     </details>
