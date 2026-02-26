@@ -1,0 +1,211 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+require_once __DIR__.'/../src/Support/value.php';
+
+use function Harbor\Support\harbor_is_blank;
+
+function harbor_run_config_publisher(): void
+{
+    $arguments = $_SERVER['argv'] ?? [];
+    $first_argument = $arguments[1] ?? null;
+
+    if (is_string($first_argument) && in_array($first_argument, ['-h', '--help'], true)) {
+        harbor_config_print_usage();
+
+        return;
+    }
+
+    $publishable_configs = harbor_config_publishable_configs();
+    $working_directory = harbor_config_resolve_working_directory();
+
+    fwrite(STDOUT, sprintf('Current directory: %s%s', $working_directory, PHP_EOL));
+    fwrite(STDOUT, sprintf('Publish target: %s%s', $working_directory.'/config', PHP_EOL));
+    fwrite(STDOUT, 'Choose configuration to publish:'.PHP_EOL);
+    $display_index = 1;
+
+    /** @var array<int, string> $selection_map */
+    $selection_map = [];
+
+    foreach ($publishable_configs as $config_key => $config_definition) {
+        $selection_map[$display_index] = $config_key;
+        fwrite(STDOUT, sprintf('  [%d] %s', $display_index, $config_definition['file_name']).PHP_EOL);
+        ++$display_index;
+    }
+
+    fwrite(STDOUT, 'Selection (press Enter to cancel): ');
+    $selection = harbor_config_read_input();
+    if (harbor_is_blank($selection)) {
+        fwrite(STDOUT, 'No configuration selected.'.PHP_EOL);
+
+        return;
+    }
+
+    $selected_config_key = harbor_config_selection_to_key($selection, $selection_map);
+    if (null === $selected_config_key) {
+        fwrite(STDERR, sprintf('Invalid selection: %s%s', $selection, PHP_EOL));
+        exit(1);
+    }
+
+    $target_path = harbor_config_target_path($selected_config_key);
+    $should_overwrite = false;
+
+    if (is_file($target_path)) {
+        fwrite(STDOUT, sprintf('Configuration already exists at "%s". Overwrite? [y/N]: ', $target_path));
+        $overwrite_confirmation = strtolower(trim(harbor_config_read_input()));
+        $should_overwrite = in_array($overwrite_confirmation, ['y', 'yes'], true);
+
+        if (! $should_overwrite) {
+            fwrite(STDOUT, 'Publish canceled. Existing file was not modified.'.PHP_EOL);
+
+            return;
+        }
+    }
+
+    try {
+        $published_path = harbor_publish_config($selected_config_key, $should_overwrite);
+    } catch (\Throwable $exception) {
+        fwrite(STDERR, $exception->getMessage().PHP_EOL);
+        exit(1);
+    }
+
+    fwrite(STDOUT, sprintf('Published: %s%s', $published_path, PHP_EOL));
+}
+
+function harbor_publish_config(string $config_key, bool $overwrite = false, ?string $working_directory = null): string
+{
+    $normalized_config_key = strtolower(trim($config_key));
+    if (harbor_is_blank($normalized_config_key)) {
+        throw new \InvalidArgumentException('Configuration key cannot be empty.');
+    }
+
+    $publishable_configs = harbor_config_publishable_configs();
+    $config_definition = $publishable_configs[$normalized_config_key] ?? null;
+
+    if (! is_array($config_definition)) {
+        throw new \InvalidArgumentException(sprintf('Configuration "%s" is not publishable.', $config_key));
+    }
+
+    $template_path = $config_definition['template_path'] ?? null;
+    if (! is_string($template_path) || ! is_file($template_path)) {
+        throw new \RuntimeException(sprintf('Configuration template not found for "%s".', $normalized_config_key));
+    }
+
+    $resolved_working_directory = harbor_config_resolve_working_directory($working_directory);
+    $config_directory_path = $resolved_working_directory.'/config';
+
+    if (! is_dir($config_directory_path) && ! mkdir($config_directory_path, 0o777, true) && ! is_dir($config_directory_path)) {
+        throw new \RuntimeException(sprintf('Failed to create config directory: %s', $config_directory_path));
+    }
+
+    $target_path = $config_directory_path.'/'.$config_definition['file_name'];
+
+    if (is_file($target_path) && ! $overwrite) {
+        throw new \RuntimeException(sprintf('Configuration file already exists: %s', $target_path));
+    }
+
+    $template_content = file_get_contents($template_path);
+    if (false === $template_content) {
+        throw new \RuntimeException(sprintf('Failed to read configuration template: %s', $template_path));
+    }
+
+    if (false === file_put_contents($target_path, $template_content)) {
+        throw new \RuntimeException(sprintf('Failed to write configuration file: %s', $target_path));
+    }
+
+    return $target_path;
+}
+
+/**
+ * @return array<string, array{file_name: string, template_path: string}>
+ */
+function harbor_config_publishable_configs(): array
+{
+    return [
+        'cache' => [
+            'file_name' => 'cache.php',
+            'template_path' => __DIR__.'/stubs/config/cache.php',
+        ],
+    ];
+}
+
+function harbor_config_target_path(string $config_key): string
+{
+    $publishable_configs = harbor_config_publishable_configs();
+    $config_definition = $publishable_configs[$config_key] ?? null;
+
+    if (! is_array($config_definition)) {
+        throw new \InvalidArgumentException(sprintf('Configuration "%s" is not publishable.', $config_key));
+    }
+
+    $working_directory = harbor_config_resolve_working_directory();
+
+    return $working_directory.'/config/'.$config_definition['file_name'];
+}
+
+/**
+ * @param array<int, string> $selection_map
+ */
+function harbor_config_selection_to_key(string $selection, array $selection_map): ?string
+{
+    $normalized_selection = trim($selection);
+    if (harbor_is_blank($normalized_selection)) {
+        return null;
+    }
+
+    if (is_numeric($normalized_selection)) {
+        $selection_index = (int) $normalized_selection;
+        $selected_key = $selection_map[$selection_index] ?? null;
+
+        return is_string($selected_key) ? $selected_key : null;
+    }
+
+    $selection_as_key = strtolower($normalized_selection);
+    $publishable_configs = harbor_config_publishable_configs();
+
+    if (array_key_exists($selection_as_key, $publishable_configs)) {
+        return $selection_as_key;
+    }
+
+    return null;
+}
+
+function harbor_config_read_input(): string
+{
+    $input = fgets(STDIN);
+
+    return trim(false === $input ? '' : $input);
+}
+
+function harbor_config_resolve_working_directory(?string $working_directory = null): string
+{
+    if (is_string($working_directory) && ! harbor_is_blank($working_directory)) {
+        return rtrim($working_directory, '/\\');
+    }
+
+    $resolved_working_directory = getcwd();
+    if (false === $resolved_working_directory || harbor_is_blank($resolved_working_directory)) {
+        throw new \RuntimeException('Unable to resolve current working directory.');
+    }
+
+    return $resolved_working_directory;
+}
+
+function harbor_config_print_usage(): void
+{
+    fwrite(STDOUT, 'Usage: harbor-config'.PHP_EOL);
+    fwrite(STDOUT, PHP_EOL);
+    fwrite(STDOUT, 'Interactive configuration publisher for current site.'.PHP_EOL);
+    fwrite(STDOUT, 'Run this command from the target site directory; files are published into ./config/.'.PHP_EOL);
+}
+
+if ('cli' === PHP_SAPI) {
+    $script_file = $_SERVER['SCRIPT_FILENAME'] ?? null;
+    $resolved_script_file = is_string($script_file) ? realpath($script_file) : false;
+
+    if (is_string($resolved_script_file) && __FILE__ === $resolved_script_file) {
+        harbor_run_config_publisher();
+    }
+}

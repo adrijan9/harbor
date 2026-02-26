@@ -65,6 +65,7 @@ This command will serve the documentation site on `http://localhost:<SOME_PORT>`
 - CLI:
   - `bin/harbor` compiles `.router` files into `public/routes.php` when `public/` exists, otherwise `routes.php`
   - `bin/harbor init` scaffolds a site structure
+  - `bin/harbor-config` interactively publishes config files into the current working directory `config/` directory
   - `bin/harbor-docs` serves the local docs site
 
 ## Project Layout
@@ -73,6 +74,7 @@ This command will serve the documentation site on `http://localhost:<SOME_PORT>`
 harbor/
   bin/
     harbor
+    harbor-config
     harbor-docs
   src/
     Router/
@@ -145,6 +147,11 @@ composer install
 # Compile my-site/.router -> my-site/public/routes.php (when my-site/public exists)
 ./bin/harbor my-site/.router
 
+# Publish config templates for my-site/config (run inside that site directory)
+cd my-site
+../bin/harbor-config
+cd ..
+
 # Serve a site root or public directory (optional: start port, default 8000)
 ./serve.sh my-site
 ./serve.sh my-site/public 8080
@@ -211,5 +218,6 @@ Current model:
 composer test # run PHPUnit tests
 ./vendor/bin/php-cs-fixer fix # run PHP CS Fixer
 ./bin/harbor documentation/.router # compile docs routes
+cd my-site && ../bin/harbor-config # publish config files into my-site/config directory
 ./bin/harbor-docs # serve docs site
 ```

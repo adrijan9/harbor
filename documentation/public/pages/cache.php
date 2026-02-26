@@ -45,6 +45,10 @@ HelperLoader::load('cache');</code></pre>
     <h2>Resolver Setup (Required)</h2>
     <p>Skip this section if you are using <code>cache_array_*</code>, <code>cache_file_*</code>, or <code>cache_apc_*</code> directly. This setup is only for the resolver helpers (<code>cache_set</code>, <code>cache_get</code>, <code>cache_has</code>, etc.).</p>
     <h3>1. Create <code>config/cache.php</code></h3>
+    <p>You can create this file manually, or publish it with <code>harbor-config</code>. The publisher writes to the current working directory, so enter your site directory first.</p>
+    <pre><code class="language-bash">cd my-site
+../bin/harbor-config
+# choose: cache.php</code></pre>
     <pre><code class="language-php">&lt;?php
 
 declare(strict_types=1);
@@ -148,7 +152,7 @@ use function Harbor\Cache\cache_set;
 cache_set('profile:1', ['id' => 1], 300);
 $profile = cache_get('profile:1');</code></pre>
     <h3>What it does</h3>
-    <p>Resolves the active cache backend from <code>cache.driver</code> (loaded from <code>config/cache.php</code> via <code>config_init()</code>). You can switch between <code>array</code> and <code>file</code> without changing cache call sites.</p>
+    <p>Resolves the active cache backend from <code>cache.driver</code> (loaded from <code>config/cache.php</code> via <code>config_init()</code>). You can switch between <code>array</code>, <code>file</code>, and <code>apc</code> without changing cache call sites.</p>
     <h3>API</h3>
     <details class="api-details">
         <summary class="api-summary">

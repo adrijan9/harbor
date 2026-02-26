@@ -3,7 +3,8 @@
     "name": "adrijan9/harbor",
     "bin": [
         "bin/harbor",
-        "bin/harbor-docs"
+        "bin/harbor-docs",
+        "bin/harbor-config"
     ],
     "autoload": {
         "psr-4": {
