@@ -59,6 +59,16 @@ function config_get(?string $key = null, mixed $default = null): mixed
     return config_array_get($environment, $key, $default);
 }
 
+function config_resolve(string $primary_key, string $fallback_key, mixed $default = null): mixed
+{
+    $primary_value = config_get($primary_key);
+    if (! harbor_is_null($primary_value)) {
+        return $primary_value;
+    }
+
+    return config_get($fallback_key, $default);
+}
+
 function config_all(): array
 {
     return is_array($_ENV) ? $_ENV : [];

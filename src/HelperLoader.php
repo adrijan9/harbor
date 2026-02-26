@@ -74,6 +74,7 @@ final class HelperLoader
             // Cache
             'cache_array' => __DIR__.'/Cache/cache_array.php',
             'cache_file' => __DIR__.'/Cache/cache_file.php',
+            'cache_apc' => __DIR__.'/Cache/cache_apc.php',
             'cache' => __DIR__.'/Cache/cache.php',
             // Log
             'log' => __DIR__.'/Log/log.php',

@@ -100,10 +100,10 @@ return [
     | Default Cache Driver
     |--------------------------------------------------------------------------
     |
-    | Supported: "array", "file"
+    | Supported: "array", "file", "apc"
     |
     */
-    'driver' => CacheDriver::FILE->value,
+    'driver' => CacheDriver::FILE->value, // or CacheDriver::APC->value
 
     /*
     |--------------------------------------------------------------------------
@@ -116,7 +116,7 @@ return [
     'file_path' => __DIR__.'/../cache',
 ];</code></pre>
     <h3>What it does</h3>
-    <p>Loads <code>config/cache.php</code> into <code>$_ENV['cache']</code>, so cache resolver helpers can read <code>cache.driver</code> and <code>cache.file_path</code>.</p>
+    <p>Loads <code>config/cache.php</code> into <code>$_ENV['cache']</code>, so cache resolver helpers can read <code>cache.driver</code> and <code>cache.file_path</code>. Use <code>driver = apc</code> only when APCu is installed and enabled.</p>
 </section>
 
 <section class="docs-section">
@@ -151,6 +151,11 @@ function config_get(?string $key = null, mixed $default = null): mixed
 // Reads value by key with optional default.
 // Supports dot notation for nested keys.
 $host = config_get('database.mysql.host', '127.0.0.1');
+
+function config_resolve(string $primary_key, string $fallback_key, mixed $default = null): mixed
+// Reads primary key first, then fallback key, then default.
+// Useful for supporting new config keys with legacy fallback keys.
+$driver = config_resolve('cache.driver', 'cache_driver', 'array');
 
 function config_int(string $key, int $default = 0): int
 // Reads value as integer.

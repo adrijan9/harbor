@@ -14,7 +14,9 @@ require_once __DIR__.'/cache_array.php';
 
 require_once __DIR__.'/cache_file.php';
 
-use function Harbor\Config\config_get;
+require_once __DIR__.'/cache_apc.php';
+
+use function Harbor\Config\config_resolve;
 use function Harbor\Support\harbor_is_blank;
 use function Harbor\Support\harbor_is_null;
 
@@ -25,7 +27,7 @@ function cache_driver(string|CacheDriver $default_driver = CacheDriver::ARRAY): 
         $resolved_default_driver = CacheDriver::ARRAY;
     }
 
-    $configured_driver = cache_config_get('driver', 'cache_driver', $resolved_default_driver->value);
+    $configured_driver = config_resolve('cache.driver', 'cache_driver', $resolved_default_driver->value);
     $resolved_driver = cache_resolve_driver($configured_driver);
 
     if (harbor_is_null($resolved_driver)) {
@@ -45,10 +47,19 @@ function cache_is_file(): bool
     return CacheDriver::FILE->value === cache_driver();
 }
 
+function cache_is_apc(): bool
+{
+    return CacheDriver::APC->value === cache_driver();
+}
+
 function cache_set(string $key, mixed $value, int $ttl_seconds = 0): bool
 {
     if (cache_is_file()) {
         return cache_file_set($key, $value, $ttl_seconds);
+    }
+
+    if (cache_is_apc()) {
+        return cache_apc_set($key, $value, $ttl_seconds);
     }
 
     return cache_array_set($key, $value, $ttl_seconds);
@@ -60,6 +71,10 @@ function cache_get(string $key, mixed $default = null): mixed
         return cache_file_get($key, $default);
     }
 
+    if (cache_is_apc()) {
+        return cache_apc_get($key, $default);
+    }
+
     return cache_array_get($key, $default);
 }
 
@@ -67,6 +82,10 @@ function cache_has(string $key): bool
 {
     if (cache_is_file()) {
         return cache_file_has($key);
+    }
+
+    if (cache_is_apc()) {
+        return cache_apc_has($key);
     }
 
     return cache_array_has($key);
@@ -78,6 +97,10 @@ function cache_delete(string $key): bool
         return cache_file_delete($key);
     }
 
+    if (cache_is_apc()) {
+        return cache_apc_delete($key);
+    }
+
     return cache_array_delete($key);
 }
 
@@ -85,6 +108,10 @@ function cache_clear(): bool
 {
     if (cache_is_file()) {
         return cache_file_clear();
+    }
+
+    if (cache_is_apc()) {
+        return cache_apc_clear();
     }
 
     return cache_array_clear();
@@ -96,6 +123,10 @@ function cache_all(): array
         return cache_file_all();
     }
 
+    if (cache_is_apc()) {
+        return cache_apc_all();
+    }
+
     return cache_array_all();
 }
 
@@ -103,6 +134,10 @@ function cache_count(): int
 {
     if (cache_is_file()) {
         return cache_file_count();
+    }
+
+    if (cache_is_apc()) {
+        return cache_apc_count();
     }
 
     return cache_array_count();
@@ -130,15 +165,4 @@ function cache_resolve_driver(mixed $driver): ?CacheDriver
     }
 
     return null;
-}
-
-function cache_config_get(string $key, string $legacy_key, mixed $default = null): mixed
-{
-    $key_path = 'cache.'.$key;
-    $cache_config_value = config_get($key_path);
-    if (! harbor_is_null($cache_config_value)) {
-        return $cache_config_value;
-    }
-
-    return config_get($legacy_key, $default);
 }

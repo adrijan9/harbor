@@ -22,6 +22,7 @@ use function Harbor\Config\config_init_global;
 use function Harbor\Config\config_int;
 use function Harbor\Config\config_json;
 use function Harbor\Config\config_obj;
+use function Harbor\Config\config_resolve;
 use function Harbor\Config\config_str;
 
 final class ConfigHelpersTest extends TestCase
@@ -116,6 +117,9 @@ final class ConfigHelpersTest extends TestCase
         $meta = config_obj('app.meta');
         self::assertInstanceOf(\stdClass::class, $meta);
         self::assertSame('runtime', $meta->team);
+
+        self::assertSame('Harbor', config_resolve('app.app_name', 'legacy.app_name', 'fallback'));
+        self::assertSame('fallback', config_resolve('missing.primary', 'missing.fallback', 'fallback'));
     }
 
     public function test_config_init_throws_for_missing_file(): void

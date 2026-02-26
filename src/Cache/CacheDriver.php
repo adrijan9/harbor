@@ -11,4 +11,5 @@ enum CacheDriver: string
 {
     case ARRAY = 'array';
     case FILE = 'file';
+    case APC = 'apc';
 }

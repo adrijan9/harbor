@@ -12,7 +12,7 @@ require __DIR__.'/../shared/header.php';
 <section class="hero">
     <span class="hero-eyebrow">Helpers</span>
     <h1>Cache Helpers</h1>
-    <p>Use array or file cache helpers directly, or use the optional driver resolver for one unified cache API.</p>
+    <p>Use array, file, or APC cache helpers directly, or use the optional driver resolver for one unified cache API.</p>
 </section>
 
 <section class="docs-section">
@@ -20,11 +20,12 @@ require __DIR__.'/../shared/header.php';
     <h3>Example</h3>
     <pre><code class="language-php">use Harbor\HelperLoader;
 
-HelperLoader::load('cache');      // loads cache resolver + cache_array + cache_file
+HelperLoader::load('cache');      // loads cache resolver + cache_array + cache_file + cache_apc
 HelperLoader::load('cache_array'); // loads only array cache helpers
-HelperLoader::load('cache_file');  // loads only file cache helpers</code></pre>
+HelperLoader::load('cache_file');  // loads only file cache helpers
+HelperLoader::load('cache_apc');   // loads only APC cache helpers</code></pre>
     <h3>What it does</h3>
-    <p>Registers cache helper functions under <code>Harbor\Cache</code>. You can call <code>cache_array_*</code> and <code>cache_file_*</code> directly without any resolver config.</p>
+    <p>Registers cache helper functions under <code>Harbor\Cache</code>. You can call <code>cache_array_*</code>, <code>cache_file_*</code>, and <code>cache_apc_*</code> directly without any resolver config.</p>
     <h3>API</h3>
     <details class="api-details">
         <summary class="api-summary">
@@ -34,7 +35,7 @@ HelperLoader::load('cache_file');  // loads only file cache helpers</code></pre>
         <div class="api-body">
             <pre><code class="language-php">HelperLoader::load(string $helper_name): void
 // Loads helper functions by module name.
-// Use "cache", "cache_array", or "cache_file".
+// Use "cache", "cache_array", "cache_file", or "cache_apc".
 HelperLoader::load('cache');</code></pre>
         </div>
     </details>
@@ -42,7 +43,7 @@ HelperLoader::load('cache');</code></pre>
 
 <section class="docs-section">
     <h2>Resolver Setup (Required)</h2>
-    <p>Skip this section if you are using <code>cache_array_*</code> or <code>cache_file_*</code> directly. This setup is only for the resolver helpers (<code>cache_set</code>, <code>cache_get</code>, <code>cache_has</code>, etc.).</p>
+    <p>Skip this section if you are using <code>cache_array_*</code>, <code>cache_file_*</code>, or <code>cache_apc_*</code> directly. This setup is only for the resolver helpers (<code>cache_set</code>, <code>cache_get</code>, <code>cache_has</code>, etc.).</p>
     <h3>1. Create <code>config/cache.php</code></h3>
     <pre><code class="language-php">&lt;?php
 
@@ -56,12 +57,13 @@ return [
     | Default Cache Driver
     |--------------------------------------------------------------------------
     |
-    | Supported: "array", "file"
+    | Supported: "array", "file", "apc"
     | - array: in-memory cache for current PHP process
     | - file: serialized cache files under file_path
+    | - apc: APCu shared memory cache
     |
     */
-    'driver' => CacheDriver::FILE->value,
+    'driver' => CacheDriver::FILE->value, // or CacheDriver::APC->value
 
     /*
     |--------------------------------------------------------------------------
@@ -78,7 +80,7 @@ return [
     <pre><code class="language-php">use function Harbor\Config\config_init;
 
 // Example: in public/index.php before using cache_* resolver helpers
-config_init(__DIR__.'/../../config/cache.php');</code></pre>
+config_init(__DIR__.'/../config/cache.php');</code></pre>
     <h3>3. Use Resolver Helpers</h3>
     <pre><code class="language-php">use function Harbor\Cache\cache_get;
 use function Harbor\Cache\cache_set;
@@ -169,8 +171,12 @@ function cache_is_file(): bool
 // True when resolved cache driver is "file".
 $is_file = cache_is_file();
 
+function cache_is_apc(): bool
+// True when resolved cache driver is "apc".
+$is_apc = cache_is_apc();
+
 function cache_set(string $key, mixed $value, int $ttl_seconds = 0): bool
-// Stores using the resolved driver (array or file).
+// Stores using the resolved driver (array, file, or apc).
 cache_set('profile:1', ['id' => 1], 300);
 
 function cache_get(string $key, mixed $default = null): mixed
@@ -196,6 +202,58 @@ $all = cache_all();
 function cache_count(): int
 // Returns count of non-expired entries on the resolved driver.
 $total = cache_count();</code></pre>
+        </div>
+    </details>
+</section>
+
+<section class="docs-section">
+    <h2>APC Cache</h2>
+    <h3>Example</h3>
+    <pre><code class="language-php">use function Harbor\Cache\cache_apc_get;
+use function Harbor\Cache\cache_apc_set;
+
+cache_apc_set('feature.flags', ['new_nav' => true], 120);
+$flags = cache_apc_get('feature.flags', []);</code></pre>
+    <h3>What it does</h3>
+    <p>Stores cache values in APCu shared memory. Requires APCu extension enabled in your PHP runtime.</p>
+    <h3>API</h3>
+    <details class="api-details">
+        <summary class="api-summary">
+            <span>APC Cache API</span>
+            <span class="api-state"><span class="api-state-closed">Hidden - click to open</span><span class="api-state-open">Open</span></span>
+        </summary>
+        <div class="api-body">
+            <pre><code class="language-php">function cache_apc_available(): bool
+// Returns true when APCu extension is available/enabled.
+$available = cache_apc_available();
+
+function cache_apc_set(string $key, mixed $value, int $ttl_seconds = 0): bool
+// Stores value in APCu cache.
+cache_apc_set('feature.flags', ['new_nav' => true], 120);
+
+function cache_apc_get(string $key, mixed $default = null): mixed
+// Returns cached value or default when missing/expired.
+$flags = cache_apc_get('feature.flags', []);
+
+function cache_apc_has(string $key): bool
+// Checks if key exists and is not expired.
+$exists = cache_apc_has('feature.flags');
+
+function cache_apc_delete(string $key): bool
+// Deletes one key and returns true when key existed.
+$deleted = cache_apc_delete('feature.flags');
+
+function cache_apc_clear(): bool
+// Clears all Harbor APC cache entries.
+cache_apc_clear();
+
+function cache_apc_all(): array
+// Returns all non-expired APC cache entries.
+$all = cache_apc_all();
+
+function cache_apc_count(): int
+// Returns count of non-expired APC cache entries.
+$total = cache_apc_count();</code></pre>
         </div>
     </details>
 </section>

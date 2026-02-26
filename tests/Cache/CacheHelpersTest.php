@@ -17,10 +17,13 @@ use function Harbor\Cache\cache_clear;
 use function Harbor\Cache\cache_count;
 use function Harbor\Cache\cache_delete;
 use function Harbor\Cache\cache_driver;
+use function Harbor\Cache\cache_apc_available;
+use function Harbor\Cache\cache_apc_clear;
 use function Harbor\Cache\cache_file_clear;
 use function Harbor\Cache\cache_file_reset_path;
 use function Harbor\Cache\cache_get;
 use function Harbor\Cache\cache_has;
+use function Harbor\Cache\cache_is_apc;
 use function Harbor\Cache\cache_is_array;
 use function Harbor\Cache\cache_is_file;
 use function Harbor\Cache\cache_set;
@@ -77,6 +80,36 @@ final class CacheHelpersTest extends TestCase
         self::assertTrue(is_file($this->cache_root_path.'/.gitignore'));
         self::assertTrue(cache_clear());
         self::assertSame([], cache_all());
+    }
+
+    public function test_cache_helpers_use_apc_driver_from_config(): void
+    {
+        $_ENV['cache'] = [
+            'driver' => CacheDriver::APC->value,
+            'file_path' => $this->cache_root_path,
+        ];
+        $GLOBALS['_ENV'] = $_ENV;
+
+        self::assertSame(CacheDriver::APC->value, cache_driver());
+        self::assertFalse(cache_is_array());
+        self::assertFalse(cache_is_file());
+        self::assertTrue(cache_is_apc());
+
+        if (! cache_apc_available()) {
+            $this->expectException(\RuntimeException::class);
+            $this->expectExceptionMessage('APCu extension is not available or enabled.');
+
+            cache_set('profile:1', ['id' => 1]);
+
+            return;
+        }
+
+        self::assertTrue(cache_set('profile:1', ['id' => 1]));
+        self::assertTrue(cache_has('profile:1'));
+        self::assertSame(['id' => 1], cache_get('profile:1'));
+        self::assertSame(['profile:1' => ['id' => 1]], cache_all());
+        self::assertSame(1, cache_count());
+        self::assertTrue(cache_delete('profile:1'));
     }
 
     public function test_cache_helpers_resolve_driver_dynamically_after_config_change(): void
@@ -155,6 +188,10 @@ final class CacheHelpersTest extends TestCase
         cache_file_reset_path();
         cache_array_clear();
         cache_file_clear();
+
+        if (cache_apc_available()) {
+            cache_apc_clear();
+        }
     }
 
     #[After]
@@ -163,6 +200,11 @@ final class CacheHelpersTest extends TestCase
         cache_array_clear();
         cache_file_reset_path();
         cache_file_clear();
+
+        if (cache_apc_available()) {
+            cache_apc_clear();
+        }
+
         $_ENV = $this->original_env;
         $GLOBALS['_ENV'] = $_ENV;
 

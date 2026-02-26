@@ -30,6 +30,7 @@ final class HelperLoaderTest extends TestCase
         self::assertContains('filesystem', $helpers);
         self::assertContains('cache_array', $helpers);
         self::assertContains('cache_file', $helpers);
+        self::assertContains('cache_apc', $helpers);
         self::assertContains('cache', $helpers);
         self::assertContains('log', $helpers);
         self::assertContains('lang', $helpers);
@@ -115,6 +116,15 @@ final class HelperLoaderTest extends TestCase
         self::assertTrue(function_exists('Harbor\Cache\cache_file_reset_path'));
     }
 
+    public function test_load_cache_apc_helper_registers_namespaced_functions(): void
+    {
+        HelperLoader::load('cache_apc');
+
+        self::assertTrue(function_exists('Harbor\Cache\cache_apc_available'));
+        self::assertTrue(function_exists('Harbor\Cache\cache_apc_set'));
+        self::assertTrue(function_exists('Harbor\Cache\cache_apc_get'));
+    }
+
     public function test_load_cache_helper_registers_namespaced_functions(): void
     {
         HelperLoader::load('cache');
@@ -122,6 +132,7 @@ final class HelperLoaderTest extends TestCase
         self::assertTrue(function_exists('Harbor\Cache\cache_driver'));
         self::assertTrue(function_exists('Harbor\Cache\cache_is_array'));
         self::assertTrue(function_exists('Harbor\Cache\cache_is_file'));
+        self::assertTrue(function_exists('Harbor\Cache\cache_is_apc'));
         self::assertTrue(function_exists('Harbor\Cache\cache_set'));
         self::assertTrue(function_exists('Harbor\Cache\cache_get'));
     }
