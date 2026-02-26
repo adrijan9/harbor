@@ -13,5 +13,4 @@ return [
     'app_name' => 'Harbor Site',
     'environment' => Environment::LOCAL,
     'lang' => 'en',
-    'cache_file_path' => __DIR__.'/cache',
 ];

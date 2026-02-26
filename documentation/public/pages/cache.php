@@ -12,7 +12,7 @@ require __DIR__.'/../shared/header.php';
 <section class="hero">
     <span class="hero-eyebrow">Helpers</span>
     <h1>Cache Helpers</h1>
-    <p>Use in-memory array cache or file-backed cache with the same helper shape.</p>
+    <p>Use array or file cache helpers directly, or use the optional driver resolver for one unified cache API.</p>
 </section>
 
 <section class="docs-section">
@@ -20,11 +20,11 @@ require __DIR__.'/../shared/header.php';
     <h3>Example</h3>
     <pre><code class="language-php">use Harbor\HelperLoader;
 
-HelperLoader::load('cache');      // loads cache_array + cache_file
+HelperLoader::load('cache');      // loads cache resolver + cache_array + cache_file
 HelperLoader::load('cache_array'); // loads only array cache helpers
 HelperLoader::load('cache_file');  // loads only file cache helpers</code></pre>
     <h3>What it does</h3>
-    <p>Registers cache helper functions under <code>Harbor\Cache</code>.</p>
+    <p>Registers cache helper functions under <code>Harbor\Cache</code>. You can call <code>cache_array_*</code> and <code>cache_file_*</code> directly without any resolver config.</p>
     <h3>API</h3>
     <details class="api-details">
         <summary class="api-summary">
@@ -38,6 +38,53 @@ HelperLoader::load('cache_file');  // loads only file cache helpers</code></pre>
 HelperLoader::load('cache');</code></pre>
         </div>
     </details>
+</section>
+
+<section class="docs-section">
+    <h2>Resolver Setup (Required)</h2>
+    <p>Skip this section if you are using <code>cache_array_*</code> or <code>cache_file_*</code> directly. This setup is only for the resolver helpers (<code>cache_set</code>, <code>cache_get</code>, <code>cache_has</code>, etc.).</p>
+    <h3>1. Create <code>config/cache.php</code></h3>
+    <pre><code class="language-php">&lt;?php
+
+declare(strict_types=1);
+
+use Harbor\Cache\CacheDriver;
+
+return [
+    /*
+    |--------------------------------------------------------------------------
+    | Default Cache Driver
+    |--------------------------------------------------------------------------
+    |
+    | Supported: "array", "file"
+    | - array: in-memory cache for current PHP process
+    | - file: serialized cache files under file_path
+    |
+    */
+    'driver' => CacheDriver::FILE->value,
+
+    /*
+    |--------------------------------------------------------------------------
+    | File Cache Path
+    |--------------------------------------------------------------------------
+    |
+    | Used when driver is "file".
+    | Keep this path writable by PHP.
+    |
+    */
+    'file_path' => __DIR__.'/../cache',
+];</code></pre>
+    <h3>2. Load It In Bootstrap</h3>
+    <pre><code class="language-php">use function Harbor\Config\config_init;
+
+// Example: in public/index.php before using cache_* resolver helpers
+config_init(__DIR__.'/../../config/cache.php');</code></pre>
+    <h3>3. Use Resolver Helpers</h3>
+    <pre><code class="language-php">use function Harbor\Cache\cache_get;
+use function Harbor\Cache\cache_set;
+
+cache_set('profile:1', ['id' => 1], 300);
+$profile = cache_get('profile:1');</code></pre>
 </section>
 
 <section class="docs-section">
@@ -90,6 +137,70 @@ $total = cache_array_count();</code></pre>
 </section>
 
 <section class="docs-section">
+    <h2>Driver Resolver Cache</h2>
+    <h3>Example</h3>
+    <pre><code class="language-php">use function Harbor\Cache\cache_get;
+use function Harbor\Cache\cache_set;
+
+// config/cache.php must be loaded via config_init(...) first
+cache_set('profile:1', ['id' => 1], 300);
+$profile = cache_get('profile:1');</code></pre>
+    <h3>What it does</h3>
+    <p>Resolves the active cache backend from <code>cache.driver</code> (loaded from <code>config/cache.php</code> via <code>config_init()</code>). You can switch between <code>array</code> and <code>file</code> without changing cache call sites.</p>
+    <h3>API</h3>
+    <details class="api-details">
+        <summary class="api-summary">
+            <span>Driver Resolver API</span>
+            <span class="api-state"><span class="api-state-closed">Hidden - click to open</span><span class="api-state-open">Open</span></span>
+        </summary>
+        <div class="api-body">
+            <pre><code class="language-php">use Harbor\Cache\CacheDriver;
+
+function cache_driver(string|CacheDriver $default_driver = CacheDriver::ARRAY): string
+// Returns active driver from cache.driver config.
+// Falls back to $default_driver when config is missing/invalid.
+$driver = cache_driver();
+
+function cache_is_array(): bool
+// True when resolved cache driver is "array".
+$is_array = cache_is_array();
+
+function cache_is_file(): bool
+// True when resolved cache driver is "file".
+$is_file = cache_is_file();
+
+function cache_set(string $key, mixed $value, int $ttl_seconds = 0): bool
+// Stores using the resolved driver (array or file).
+cache_set('profile:1', ['id' => 1], 300);
+
+function cache_get(string $key, mixed $default = null): mixed
+// Reads using the resolved driver.
+$profile = cache_get('profile:1', []);
+
+function cache_has(string $key): bool
+// Checks key existence using the resolved driver.
+$exists = cache_has('profile:1');
+
+function cache_delete(string $key): bool
+// Deletes one key from the resolved driver.
+$deleted = cache_delete('profile:1');
+
+function cache_clear(): bool
+// Clears entries only on the currently resolved driver.
+cache_clear();
+
+function cache_all(): array
+// Returns all non-expired entries from the resolved driver.
+$all = cache_all();
+
+function cache_count(): int
+// Returns count of non-expired entries on the resolved driver.
+$total = cache_count();</code></pre>
+        </div>
+    </details>
+</section>
+
+<section class="docs-section">
     <h2>File Cache</h2>
     <h3>Example</h3>
     <pre><code class="language-php">use function Harbor\Cache\cache_file_clear;
@@ -102,7 +213,7 @@ $meta = cache_file_get('build.meta');
 // remove all file cache entries from project /cache directory
 cache_file_clear();</code></pre>
     <h3>What it does</h3>
-    <p>Stores serialized cache payloads under <code>cache_file_path</code> from <code>global.php</code> (fallback: project-root <code>cache/</code>) using hash-based nested folders and file names.</p>
+    <p>Stores serialized cache payloads under <code>cache.file_path</code> from <code>config/cache.php</code> when loaded with <code>config_init()</code>. If not configured, fallback is the loaded <code>global.php</code> directory <code>/cache</code> (site root), then project-root <code>cache/</code>.</p>
     <h3>API</h3>
     <details class="api-details">
         <summary class="api-summary">
@@ -144,7 +255,8 @@ function cache_file_set_path(string $path): void
 cache_file_set_path(__DIR__.'/tmp/cache');
 
 function cache_file_reset_path(): void
-// Resets runtime override and uses cache_file_path from global.php (fallback: project /cache).
+// Resets runtime override and uses cache.file_path config.
+// Fallback: global.php directory /cache, then project /cache.
 cache_file_reset_path();</code></pre>
         </div>
     </details>

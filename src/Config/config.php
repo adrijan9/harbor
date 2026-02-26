@@ -9,6 +9,8 @@ require_once __DIR__.'/../Support/value.php';
 use function Harbor\Support\harbor_is_blank;
 use function Harbor\Support\harbor_is_null;
 
+$config_global_file_path = null;
+
 function config_init(string ...$config_files): void
 {
     if (empty($config_files)) {
@@ -37,6 +39,7 @@ function config_init_global(string $config_file): void
         $environment[$config_key] = $config_value;
     }
 
+    config_set_global_file_path($normalized_path);
     config_write_environment($environment);
 }
 
@@ -164,6 +167,39 @@ function config_write_environment(array $environment): void
 {
     $_ENV = $environment;
     $GLOBALS['_ENV'] = $_ENV;
+}
+
+function config_global_file_path(): ?string
+{
+    global $config_global_file_path;
+
+    if (! is_string($config_global_file_path) || harbor_is_blank($config_global_file_path)) {
+        return null;
+    }
+
+    return $config_global_file_path;
+}
+
+function config_global_directory_path(): ?string
+{
+    $global_file_path = config_global_file_path();
+    if (harbor_is_null($global_file_path)) {
+        return null;
+    }
+
+    $global_directory_path = dirname($global_file_path);
+    if (! is_string($global_directory_path) || harbor_is_blank($global_directory_path)) {
+        return null;
+    }
+
+    return rtrim($global_directory_path, '/\\');
+}
+
+function config_set_global_file_path(string $path): void
+{
+    global $config_global_file_path;
+
+    $config_global_file_path = $path;
 }
 
 function config_array_has(array $array, string $key): bool

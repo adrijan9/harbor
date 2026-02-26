@@ -85,6 +85,41 @@ $has_db_host = config_exists('database.mysql.host');</code></pre>
 </section>
 
 <section class="docs-section">
+    <h2>Optional Cache Config File</h2>
+    <h3>Example</h3>
+    <pre><code class="language-php">use Harbor\Cache\CacheDriver;
+use function Harbor\Config\config_init;
+
+// from public/index.php
+config_init(__DIR__.'/../config/cache.php');
+
+// file: config/cache.php
+return [
+    /*
+    |--------------------------------------------------------------------------
+    | Default Cache Driver
+    |--------------------------------------------------------------------------
+    |
+    | Supported: "array", "file"
+    |
+    */
+    'driver' => CacheDriver::FILE->value,
+
+    /*
+    |--------------------------------------------------------------------------
+    | File Cache Path
+    |--------------------------------------------------------------------------
+    |
+    | Used when driver is "file".
+    |
+    */
+    'file_path' => __DIR__.'/../cache',
+];</code></pre>
+    <h3>What it does</h3>
+    <p>Loads <code>config/cache.php</code> into <code>$_ENV['cache']</code>, so cache resolver helpers can read <code>cache.driver</code> and <code>cache.file_path</code>.</p>
+</section>
+
+<section class="docs-section">
     <h2>Read Config Values</h2>
     <h3>Example</h3>
     <pre><code class="language-php">use function Harbor\Config\config_arr;

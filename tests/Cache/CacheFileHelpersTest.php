@@ -10,6 +10,7 @@ use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\Attributes\BeforeClass;
 use PHPUnit\Framework\TestCase;
 
+use function Harbor\Config\config_init_global;
 use function Harbor\Cache\cache_file_all;
 use function Harbor\Cache\cache_file_clear;
 use function Harbor\Cache\cache_file_count;
@@ -83,7 +84,7 @@ final class CacheFileHelpersTest extends TestCase
         cache_file_set('   ', 'value');
     }
 
-    public function test_cache_file_reset_path_uses_global_cache_file_path_after_runtime_override(): void
+    public function test_cache_file_reset_path_uses_cache_config_file_path_after_runtime_override(): void
     {
         $runtime_path = $this->workspace_path.'/runtime-cache';
 
@@ -95,12 +96,40 @@ final class CacheFileHelpersTest extends TestCase
         self::assertSame('value', cache_file_get('runtime-only'));
 
         cache_file_reset_path();
-        cache_file_set('global-path', 'from-global');
+        cache_file_set('config-path', 'from-config');
 
         self::assertFalse(cache_file_has('runtime-only'));
-        self::assertSame('from-global', cache_file_get('global-path'));
+        self::assertSame('from-config', cache_file_get('config-path'));
         self::assertDirectoryExists($this->cache_root_path);
         self::assertTrue(is_file($this->cache_root_path.'/.gitignore'));
+    }
+
+    public function test_cache_file_default_path_uses_site_root_when_global_config_is_loaded(): void
+    {
+        unset($_ENV['cache']);
+        $GLOBALS['_ENV'] = $_ENV;
+
+        $global_config_path = $this->workspace_path.'/global.php';
+        file_put_contents(
+            $global_config_path,
+            <<<'PHP'
+<?php
+
+declare(strict_types=1);
+
+return [
+    'app_name' => 'Example Site',
+];
+PHP
+        );
+
+        config_init_global($global_config_path);
+        cache_file_reset_path();
+        cache_file_set('site-cache-key', 'site-cache-value');
+
+        self::assertDirectoryExists($this->cache_root_path);
+        self::assertTrue(is_file($this->cache_root_path.'/.gitignore'));
+        self::assertSame('site-cache-value', cache_file_get('site-cache-key'));
     }
 
     #[Before]
@@ -114,7 +143,9 @@ final class CacheFileHelpersTest extends TestCase
             throw new \RuntimeException(sprintf('Failed to create test workspace "%s".', $this->workspace_path));
         }
 
-        $_ENV['cache_file_path'] = $this->cache_root_path;
+        $_ENV['cache'] = [
+            'file_path' => $this->cache_root_path,
+        ];
         $GLOBALS['_ENV'] = $_ENV;
 
         cache_file_reset_path();

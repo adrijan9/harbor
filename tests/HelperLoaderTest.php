@@ -115,6 +115,17 @@ final class HelperLoaderTest extends TestCase
         self::assertTrue(function_exists('Harbor\Cache\cache_file_reset_path'));
     }
 
+    public function test_load_cache_helper_registers_namespaced_functions(): void
+    {
+        HelperLoader::load('cache');
+
+        self::assertTrue(function_exists('Harbor\Cache\cache_driver'));
+        self::assertTrue(function_exists('Harbor\Cache\cache_is_array'));
+        self::assertTrue(function_exists('Harbor\Cache\cache_is_file'));
+        self::assertTrue(function_exists('Harbor\Cache\cache_set'));
+        self::assertTrue(function_exists('Harbor\Cache\cache_get'));
+    }
+
     public function test_load_log_helper_registers_namespaced_functions(): void
     {
         HelperLoader::load('log');
