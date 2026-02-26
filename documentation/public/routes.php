@@ -54,6 +54,12 @@ return [
             'entry' => 'pages/filesystem.php',
         ],
         [
+            'path' => '/cache',
+            'method' => 'GET',
+            'name' => 'docs.cache',
+            'entry' => 'pages/cache.php',
+        ],
+        [
             'path' => '/logging',
             'method' => 'GET',
             'name' => 'docs.logging',

@@ -71,6 +71,13 @@ final class HelperLoader
             'request' => __DIR__.'/Request/request.php',
             // Filesystem
             'filesystem' => __DIR__.'/Filesystem/filesystem.php',
+            // Cache
+            'cache_array' => __DIR__.'/Cache/cache_array.php',
+            'cache_file' => __DIR__.'/Cache/cache_file.php',
+            'cache' => [
+                __DIR__.'/Cache/cache_array.php',
+                __DIR__.'/Cache/cache_file.php',
+            ],
             // Log
             'log' => __DIR__.'/Log/log.php',
             // Lang

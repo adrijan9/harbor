@@ -60,6 +60,7 @@ This command will serve the documentation site on `http://localhost:<SOME_PORT>`
   - `lang` for current locale helpers (`lang_get`, `lang_set`, `lang_is`)
   - `translation` for locale translation loading and lookup (`translation_init`, `t`)
   - `filesystem` for explicit file/directory operations
+  - `cache` for array/file cache helpers (`cache_array_*`, `cache_file_*`)
   - `log` for structured logging helpers and levels
 - CLI:
   - `bin/harbor` compiles `.router` files into `public/routes.php` when `public/` exists, otherwise `routes.php`
@@ -77,6 +78,7 @@ harbor/
     Router/
     Request/
     Filesystem/
+    Cache/
     Log/
     HelperLoader.php
   templates/

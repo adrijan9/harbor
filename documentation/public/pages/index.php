@@ -49,6 +49,10 @@ require __DIR__.'/../shared/header.php';
             <h3>Filesystem</h3>
             <p>Safe file and directory operations.</p>
         </a>
+        <a class="card" href="/cache">
+            <h3>Cache</h3>
+            <p>Array and file cache helpers with shared API shape.</p>
+        </a>
         <a class="card" href="/logging">
             <h3>Logging</h3>
             <p>Levels, context, and reusable log entries.</p>

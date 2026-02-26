@@ -57,6 +57,13 @@
 </route>
 
 <route>
+  path: /cache
+  method: GET
+  name: docs.cache
+  entry: pages/cache.php
+</route>
+
+<route>
   path: /logging
   method: GET
   name: docs.logging
