@@ -27,6 +27,7 @@ final class HelperLoaderTest extends TestCase
         self::assertContains('value', $helpers);
         self::assertContains('array', $helpers);
         self::assertContains('request', $helpers);
+        self::assertContains('response', $helpers);
         self::assertContains('filesystem', $helpers);
         self::assertContains('cache_array', $helpers);
         self::assertContains('cache_file', $helpers);
@@ -64,6 +65,16 @@ final class HelperLoaderTest extends TestCase
 
         self::assertTrue(function_exists('Harbor\Request\request'));
         self::assertTrue(function_exists('Harbor\Request\request_method'));
+    }
+
+    public function test_load_response_helper_registers_namespaced_functions(): void
+    {
+        HelperLoader::load('response');
+
+        self::assertTrue(function_exists('Harbor\Response\response_status'));
+        self::assertTrue(function_exists('Harbor\Response\response_json'));
+        self::assertTrue(function_exists('Harbor\Response\response_file'));
+        self::assertTrue(function_exists('Harbor\Response\response_download'));
     }
 
     public function test_load_config_helper_registers_namespaced_functions(): void

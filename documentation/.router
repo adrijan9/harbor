@@ -50,6 +50,13 @@
 </route>
 
 <route>
+  path: /response
+  method: GET
+  name: docs.response
+  entry: pages/response.php
+</route>
+
+<route>
   path: /filesystem
   method: GET
   name: docs.filesystem

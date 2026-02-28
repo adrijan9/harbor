@@ -57,6 +57,7 @@ This command will serve the documentation site on `http://localhost:<SOME_PORT>`
   - `value` for shared blank/null checks (`harbor_is_blank`, `harbor_is_null`)
   - `array` for shared array mutation helpers (`array_forget`)
   - `request` for typed request metadata/body/header helpers
+  - `response` for response convenience helpers (`response_status`, `response_json`, `response_file`, `response_download`)
   - `lang` for current locale helpers (`lang_get`, `lang_set`, `lang_is`)
   - `translation` for locale translation loading and lookup (`translation_init`, `t`)
   - `filesystem` for explicit file/directory operations

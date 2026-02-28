@@ -48,6 +48,12 @@ return [
             'entry' => 'pages/request.php',
         ],
         [
+            'path' => '/response',
+            'method' => 'GET',
+            'name' => 'docs.response',
+            'entry' => 'pages/response.php',
+        ],
+        [
             'path' => '/filesystem',
             'method' => 'GET',
             'name' => 'docs.filesystem',

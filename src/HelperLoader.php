@@ -69,6 +69,8 @@ final class HelperLoader
             'array' => __DIR__.'/Support/array.php',
             // Request
             'request' => __DIR__.'/Request/request.php',
+            // Response
+            'response' => __DIR__.'/Response/response.php',
             // Filesystem
             'filesystem' => __DIR__.'/Filesystem/filesystem.php',
             // Cache
