@@ -57,10 +57,10 @@ function harbor_run_init(?string $site_name_from_argument = null): void
 
 function harbor_resolve_site_template_directory_path(): string
 {
-    $template_directory_path = realpath(__DIR__.'/../templates/site');
+    $template_directory_path = realpath(__DIR__.'/stubs/site');
 
     if (false === $template_directory_path || ! is_dir($template_directory_path)) {
-        fwrite(STDERR, sprintf('Site template directory not found: %s%s', __DIR__.'/../templates/site', PHP_EOL));
+        fwrite(STDERR, sprintf('Site template directory not found: %s%s', __DIR__.'/stubs/site', PHP_EOL));
 
         exit(1);
     }

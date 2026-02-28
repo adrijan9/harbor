@@ -37,7 +37,7 @@ final class HarborInitTest extends TestCase
         \harbor_run_init('demo-site');
 
         $site_path = $this->workspace_path.'/demo-site';
-        $template_path = dirname(__DIR__, 2).'/templates/site';
+        $template_path = dirname(__DIR__, 2).'/bin/stubs/site';
         self::assertFileExists($site_path.'/global.php');
         self::assertFileExists($site_path.'/.router');
         self::assertFileExists($site_path.'/public/.htaccess');

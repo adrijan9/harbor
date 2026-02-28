@@ -173,7 +173,7 @@ Harbor uses strict front-controller routing by default:
 - Only paths declared in `.router` (compiled to `public/routes.php` when `public/` exists) are reachable
 - Static files are not directly accessible unless you expose them through routes/entries
 
-The `init` command copies files from `templates/site/`, so you can customize future scaffolds by editing that directory.
+The `init` command copies files from `bin/stubs/site/`, so you can customize future scaffolds by editing that directory.
 
 To expose static files explicitly, declare assets at the top of `.router`:
 
