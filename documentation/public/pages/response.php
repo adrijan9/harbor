@@ -23,19 +23,6 @@ require __DIR__.'/../shared/header.php';
 HelperLoader::load('response');</code></pre>
     <h3>What it does</h3>
     <p>Loads response helper functions into the <code>Harbor\Response</code> namespace.</p>
-    <h3>API</h3>
-    <details class="api-details">
-        <summary class="api-summary">
-            <span>Response Loader API</span>
-            <span class="api-state"><span class="api-state-closed">Hidden - click to open</span><span class="api-state-open">Open</span></span>
-        </summary>
-        <div class="api-body">
-            <pre><code class="language-php">HelperLoader::load(string $helper_name): void
-// Loads helper module by name.
-// Use "response" to register response convenience helpers.
-HelperLoader::load('response');</code></pre>
-        </div>
-    </details>
 </section>
 
 <section class="docs-section">

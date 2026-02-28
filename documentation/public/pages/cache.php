@@ -26,19 +26,6 @@ HelperLoader::load('cache_file');  // loads only file cache helpers
 HelperLoader::load('cache_apc');   // loads only APC cache helpers</code></pre>
     <h3>What it does</h3>
     <p>Registers cache helper functions under <code>Harbor\Cache</code>. You can call <code>cache_array_*</code>, <code>cache_file_*</code>, and <code>cache_apc_*</code> directly without any resolver config.</p>
-    <h3>API</h3>
-    <details class="api-details">
-        <summary class="api-summary">
-            <span>Cache Loader API</span>
-            <span class="api-state"><span class="api-state-closed">Hidden - click to open</span><span class="api-state-open">Open</span></span>
-        </summary>
-        <div class="api-body">
-            <pre><code class="language-php">HelperLoader::load(string $helper_name): void
-// Loads helper functions by module name.
-// Use "cache", "cache_array", "cache_file", or "cache_apc".
-HelperLoader::load('cache');</code></pre>
-        </div>
-    </details>
 </section>
 
 <section class="docs-section">

@@ -23,19 +23,6 @@ require __DIR__.'/../shared/header.php';
 HelperLoader::load('filesystem');</code></pre>
     <h3>What it does</h3>
     <p>Loads filesystem helper functions.</p>
-    <h3>API</h3>
-    <details class="api-details">
-        <summary class="api-summary">
-            <span>Filesystem Loader API</span>
-            <span class="api-state"><span class="api-state-closed">Hidden - click to open</span><span class="api-state-open">Open</span></span>
-        </summary>
-        <div class="api-body">
-            <pre><code class="language-php">HelperLoader::load(string $helper_name): void
-// Loads helper functions by module name.
-// Use "filesystem" to enable filesystem helpers.
-HelperLoader::load('filesystem');</code></pre>
-        </div>
-    </details>
 </section>
 
 <section class="docs-section">

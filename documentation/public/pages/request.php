@@ -23,24 +23,6 @@ require __DIR__.'/../shared/header.php';
 HelperLoader::load('request');</code></pre>
     <h3>What it does</h3>
     <p>Loads request functions into the <code>Harbor\Request</code> namespace.</p>
-    <h3>API</h3>
-    <details class="api-details">
-        <summary class="api-summary">
-            <span>Request Loader API</span>
-            <span class="api-state"><span class="api-state-closed">Hidden - click to open</span><span class="api-state-open">Open</span></span>
-        </summary>
-        <div class="api-body">
-            <pre><code class="language-php">HelperLoader::load(string $helper_name): void
-// Loads helper functions by module name.
-// Use "request" to enable request helpers.
-HelperLoader::load('request');
-
-function request(): array
-// Returns normalized request snapshot.
-// Includes method, URL data, headers, body, cookies, files, and server data.
-$request_data = request();</code></pre>
-        </div>
-    </details>
 </section>
 
 <section class="docs-section">
