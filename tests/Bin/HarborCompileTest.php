@@ -9,6 +9,9 @@ use PHPUnit\Framework\TestCase;
 
 require_once dirname(__DIR__, 2).'/bin/harbor_compile.php';
 
+/**
+ * Class HarborCompileTest.
+ */
 final class HarborCompileTest extends TestCase
 {
     /** @var array<int, string> */

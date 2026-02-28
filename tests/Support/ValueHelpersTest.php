@@ -11,6 +11,9 @@ use function Harbor\Support\harbor_is_null;
 
 require_once dirname(__DIR__, 2).'/src/Support/value.php';
 
+/**
+ * Class ValueHelpersTest.
+ */
 final class ValueHelpersTest extends TestCase
 {
     public function test_harbor_is_blank_handles_common_empty_values(): void

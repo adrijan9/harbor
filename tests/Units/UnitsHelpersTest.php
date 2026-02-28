@@ -21,6 +21,9 @@ use function Harbor\Units\unit_mb_from_bytes;
 use function Harbor\Units\unit_mb_from_kb;
 use function Harbor\Units\unit_tb_from_bytes;
 
+/**
+ * Class UnitsHelpersTest.
+ */
 final class UnitsHelpersTest extends TestCase
 {
     #[BeforeClass]

@@ -23,6 +23,9 @@ use function Harbor\Log\log_warning;
 use function Harbor\Log\log_write;
 use function Harbor\Log\log_write_content;
 
+/**
+ * Class LogHelpersTest.
+ */
 final class LogHelpersTest extends TestCase
 {
     private string $workspace_path;

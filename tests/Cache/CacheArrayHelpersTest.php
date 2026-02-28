@@ -17,6 +17,9 @@ use function Harbor\Cache\cache_array_get;
 use function Harbor\Cache\cache_array_has;
 use function Harbor\Cache\cache_array_set;
 
+/**
+ * Class CacheArrayHelpersTest.
+ */
 final class CacheArrayHelpersTest extends TestCase
 {
     #[BeforeClass]

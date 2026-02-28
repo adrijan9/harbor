@@ -21,6 +21,9 @@ use function Harbor\Cache\cache_file_reset_path;
 use function Harbor\Cache\cache_file_set;
 use function Harbor\Cache\cache_file_set_path;
 
+/**
+ * Class CacheFileHelpersTest.
+ */
 final class CacheFileHelpersTest extends TestCase
 {
     private string $workspace_path;

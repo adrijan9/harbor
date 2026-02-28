@@ -18,6 +18,9 @@ use function Harbor\Cache\cache_apc_get;
 use function Harbor\Cache\cache_apc_has;
 use function Harbor\Cache\cache_apc_set;
 
+/**
+ * Class CacheApcHelpersTest.
+ */
 final class CacheApcHelpersTest extends TestCase
 {
     #[BeforeClass]

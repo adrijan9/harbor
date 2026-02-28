@@ -19,6 +19,9 @@ use function Harbor\Response\response_status;
 use function Harbor\Response\response_text;
 use function Harbor\Response\response_validation;
 
+/**
+ * Class ResponseHelpersTest.
+ */
 final class ResponseHelpersTest extends TestCase
 {
     private string $workspace_path;

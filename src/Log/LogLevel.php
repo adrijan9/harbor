@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Harbor\Log;
 
+/**
+ * Enum LogLevel.
+ */
 enum LogLevel: string
 {
     case DEBUG = 'debug';

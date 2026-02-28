@@ -36,6 +36,12 @@ return [
             'entry' => 'pages/config.php',
         ],
         [
+            'path' => '/database',
+            'method' => 'GET',
+            'name' => 'docs.database',
+            'entry' => 'pages/database.php',
+        ],
+        [
             'path' => '/lang',
             'method' => 'GET',
             'name' => 'docs.lang',

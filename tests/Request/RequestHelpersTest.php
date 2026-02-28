@@ -59,6 +59,9 @@ use function Harbor\Support\harbor_is_null;
 
 #[RunTestsInSeparateProcesses]
 #[PreserveGlobalState(false)]
+/**
+ * Class RequestHelpersTest.
+ */
 final class RequestHelpersTest extends TestCase
 {
     public function test_request_metadata_helpers_read_server_state(): void

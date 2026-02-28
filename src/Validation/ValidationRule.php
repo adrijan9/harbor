@@ -8,6 +8,9 @@ require_once __DIR__.'/../Support/value.php';
 
 use function Harbor\Support\harbor_is_blank;
 
+/**
+ * Class ValidationRule.
+ */
 final class ValidationRule
 {
     /**

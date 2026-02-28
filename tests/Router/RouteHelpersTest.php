@@ -33,6 +33,9 @@ use function Harbor\Router\route as route_path;
 use function Harbor\Router\route_exists;
 use function Harbor\Router\route_name_is;
 
+/**
+ * Class RouteHelpersTest.
+ */
 final class RouteHelpersTest extends TestCase
 {
     private bool $had_route = false;

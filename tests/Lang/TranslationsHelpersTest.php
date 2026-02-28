@@ -16,6 +16,9 @@ use function Harbor\Lang\translation_get;
 use function Harbor\Lang\translation_init;
 use function Harbor\Lang\translations_all;
 
+/**
+ * Class TranslationsHelpersTest.
+ */
 final class TranslationsHelpersTest extends TestCase
 {
     private array $original_env = [];

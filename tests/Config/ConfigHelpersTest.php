@@ -25,6 +25,9 @@ use function Harbor\Config\config_obj;
 use function Harbor\Config\config_resolve;
 use function Harbor\Config\config_str;
 
+/**
+ * Class ConfigHelpersTest.
+ */
 final class ConfigHelpersTest extends TestCase
 {
     private array $original_env = [];

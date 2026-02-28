@@ -9,6 +9,9 @@ require_once __DIR__.'/../Support/value.php';
 use function Harbor\Support\harbor_is_blank;
 use function Harbor\Support\harbor_is_null;
 
+/**
+ * Class ValidationValidator.
+ */
 final class ValidationValidator
 {
     /**

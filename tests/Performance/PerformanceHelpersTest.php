@@ -16,6 +16,9 @@ use function Harbor\Performance\performance_begin;
 use function Harbor\Performance\performance_end;
 use function Harbor\Performance\performance_end_log;
 
+/**
+ * Class PerformanceHelpersTest.
+ */
 final class PerformanceHelpersTest extends TestCase
 {
     private string $workspace_path;

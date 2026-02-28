@@ -13,6 +13,9 @@ use function Harbor\Validation\validation_has_errors;
 use function Harbor\Validation\validation_rule;
 use function Harbor\Validation\validation_validate;
 
+/**
+ * Class ValidationHelpersTest.
+ */
 final class ValidationHelpersTest extends TestCase
 {
     #[BeforeClass]

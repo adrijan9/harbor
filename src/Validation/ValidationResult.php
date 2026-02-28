@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Harbor\Validation;
 
+/**
+ * Class ValidationResult.
+ */
 final class ValidationResult
 {
     /**

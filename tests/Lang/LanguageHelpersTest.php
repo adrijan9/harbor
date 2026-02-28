@@ -13,6 +13,9 @@ use function Harbor\Lang\lang_get;
 use function Harbor\Lang\lang_is;
 use function Harbor\Lang\lang_set;
 
+/**
+ * Class LanguageHelpersTest.
+ */
 final class LanguageHelpersTest extends TestCase
 {
     private array $original_env = [];

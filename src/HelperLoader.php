@@ -8,6 +8,9 @@ require_once __DIR__.'/Support/value.php';
 
 use function Harbor\Support\harbor_is_null;
 
+/**
+ * Class HelperLoader.
+ */
 final class HelperLoader
 {
     public static function load(string ...$helpers): void
@@ -71,6 +74,12 @@ final class HelperLoader
             'request' => __DIR__.'/Request/request.php',
             // Response
             'response' => __DIR__.'/Response/response.php',
+            // Database
+            'db' => __DIR__.'/Database/db.php',
+            'database' => __DIR__.'/Database/db.php',
+            'db_sqlite' => __DIR__.'/Database/db_sqlite.php',
+            'db_mysql_pdo' => __DIR__.'/Database/db_mysql_pdo.php',
+            'db_mysqli' => __DIR__.'/Database/db_mysqli.php',
             // Validation
             'validation' => __DIR__.'/Validation/validation.php',
             // Performance

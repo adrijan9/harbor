@@ -10,7 +10,7 @@ require __DIR__.'/../shared/header.php';
 ?>
 
 <section class="hero">
-    <span class="hero-eyebrow">Helper Loader</span>
+    <span class="hero-eyebrow">namespace: helper_loader</span>
     <h1>Load Helpers</h1>
     <p>Load all helper modules from one place using module keys.</p>
 </section>
@@ -63,6 +63,11 @@ HelperLoader::load('cache');</code></pre>
                 <td><code>response</code></td>
                 <td><code>Harbor\Response</code></td>
                 <td>HTTP response helpers.</td>
+            </tr>
+            <tr>
+                <td><code>db</code>, <code>database</code>, <code>db_sqlite</code>, <code>db_mysql_pdo</code>, <code>db_mysqli</code></td>
+                <td><code>Harbor\Database</code></td>
+                <td>Database resolver and concrete wrappers for SQLite/MySQL connections and queries.</td>
             </tr>
             <tr>
                 <td><code>validation</code></td>

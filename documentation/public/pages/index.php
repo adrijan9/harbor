@@ -41,6 +41,10 @@ require __DIR__.'/../shared/header.php';
             <h3>Config Helpers</h3>
             <p>Load one or many config files and read typed values from env.</p>
         </a>
+        <a class="card" href="/database">
+            <h3>Database Helpers</h3>
+            <p>Lightweight wrappers for SQLite, MySQL PDO, MySQLi, and resolver helpers.</p>
+        </a>
         <a class="card" href="/lang">
             <h3>Lang &amp; Translation</h3>
             <p>Locale helpers and Laravel-style translation keys.</p>

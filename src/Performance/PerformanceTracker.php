@@ -17,6 +17,9 @@ use function Harbor\Support\harbor_is_blank;
 use function Harbor\Units\unit_bytes_to_human;
 use function Harbor\Units\unit_duration_ms_to_human;
 
+/**
+ * Class PerformanceTracker.
+ */
 final class PerformanceTracker
 {
     private const DEFAULT_MARKER = 'default';

@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Harbor\Error;
 
+/**
+ * Class ExceptionRenderer.
+ */
 final class ExceptionRenderer
 {
     public function exception_template_payload(\Throwable $exception): array

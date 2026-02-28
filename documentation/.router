@@ -36,6 +36,13 @@
 </route>
 
 <route>
+  path: /database
+  method: GET
+  name: docs.database
+  entry: pages/database.php
+</route>
+
+<route>
   path: /lang
   method: GET
   name: docs.lang

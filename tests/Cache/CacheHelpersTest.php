@@ -28,6 +28,9 @@ use function Harbor\Cache\cache_is_array;
 use function Harbor\Cache\cache_is_file;
 use function Harbor\Cache\cache_set;
 
+/**
+ * Class CacheHelpersTest.
+ */
 final class CacheHelpersTest extends TestCase
 {
     private string $workspace_path;

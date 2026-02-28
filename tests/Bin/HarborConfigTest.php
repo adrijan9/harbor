@@ -12,6 +12,9 @@ require_once dirname(__DIR__, 2).'/src/Support/value.php';
 
 use function Harbor\Support\harbor_is_blank;
 
+/**
+ * Class HarborConfigTest.
+ */
 final class HarborConfigTest extends TestCase
 {
     private string $workspace_path = '';
@@ -31,6 +34,23 @@ final class HarborConfigTest extends TestCase
         self::assertStringContainsString("use Harbor\\Cache\\CacheDriver;", $content);
         self::assertStringContainsString("'driver' => CacheDriver::FILE->value", $content);
         self::assertStringContainsString("'file_path' => __DIR__.'/../cache'", $content);
+    }
+
+    public function test_publish_database_config_creates_file_in_current_site_config_directory(): void
+    {
+        $this->prepare_workspace();
+
+        $published_path = \harbor_publish_config('database');
+
+        self::assertSame($this->workspace_path.'/config/database.php', $published_path);
+        self::assertFileExists($published_path);
+
+        $content = file_get_contents($published_path);
+        self::assertIsString($content);
+        self::assertStringContainsString("use Harbor\\Database\\DbDriver;", $content);
+        self::assertStringContainsString("'driver' => DbDriver::SQLITE->value", $content);
+        self::assertStringContainsString("'path' => __DIR__.'/../storage/app.sqlite'", $content);
+        self::assertStringContainsString("'host' => '127.0.0.1'", $content);
     }
 
     public function test_publish_cache_config_does_not_overwrite_existing_file_by_default(): void
@@ -59,6 +79,21 @@ final class HarborConfigTest extends TestCase
         $content = file_get_contents($published_path);
         self::assertIsString($content);
         self::assertStringContainsString("CacheDriver::FILE->value", $content);
+    }
+
+    public function test_publish_database_config_overwrites_existing_file_when_enabled(): void
+    {
+        $this->prepare_workspace();
+        $config_directory_path = $this->workspace_path.'/config';
+        mkdir($config_directory_path, 0o777, true);
+        file_put_contents($config_directory_path.'/database.php', '<?php return ["driver" => "mysql"];');
+
+        $published_path = \harbor_publish_config('database', true);
+        self::assertSame($config_directory_path.'/database.php', $published_path);
+
+        $content = file_get_contents($published_path);
+        self::assertIsString($content);
+        self::assertStringContainsString("DbDriver::SQLITE->value", $content);
     }
 
     public function test_publish_config_throws_for_unknown_configuration_key(): void

@@ -12,6 +12,7 @@ $docs_navigation = [
     ['id' => 'installation', 'label' => 'Installation', 'href' => '/installation'],
     ['id' => 'routing', 'label' => 'Routing', 'href' => '/routing'],
     ['id' => 'config', 'label' => 'Config', 'href' => '/config'],
+    ['id' => 'database', 'label' => 'Database', 'href' => '/database'],
     ['id' => 'lang', 'label' => 'Lang', 'href' => '/lang'],
     ['id' => 'support', 'label' => 'Support', 'href' => '/support'],
     ['id' => 'validation', 'label' => 'Validation', 'href' => '/validation'],

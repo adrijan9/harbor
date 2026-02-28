@@ -9,6 +9,9 @@ use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * Class RouterTest.
+ */
 final class RouterTest extends TestCase
 {
     private array $original_server = [];

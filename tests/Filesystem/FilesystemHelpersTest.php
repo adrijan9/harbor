@@ -24,6 +24,9 @@ use function Harbor\Filesystem\fs_read;
 use function Harbor\Filesystem\fs_size;
 use function Harbor\Filesystem\fs_write;
 
+/**
+ * Class FilesystemHelpersTest.
+ */
 final class FilesystemHelpersTest extends TestCase
 {
     private string $workspace_path;

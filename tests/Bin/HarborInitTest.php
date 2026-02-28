@@ -14,6 +14,9 @@ require_once dirname(__DIR__, 2).'/src/Support/value.php';
 
 use function Harbor\Support\harbor_is_blank;
 
+/**
+ * Class HarborInitTest.
+ */
 final class HarborInitTest extends TestCase
 {
     private string $workspace_path = '';

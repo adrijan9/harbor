@@ -9,6 +9,9 @@ use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * Class HelperLoaderTest.
+ */
 final class HelperLoaderTest extends TestCase
 {
     private array $original_server = [];
@@ -28,6 +31,11 @@ final class HelperLoaderTest extends TestCase
         self::assertContains('array', $helpers);
         self::assertContains('request', $helpers);
         self::assertContains('response', $helpers);
+        self::assertContains('db', $helpers);
+        self::assertContains('database', $helpers);
+        self::assertContains('db_sqlite', $helpers);
+        self::assertContains('db_mysql_pdo', $helpers);
+        self::assertContains('db_mysqli', $helpers);
         self::assertContains('validation', $helpers);
         self::assertContains('performance', $helpers);
         self::assertContains('units', $helpers);
@@ -90,6 +98,25 @@ final class HelperLoaderTest extends TestCase
         self::assertTrue(function_exists('Harbor\Validation\validation_errors'));
         self::assertTrue(function_exists('Harbor\Validation\validation_has_errors'));
         self::assertFalse(function_exists('Harbor\Validation\validator_has_error'));
+    }
+
+    public function test_load_db_helper_registers_namespaced_functions(): void
+    {
+        HelperLoader::load('db');
+
+        self::assertTrue(function_exists('Harbor\Database\db_connect'));
+        self::assertTrue(function_exists('Harbor\Database\db_driver'));
+        self::assertTrue(function_exists('Harbor\Database\db_execute'));
+        self::assertTrue(function_exists('Harbor\Database\db_array'));
+        self::assertTrue(function_exists('Harbor\Database\db_objects'));
+        self::assertTrue(function_exists('Harbor\Database\db_sqlite_connect'));
+        self::assertTrue(function_exists('Harbor\Database\db_sqlite_connect_dto'));
+        self::assertTrue(function_exists('Harbor\Database\db_mysql_connect'));
+        self::assertTrue(function_exists('Harbor\Database\db_mysql_connect_dto'));
+        self::assertTrue(function_exists('Harbor\Database\db_mysqli_connect'));
+        self::assertTrue(function_exists('Harbor\Database\db_mysqli_connect_dto'));
+        self::assertTrue(class_exists('Harbor\Database\SqliteDto'));
+        self::assertTrue(class_exists('Harbor\Database\MysqlDto'));
     }
 
     public function test_load_performance_helper_registers_namespaced_functions(): void

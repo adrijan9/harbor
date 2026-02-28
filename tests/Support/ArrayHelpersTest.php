@@ -10,6 +10,9 @@ use function Harbor\Support\array_forget;
 
 require_once dirname(__DIR__, 2).'/src/Support/array.php';
 
+/**
+ * Class ArrayHelpersTest.
+ */
 final class ArrayHelpersTest extends TestCase
 {
     public function test_array_forget_removes_top_level_key(): void
