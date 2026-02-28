@@ -28,6 +28,8 @@ final class HelperLoaderTest extends TestCase
         self::assertContains('array', $helpers);
         self::assertContains('request', $helpers);
         self::assertContains('response', $helpers);
+        self::assertContains('performance', $helpers);
+        self::assertContains('units', $helpers);
         self::assertContains('filesystem', $helpers);
         self::assertContains('cache_array', $helpers);
         self::assertContains('cache_file', $helpers);
@@ -75,6 +77,30 @@ final class HelperLoaderTest extends TestCase
         self::assertTrue(function_exists('Harbor\Response\response_json'));
         self::assertTrue(function_exists('Harbor\Response\response_file'));
         self::assertTrue(function_exists('Harbor\Response\response_download'));
+    }
+
+    public function test_load_performance_helper_registers_namespaced_functions(): void
+    {
+        HelperLoader::load('performance');
+
+        self::assertTrue(function_exists('Harbor\Performance\performance_begin'));
+        self::assertTrue(function_exists('Harbor\Performance\performance_end'));
+        self::assertTrue(function_exists('Harbor\Performance\performance_end_log'));
+        self::assertFalse(function_exists('Harbor\Performance\performance_start'));
+        self::assertFalse(function_exists('Harbor\Performance\performace_end_log'));
+        self::assertFalse(function_exists('Harbor\Performance\performace_start'));
+        self::assertFalse(function_exists('Harbor\Performance\performace_end'));
+    }
+
+    public function test_load_units_helper_registers_namespaced_functions(): void
+    {
+        HelperLoader::load('units');
+
+        self::assertTrue(function_exists('Harbor\Units\unit_kb_from_mb'));
+        self::assertTrue(function_exists('Harbor\Units\unit_mb_from_kb'));
+        self::assertTrue(function_exists('Harbor\Units\unit_bytes_to_human'));
+        self::assertTrue(function_exists('Harbor\Units\unit_duration_ms_to_human'));
+        self::assertFalse(function_exists('Harbor\Units\unit_mb_to_kg'));
     }
 
     public function test_load_config_helper_registers_namespaced_functions(): void

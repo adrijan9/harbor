@@ -54,6 +54,18 @@ return [
             'entry' => 'pages/response.php',
         ],
         [
+            'path' => '/performance',
+            'method' => 'GET',
+            'name' => 'docs.performance',
+            'entry' => 'pages/performance.php',
+        ],
+        [
+            'path' => '/units',
+            'method' => 'GET',
+            'name' => 'docs.units',
+            'entry' => 'pages/units.php',
+        ],
+        [
             'path' => '/filesystem',
             'method' => 'GET',
             'name' => 'docs.filesystem',

@@ -17,9 +17,23 @@ use function Harbor\Filesystem\fs_write;
 use function Harbor\Support\harbor_is_blank;
 use function Harbor\Support\harbor_is_null;
 
-$log_file_path = null;
-$log_is_initialized = false;
-$log_default_channel = 'app';
+// Ensure log state always exists in true global scope, even when this file is
+// required from inside a method (for example via HelperLoader::load()).
+if (! array_key_exists('log_file_path', $GLOBALS)) {
+    $GLOBALS['log_file_path'] = null;
+}
+
+if (! array_key_exists('log_is_initialized', $GLOBALS) || ! is_bool($GLOBALS['log_is_initialized'])) {
+    $GLOBALS['log_is_initialized'] = false;
+}
+
+if (
+    ! array_key_exists('log_default_channel', $GLOBALS)
+    || ! is_string($GLOBALS['log_default_channel'])
+    || harbor_is_blank($GLOBALS['log_default_channel'])
+) {
+    $GLOBALS['log_default_channel'] = 'app';
+}
 
 function log_init(string $file_path, string $channel = 'app'): void
 {
@@ -57,7 +71,7 @@ function log_is_initialized(): bool
 {
     global $log_is_initialized;
 
-    return $log_is_initialized;
+    return true === $log_is_initialized;
 }
 
 function log_file_path(): ?string

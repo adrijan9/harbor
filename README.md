@@ -58,6 +58,7 @@ This command will serve the documentation site on `http://localhost:<SOME_PORT>`
   - `array` for shared array mutation helpers (`array_forget`)
   - `request` for typed request metadata/body/header helpers
   - `response` for response convenience helpers (`response_status`, `response_json`, `response_file`, `response_download`)
+  - `performance` for explicit timing/memory markers (`performance_begin`, `performance_end`, `performance_end_log`) with tracking logs in `current_site_directory/logs/performance_Y-m-d-H-s-i_tracking.log`
   - `lang` for current locale helpers (`lang_get`, `lang_set`, `lang_is`)
   - `translation` for locale translation loading and lookup (`translation_init`, `t`)
   - `filesystem` for explicit file/directory operations
@@ -80,6 +81,8 @@ harbor/
   src/
     Router/
     Request/
+    Response/
+    Performance/
     Filesystem/
     Cache/
     Log/

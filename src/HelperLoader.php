@@ -71,6 +71,10 @@ final class HelperLoader
             'request' => __DIR__.'/Request/request.php',
             // Response
             'response' => __DIR__.'/Response/response.php',
+            // Performance
+            'performance' => __DIR__.'/Performance/performance.php',
+            // Units
+            'units' => __DIR__.'/Units/units.php',
             // Filesystem
             'filesystem' => __DIR__.'/Filesystem/filesystem.php',
             // Cache

@@ -51,6 +51,13 @@ final class LogHelpersTest extends TestCase
         self::assertTrue(is_file($this->log_file_path));
     }
 
+    public function test_log_is_initialized_returns_false_when_internal_state_is_missing(): void
+    {
+        unset($GLOBALS['log_is_initialized']);
+
+        self::assertFalse(log_is_initialized());
+    }
+
     public function test_log_helpers_write_entries_with_context_and_interpolation(): void
     {
         log_init($this->log_file_path);

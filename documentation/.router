@@ -57,6 +57,20 @@
 </route>
 
 <route>
+  path: /performance
+  method: GET
+  name: docs.performance
+  entry: pages/performance.php
+</route>
+
+<route>
+  path: /units
+  method: GET
+  name: docs.units
+  entry: pages/units.php
+</route>
+
+<route>
   path: /filesystem
   method: GET
   name: docs.filesystem

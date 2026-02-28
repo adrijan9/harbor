@@ -15,6 +15,8 @@ $docs_navigation = [
     ['id' => 'support', 'label' => 'Support', 'href' => '/support'],
     ['id' => 'request', 'label' => 'Request', 'href' => '/request'],
     ['id' => 'response', 'label' => 'Response', 'href' => '/response'],
+    ['id' => 'performance', 'label' => 'Performance', 'href' => '/performance'],
+    ['id' => 'units', 'label' => 'Units', 'href' => '/units'],
     ['id' => 'filesystem', 'label' => 'Filesystem', 'href' => '/filesystem'],
     ['id' => 'cache', 'label' => 'Cache', 'href' => '/cache'],
     ['id' => 'logging', 'label' => 'Logging', 'href' => '/logging'],
