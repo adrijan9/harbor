@@ -51,6 +51,8 @@ final class HarborInitTest extends TestCase
         self::assertFileExists($site_path.'/lang/en.php');
         self::assertFileExists($site_path.'/lang/.keep');
         self::assertFileExists($site_path.'/config/.gitkeep');
+        self::assertFileExists($site_path.'/src/.gitkeep');
+        self::assertFileExists($site_path.'/src/Database/.gitkeep');
 
         $config = require $site_path.'/global.php';
         self::assertIsArray($config);
