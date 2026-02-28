@@ -1,6 +1,6 @@
 {
     "version": "1.0.0",
-    "name": "adrijan9/harbor",
+    "name": "harbor/harbor",
     "bin": [
         "bin/harbor",
         "bin/harbor-docs",
