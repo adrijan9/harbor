@@ -43,6 +43,13 @@
 </route>
 
 <route>
+  path: /validation
+  method: GET
+  name: docs.validation
+  entry: pages/validation.php
+</route>
+
+<route>
   path: /request
   method: GET
   name: docs.request

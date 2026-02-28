@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Harbor\Tests\Response;
 
 use Harbor\HelperLoader;
+use Harbor\Validation\ValidationResult;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\Attributes\BeforeClass;
@@ -16,6 +17,7 @@ use function Harbor\Response\response_header;
 use function Harbor\Response\response_json;
 use function Harbor\Response\response_status;
 use function Harbor\Response\response_text;
+use function Harbor\Response\response_validation;
 
 final class ResponseHelpersTest extends TestCase
 {
@@ -142,6 +144,52 @@ final class ResponseHelpersTest extends TestCase
 
         self::assertSame('invoice', $output);
         self::assertSame(200, http_response_code());
+    }
+
+    public function test_response_validation_outputs_json_payload_when_json_is_requested(): void
+    {
+        $_SERVER['HTTP_ACCEPT'] = 'application/json';
+        $result = ValidationResult::failed([
+            'email' => ['The email field is required.'],
+        ]);
+
+        ob_start();
+
+        try {
+            response_validation($result);
+
+            $output = ob_get_clean();
+        } catch (\Throwable $exception) {
+            ob_end_clean();
+
+            throw $exception;
+        }
+
+        self::assertSame('{"message":"Validation failed.","errors":{"email":["The email field is required."]}}', $output);
+        self::assertSame(422, http_response_code());
+    }
+
+    public function test_response_validation_outputs_text_payload_when_json_is_not_requested(): void
+    {
+        $_SERVER['HTTP_ACCEPT'] = 'text/html';
+        $result = ValidationResult::failed([
+            'email' => ['The email field is required.'],
+        ]);
+
+        ob_start();
+
+        try {
+            response_validation($result);
+
+            $output = ob_get_clean();
+        } catch (\Throwable $exception) {
+            ob_end_clean();
+
+            throw $exception;
+        }
+
+        self::assertSame('Validation failed.', $output);
+        self::assertSame(422, http_response_code());
     }
 
     #[Before]

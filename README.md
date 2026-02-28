@@ -57,8 +57,10 @@ This command will serve the documentation site on `http://localhost:<SOME_PORT>`
   - `value` for shared blank/null checks (`harbor_is_blank`, `harbor_is_null`)
   - `array` for shared array mutation helpers (`array_forget`)
   - `request` for typed request metadata/body/header helpers
-  - `response` for response convenience helpers (`response_status`, `response_json`, `response_file`, `response_download`)
+  - `response` for response convenience helpers (`response_status`, `response_json`, `response_file`, `response_download`, `response_validation`)
+  - `validation` for fluent validation rules and object-based validation results (`validation_rule`, `validation_validate`, `validation_errors`, `validation_has_errors`)
   - `performance` for explicit timing/memory markers (`performance_begin`, `performance_end`, `performance_end_log`) with tracking logs in `current_site_directory/logs/performance_Y-m-d-H-s-i_tracking.log`
+  - `units` for byte/time unit conversions and human-readable format helpers (`unit_*`)
   - `lang` for current locale helpers (`lang_get`, `lang_set`, `lang_is`)
   - `translation` for locale translation loading and lookup (`translation_init`, `t`)
   - `filesystem` for explicit file/directory operations
@@ -82,7 +84,9 @@ harbor/
     Router/
     Request/
     Response/
+    Validation/
     Performance/
+    Units/
     Filesystem/
     Cache/
     Log/

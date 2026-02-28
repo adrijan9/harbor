@@ -32,11 +32,22 @@ HelperLoader::load('response');</code></pre>
 use function Harbor\Response\response_file;
 use function Harbor\Response\response_json;
 use function Harbor\Response\response_text;
+use function Harbor\Response\response_validation;
+use function Harbor\Validation\validation_rule;
+use function Harbor\Validation\validation_validate;
 
 response_json(['status' => 'ok'], 200);
 response_text('Created', 201);
 response_file(__DIR__.'/../../storage/report.pdf', 'report.pdf');
-response_download(__DIR__.'/../../storage/export.csv');</code></pre>
+response_download(__DIR__.'/../../storage/export.csv');
+
+$validation = validation_validate($payload, [
+    validation_rule('email')->required()->email(),
+]);
+
+if (! $validation->is_ok()) {
+    response_validation($validation);
+}</code></pre>
     <h3>What it does</h3>
     <p>Provides simple helpers for common response tasks without building a full response object layer.</p>
     <h3>API</h3>
@@ -72,7 +83,12 @@ response_file(__DIR__.'/report.csv', 'report.csv');
 function response_download(string $file_path, ?string $download_name = null, array $headers = []): void
 // Forces file download response (attachment disposition).
 // Defaults filename to basename($file_path) when not provided.
-response_download(__DIR__.'/report.csv');</code></pre>
+response_download(__DIR__.'/report.csv');
+
+function response_validation(\Harbor\Validation\ValidationResult $result, int $status = 422, array $headers = []): void
+// Returns validation errors as JSON for JSON clients.
+// Falls back to plain text 422 response when JSON is not preferred.
+response_validation($validation_result);</code></pre>
         </div>
     </details>
 </section>

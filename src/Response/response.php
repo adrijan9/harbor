@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Harbor\Response;
 
 require_once __DIR__.'/../Support/value.php';
+require_once __DIR__.'/../Validation/ValidationResult.php';
 
 use function Harbor\Support\harbor_is_blank;
 use function Harbor\Support\harbor_is_null;
@@ -107,6 +108,30 @@ function response_download(string $file_path, ?string $download_name = null, arr
     response_file($file_path, $resolved_download_name, $headers);
 }
 
+function response_validation(\Harbor\Validation\ValidationResult $result, int $status = 422, array $headers = []): void
+{
+    $payload = [
+        'message' => 'Validation failed.',
+        'errors' => $result->errors(),
+    ];
+
+    if (response_request_prefers_json()) {
+        response_json($payload, $status, $headers);
+
+        return;
+    }
+
+    response_status($status);
+
+    if (! response_headers_has_key($headers, 'content-type')) {
+        response_header('Content-Type', 'text/plain; charset=UTF-8');
+    }
+
+    response_apply_headers($headers);
+
+    echo $payload['message'];
+}
+
 function response_apply_headers(array $headers): void
 {
     foreach ($headers as $name => $value) {
@@ -196,4 +221,22 @@ function response_normalize_download_name(string $download_name): string
     }
 
     return $sanitized_download_name;
+}
+
+function response_request_prefers_json(): bool
+{
+    $accept_header = $_SERVER['HTTP_ACCEPT'] ?? null;
+    if (is_string($accept_header) && ! harbor_is_blank($accept_header)) {
+        $normalized_accept = strtolower($accept_header);
+        if (str_contains($normalized_accept, 'application/json') || str_contains($normalized_accept, '+json')) {
+            return true;
+        }
+    }
+
+    $requested_with = $_SERVER['HTTP_X_REQUESTED_WITH'] ?? null;
+    if (is_string($requested_with) && strtolower(trim($requested_with)) === 'xmlhttprequest') {
+        return true;
+    }
+
+    return false;
 }

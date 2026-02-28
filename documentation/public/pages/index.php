@@ -45,6 +45,10 @@ require __DIR__.'/../shared/header.php';
             <h3>Support Helpers</h3>
             <p>Shared value checks for blank and null behavior.</p>
         </a>
+        <a class="card" href="/validation">
+            <h3>Validation</h3>
+            <p>Fluent rule builders and result objects for request validation.</p>
+        </a>
         <a class="card" href="/filesystem">
             <h3>Filesystem</h3>
             <p>Safe file and directory operations.</p>

@@ -71,6 +71,8 @@ final class HelperLoader
             'request' => __DIR__.'/Request/request.php',
             // Response
             'response' => __DIR__.'/Response/response.php',
+            // Validation
+            'validation' => __DIR__.'/Validation/validation.php',
             // Performance
             'performance' => __DIR__.'/Performance/performance.php',
             // Units

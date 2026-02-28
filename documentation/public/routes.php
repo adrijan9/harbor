@@ -42,6 +42,12 @@ return [
             'entry' => 'pages/support.php',
         ],
         [
+            'path' => '/validation',
+            'method' => 'GET',
+            'name' => 'docs.validation',
+            'entry' => 'pages/validation.php',
+        ],
+        [
             'path' => '/request',
             'method' => 'GET',
             'name' => 'docs.request',

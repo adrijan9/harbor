@@ -28,6 +28,7 @@ final class HelperLoaderTest extends TestCase
         self::assertContains('array', $helpers);
         self::assertContains('request', $helpers);
         self::assertContains('response', $helpers);
+        self::assertContains('validation', $helpers);
         self::assertContains('performance', $helpers);
         self::assertContains('units', $helpers);
         self::assertContains('filesystem', $helpers);
@@ -77,6 +78,18 @@ final class HelperLoaderTest extends TestCase
         self::assertTrue(function_exists('Harbor\Response\response_json'));
         self::assertTrue(function_exists('Harbor\Response\response_file'));
         self::assertTrue(function_exists('Harbor\Response\response_download'));
+        self::assertTrue(function_exists('Harbor\Response\response_validation'));
+    }
+
+    public function test_load_validation_helper_registers_namespaced_functions(): void
+    {
+        HelperLoader::load('validation');
+
+        self::assertTrue(function_exists('Harbor\Validation\validation_rule'));
+        self::assertTrue(function_exists('Harbor\Validation\validation_validate'));
+        self::assertTrue(function_exists('Harbor\Validation\validation_errors'));
+        self::assertTrue(function_exists('Harbor\Validation\validation_has_errors'));
+        self::assertFalse(function_exists('Harbor\Validation\validator_has_error'));
     }
 
     public function test_load_performance_helper_registers_namespaced_functions(): void
