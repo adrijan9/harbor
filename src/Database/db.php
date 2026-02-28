@@ -6,6 +6,8 @@ namespace Harbor\Database;
 
 require_once __DIR__.'/../Config/config.php';
 
+require_once __DIR__.'/../Support/array.php';
+
 require_once __DIR__.'/../Support/value.php';
 
 require_once __DIR__.'/DbDriver.php';
@@ -15,6 +17,8 @@ require_once __DIR__.'/db_mysqli.php';
 
 use function Harbor\Config\config_array_get;
 use function Harbor\Config\config_resolve;
+use function Harbor\Support\array_first;
+use function Harbor\Support\array_last;
 use function Harbor\Support\harbor_is_blank;
 use function Harbor\Support\harbor_is_null;
 
@@ -122,6 +126,22 @@ function db_array(\PDO|\mysqli $connection, string $sql, array $bindings = []): 
     }
 
     return db_pdo_array($connection, $sql, $bindings);
+}
+
+function db_first(\PDO|\mysqli $connection, string $sql, array $bindings = []): array
+{
+    $rows = db_array($connection, $sql, $bindings);
+    $first_row = array_first($rows, []);
+
+    return is_array($first_row) ? $first_row : [];
+}
+
+function db_last(\PDO|\mysqli $connection, string $sql, array $bindings = []): array
+{
+    $rows = db_array($connection, $sql, $bindings);
+    $last_row = array_last($rows, []);
+
+    return is_array($last_row) ? $last_row : [];
 }
 
 function db_objects(\PDO|\mysqli $connection, string $sql, array $bindings = []): array

@@ -6,8 +6,12 @@ namespace Harbor\Database;
 
 require_once __DIR__.'/../Support/value.php';
 
+require_once __DIR__.'/../Support/array.php';
+
 require_once __DIR__.'/MysqlDto.php';
 
+use function Harbor\Support\array_first;
+use function Harbor\Support\array_last;
 use function Harbor\Support\harbor_is_blank;
 
 function db_mysqli_connect(
@@ -89,6 +93,22 @@ function db_mysqli_array(\mysqli $connection, string $sql): array
     $result->free();
 
     return is_array($rows) ? $rows : [];
+}
+
+function db_mysqli_first(\mysqli $connection, string $sql): array
+{
+    $rows = db_mysqli_array($connection, $sql);
+    $first_row = array_first($rows, []);
+
+    return is_array($first_row) ? $first_row : [];
+}
+
+function db_mysqli_last(\mysqli $connection, string $sql): array
+{
+    $rows = db_mysqli_array($connection, $sql);
+    $last_row = array_last($rows, []);
+
+    return is_array($last_row) ? $last_row : [];
 }
 
 function db_mysqli_objects(\mysqli $connection, string $sql): array

@@ -6,7 +6,9 @@ namespace Harbor\Tests\Support;
 
 use PHPUnit\Framework\TestCase;
 
+use function Harbor\Support\array_first;
 use function Harbor\Support\array_forget;
+use function Harbor\Support\array_last;
 
 require_once dirname(__DIR__, 2).'/src/Support/array.php';
 
@@ -62,5 +64,31 @@ final class ArrayHelpersTest extends TestCase
         array_forget($payload, 'missing.key');
 
         self::assertSame(['first' => 'Ada'], $payload);
+    }
+
+    public function test_array_first_returns_first_value_with_any_keys(): void
+    {
+        $payload = [
+            'user_44' => ['name' => 'Ada'],
+            'user_45' => ['name' => 'Linus'],
+        ];
+
+        self::assertSame(['name' => 'Ada'], array_first($payload));
+    }
+
+    public function test_array_last_returns_last_value_with_any_keys(): void
+    {
+        $payload = [
+            'user_44' => ['name' => 'Ada'],
+            'user_45' => ['name' => 'Linus'],
+        ];
+
+        self::assertSame(['name' => 'Linus'], array_last($payload));
+    }
+
+    public function test_array_first_and_last_return_default_for_empty_arrays(): void
+    {
+        self::assertSame('fallback', array_first([], 'fallback'));
+        self::assertSame('fallback', array_last([], 'fallback'));
     }
 }

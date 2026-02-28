@@ -50,7 +50,9 @@ $is_null = harbor_is_null($value);</code></pre>
 <section class="docs-section">
     <h2>Array Mutation</h2>
     <h3>Example</h3>
-    <pre><code class="language-php">use function Harbor\Support\array_forget;
+    <pre><code class="language-php">use function Harbor\Support\array_first;
+use function Harbor\Support\array_forget;
+use function Harbor\Support\array_last;
 
 $filters = [
     'owner' => ['id' => '44', 'name' => 'Ada'],
@@ -58,9 +60,11 @@ $filters = [
 ];
 
 array_forget($filters, 'owner.id');
+$first = array_first($filters);
+$last = array_last($filters);
 // $filters is now: ['owner' => ['name' => 'Ada'], 'active' => true]</code></pre>
     <h3>What it does</h3>
-    <p>Removes one key by exact name or dot notation path from an array.</p>
+    <p>Removes one key by exact name or dot notation path, and reads first/last values from arrays with shared helper functions.</p>
     <h3>API</h3>
     <details class="api-details">
         <summary class="api-summary">
@@ -71,7 +75,15 @@ array_forget($filters, 'owner.id');
             <pre><code class="language-php">function array_forget(array &$array, string $key): void
 // Removes one key from array by exact key or dot notation path.
 // Does nothing when key/path is missing.
-array_forget($payload, 'filters.owner.id');</code></pre>
+array_forget($payload, 'filters.owner.id');
+
+function array_first(array $array, mixed $default = null): mixed
+// Returns first value from array, or default when array is empty.
+$first = array_first($payload, []);
+
+function array_last(array $array, mixed $default = null): mixed
+// Returns last value from array, or default when array is empty.
+$last = array_last($payload, []);</code></pre>
         </div>
     </details>
 </section>

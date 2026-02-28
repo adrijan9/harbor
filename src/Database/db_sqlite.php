@@ -6,12 +6,16 @@ namespace Harbor\Database;
 
 require_once __DIR__.'/../Filesystem/filesystem.php';
 
+require_once __DIR__.'/../Support/array.php';
+
 require_once __DIR__.'/../Support/value.php';
 
 require_once __DIR__.'/SqliteDto.php';
 
 use function Harbor\Filesystem\fs_dir_create;
 use function Harbor\Filesystem\fs_dir_exists;
+use function Harbor\Support\array_first;
+use function Harbor\Support\array_last;
 use function Harbor\Support\harbor_is_blank;
 
 function db_sqlite_connect(string $database_path, array $options = []): \PDO
@@ -60,6 +64,22 @@ function db_sqlite_array(\PDO $connection, string $sql, array $bindings = []): a
     $rows = $statement->fetchAll(\PDO::FETCH_ASSOC);
 
     return is_array($rows) ? $rows : [];
+}
+
+function db_sqlite_first(\PDO $connection, string $sql, array $bindings = []): array
+{
+    $rows = db_sqlite_array($connection, $sql, $bindings);
+    $first_row = array_first($rows, []);
+
+    return is_array($first_row) ? $first_row : [];
+}
+
+function db_sqlite_last(\PDO $connection, string $sql, array $bindings = []): array
+{
+    $rows = db_sqlite_array($connection, $sql, $bindings);
+    $last_row = array_last($rows, []);
+
+    return is_array($last_row) ? $last_row : [];
 }
 
 function db_sqlite_objects(\PDO $connection, string $sql, array $bindings = []): array

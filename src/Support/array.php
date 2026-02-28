@@ -33,3 +33,29 @@ function array_forget(array &$array, string $key): void
         $current = &$current[$segment_key];
     }
 }
+
+/**
+ * Return the first array element value.
+ */
+function array_first(array $array, mixed $default = null): mixed
+{
+    $first_key = array_key_first($array);
+    if (null === $first_key) {
+        return $default;
+    }
+
+    return $array[$first_key];
+}
+
+/**
+ * Return the last array element value.
+ */
+function array_last(array $array, mixed $default = null): mixed
+{
+    $last_key = array_key_last($array);
+    if (null === $last_key) {
+        return $default;
+    }
+
+    return $array[$last_key];
+}

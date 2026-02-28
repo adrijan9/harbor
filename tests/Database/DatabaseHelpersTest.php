@@ -17,9 +17,11 @@ use function Harbor\Database\db_array;
 use function Harbor\Database\db_connect;
 use function Harbor\Database\db_driver;
 use function Harbor\Database\db_execute;
+use function Harbor\Database\db_first;
 use function Harbor\Database\db_is_mysqli;
 use function Harbor\Database\db_is_mysql;
 use function Harbor\Database\db_is_sqlite;
+use function Harbor\Database\db_last;
 use function Harbor\Database\db_mysqli_connect;
 use function Harbor\Database\db_mysqli_connect_dto;
 use function Harbor\Database\db_mysql_connect;
@@ -30,6 +32,8 @@ use function Harbor\Database\db_sqlite_array;
 use function Harbor\Database\db_sqlite_connect;
 use function Harbor\Database\db_sqlite_connect_dto;
 use function Harbor\Database\db_sqlite_execute;
+use function Harbor\Database\db_sqlite_first;
+use function Harbor\Database\db_sqlite_last;
 use function Harbor\Database\db_sqlite_objects;
 
 /**
@@ -75,6 +79,16 @@ final class DatabaseHelpersTest extends TestCase
         self::assertIsObject($objects[0]);
         self::assertSame('Ada', $objects[0]->name);
         self::assertSame('linus@example.com', $objects[1]->email);
+
+        $first = db_sqlite_first($connection, 'SELECT name, email FROM users ORDER BY id ASC');
+        $last = db_sqlite_last($connection, 'SELECT name, email FROM users ORDER BY id ASC');
+        self::assertSame(['name' => 'Ada', 'email' => 'ada@example.com'], $first);
+        self::assertSame(['name' => 'Linus', 'email' => 'linus@example.com'], $last);
+
+        $empty_first = db_sqlite_first($connection, 'SELECT name, email FROM users WHERE id < 0');
+        $empty_last = db_sqlite_last($connection, 'SELECT name, email FROM users WHERE id < 0');
+        self::assertSame([], $empty_first);
+        self::assertSame([], $empty_last);
     }
 
     public function test_db_sqlite_connect_dto_connects_and_queries(): void
@@ -155,6 +169,11 @@ final class DatabaseHelpersTest extends TestCase
 
         $rows = db_array($connection, 'SELECT title FROM tasks ORDER BY id ASC');
         self::assertSame([['title' => 'Write tests']], $rows);
+
+        $first = db_first($connection, 'SELECT title FROM tasks ORDER BY id ASC');
+        $last = db_last($connection, 'SELECT title FROM tasks ORDER BY id ASC');
+        self::assertSame(['title' => 'Write tests'], $first);
+        self::assertSame(['title' => 'Write tests'], $last);
 
         $objects = db_objects($connection, 'SELECT title FROM tasks ORDER BY id ASC');
         self::assertCount(1, $objects);

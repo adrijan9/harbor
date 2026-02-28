@@ -88,6 +88,8 @@ function db_is_mysqli(): bool
 function db_connect(string|DbDriver|null $driver = null, array $config = []): PDO|mysqli
 function db_execute(PDO|mysqli $connection, string $sql, array $bindings = []): bool
 function db_array(PDO|mysqli $connection, string $sql, array $bindings = []): array
+function db_first(PDO|mysqli $connection, string $sql, array $bindings = []): array
+function db_last(PDO|mysqli $connection, string $sql, array $bindings = []): array
 function db_objects(PDO|mysqli $connection, string $sql, array $bindings = []): array
 function db_close(PDO|mysqli $connection): bool</code></pre>
         </div>
@@ -170,6 +172,8 @@ $object_rows = db_sqlite_objects($connection, 'SELECT id, title FROM posts ORDER
 function db_sqlite_connect_dto(SqliteDto $dto): PDO
 function db_sqlite_execute(PDO $connection, string $sql, array $bindings = []): bool
 function db_sqlite_array(PDO $connection, string $sql, array $bindings = []): array
+function db_sqlite_first(PDO $connection, string $sql, array $bindings = []): array
+function db_sqlite_last(PDO $connection, string $sql, array $bindings = []): array
 function db_sqlite_objects(PDO $connection, string $sql, array $bindings = []): array</code></pre>
         </div>
     </details>
@@ -210,6 +214,8 @@ $object_rows = db_mysql_objects($connection, 'SELECT id, name FROM users ORDER B
 function db_mysql_connect_dto(MysqlDto $dto): PDO
 function db_mysql_execute(PDO $connection, string $sql, array $bindings = []): bool
 function db_mysql_array(PDO $connection, string $sql, array $bindings = []): array
+function db_mysql_first(PDO $connection, string $sql, array $bindings = []): array
+function db_mysql_last(PDO $connection, string $sql, array $bindings = []): array
 function db_mysql_objects(PDO $connection, string $sql, array $bindings = []): array</code></pre>
         </div>
     </details>
@@ -249,6 +255,8 @@ $object_rows = db_mysqli_objects($connection, 'SELECT id, name FROM users ORDER 
 function db_mysqli_connect_dto(MysqlDto $dto): mysqli
 function db_mysqli_execute(mysqli $connection, string $sql): bool
 function db_mysqli_array(mysqli $connection, string $sql): array
+function db_mysqli_first(mysqli $connection, string $sql): array
+function db_mysqli_last(mysqli $connection, string $sql): array
 function db_mysqli_objects(mysqli $connection, string $sql): array</code></pre>
         </div>
     </details>
