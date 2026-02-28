@@ -8,6 +8,13 @@
 </route>
 
 <route>
+  path: /load-helpers
+  method: GET
+  name: docs.load_helpers
+  entry: pages/load-helpers.php
+</route>
+
+<route>
   path: /installation
   method: GET
   name: docs.installation

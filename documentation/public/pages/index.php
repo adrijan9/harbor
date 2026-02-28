@@ -25,6 +25,10 @@ require __DIR__.'/../shared/header.php';
     <p>Core features are packaged as focused helpers. You can load only what you need in runtime pages.</p>
 
     <div class="card-grid">
+        <a class="card" href="/load-helpers">
+            <h3>Load Helpers</h3>
+            <p>One place to see all helper module keys and how to load them.</p>
+        </a>
         <a class="card" href="/routing">
             <h3>Routing</h3>
             <p>Route files with segment and query support.</p>

@@ -10,19 +10,9 @@ require __DIR__.'/../shared/header.php';
 ?>
 
 <section class="hero">
-    <span class="hero-eyebrow">Helpers</span>
+    <span class="hero-eyebrow">namespace: config</span>
     <h1>Config Helpers</h1>
     <p>Load one or many config files into <code>$_ENV</code> by file name key, then read typed values.</p>
-</section>
-
-<section class="docs-section">
-    <h2>Load Helper</h2>
-    <h3>Example</h3>
-    <pre><code class="language-php">use Harbor\HelperLoader;
-
-HelperLoader::load('config');</code></pre>
-    <h3>What it does</h3>
-    <p>Loads config helper functions into the <code>Harbor\Config</code> namespace.</p>
 </section>
 
 <section class="docs-section">

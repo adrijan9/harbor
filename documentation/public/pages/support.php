@@ -10,20 +10,9 @@ require __DIR__.'/../shared/header.php';
 ?>
 
 <section class="hero">
-    <span class="hero-eyebrow">Helpers</span>
+    <span class="hero-eyebrow">namespace: value, array</span>
     <h1>Support Helpers</h1>
     <p>Reusable helpers for value checks and array key mutation.</p>
-</section>
-
-<section class="docs-section">
-    <h2>Load Helper</h2>
-    <h3>Example</h3>
-    <pre><code class="language-php">use Harbor\HelperLoader;
-
-HelperLoader::load('value');
-HelperLoader::load('array');</code></pre>
-    <h3>What it does</h3>
-    <p>Loads support helper functions into the <code>Harbor\Support</code> namespace.</p>
 </section>
 
 <section class="docs-section">

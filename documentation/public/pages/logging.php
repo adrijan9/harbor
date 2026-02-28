@@ -10,21 +10,19 @@ require __DIR__.'/../shared/header.php';
 ?>
 
 <section class="hero">
-    <span class="hero-eyebrow">Helpers</span>
+    <span class="hero-eyebrow">namespace: log</span>
     <h1>Logging Helpers</h1>
     <p>Write structured logs with levels, channels, and context.</p>
 </section>
 
 <section class="docs-section">
-    <h2>Load and Init</h2>
+    <h2>Init Logger</h2>
     <h3>Example</h3>
-    <pre><code class="language-php">use Harbor\HelperLoader;
-use function Harbor\Log\log_init;
+    <pre><code class="language-php">use function Harbor\Log\log_init;
 
-HelperLoader::load('log');
 log_init(__DIR__.'/storage/app.log', 'app');</code></pre>
     <h3>What it does</h3>
-    <p>Loads log helpers and initializes file output.</p>
+    <p>Initializes the logger file path and default channel for log output.</p>
     <h3>API</h3>
     <details class="api-details">
         <summary class="api-summary">

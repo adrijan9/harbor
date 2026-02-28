@@ -10,19 +10,9 @@ require __DIR__.'/../shared/header.php';
 ?>
 
 <section class="hero">
-    <span class="hero-eyebrow">Helpers</span>
+    <span class="hero-eyebrow">namespace: performance</span>
     <h1>Performance Helpers</h1>
     <p>Measure elapsed time and memory usage with explicit start/end markers.</p>
-</section>
-
-<section class="docs-section">
-    <h2>Load Helper</h2>
-    <h3>Example</h3>
-    <pre><code class="language-php">use Harbor\HelperLoader;
-
-HelperLoader::load('performance');</code></pre>
-    <h3>What it does</h3>
-    <p>Loads performance helpers into the <code>Harbor\Performance</code> namespace.</p>
 </section>
 
 <section class="docs-section">

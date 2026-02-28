@@ -10,19 +10,9 @@ require __DIR__.'/../shared/header.php';
 ?>
 
 <section class="hero">
-    <span class="hero-eyebrow">Helpers</span>
+    <span class="hero-eyebrow">namespace: response</span>
     <h1>Response Helpers</h1>
     <p>Convenience helpers for HTTP status codes, headers, JSON/text output, and file responses.</p>
-</section>
-
-<section class="docs-section">
-    <h2>Load Helper</h2>
-    <h3>Example</h3>
-    <pre><code class="language-php">use Harbor\HelperLoader;
-
-HelperLoader::load('response');</code></pre>
-    <h3>What it does</h3>
-    <p>Loads response helper functions into the <code>Harbor\Response</code> namespace.</p>
 </section>
 
 <section class="docs-section">

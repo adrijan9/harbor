@@ -12,6 +12,12 @@ return [
             'entry' => 'pages/index.php',
         ],
         [
+            'path' => '/load-helpers',
+            'method' => 'GET',
+            'name' => 'docs.load_helpers',
+            'entry' => 'pages/load-helpers.php',
+        ],
+        [
             'path' => '/installation',
             'method' => 'GET',
             'name' => 'docs.installation',

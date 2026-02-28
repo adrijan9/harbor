@@ -8,6 +8,7 @@ $page_id ??= 'home';
 
 $docs_navigation = [
     ['id' => 'home', 'label' => 'Overview', 'href' => '/'],
+    ['id' => 'load_helpers', 'label' => 'Load Helpers', 'href' => '/load-helpers'],
     ['id' => 'installation', 'label' => 'Installation', 'href' => '/installation'],
     ['id' => 'routing', 'label' => 'Routing', 'href' => '/routing'],
     ['id' => 'config', 'label' => 'Config', 'href' => '/config'],

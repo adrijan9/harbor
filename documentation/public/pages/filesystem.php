@@ -10,19 +10,9 @@ require __DIR__.'/../shared/header.php';
 ?>
 
 <section class="hero">
-    <span class="hero-eyebrow">Helpers</span>
+    <span class="hero-eyebrow">namespace: filesystem</span>
     <h1>Filesystem Helpers</h1>
     <p>Simple file and directory operations with clear errors.</p>
-</section>
-
-<section class="docs-section">
-    <h2>Load Helpers</h2>
-    <h3>Example</h3>
-    <pre><code class="language-php">use Harbor\HelperLoader;
-
-HelperLoader::load('filesystem');</code></pre>
-    <h3>What it does</h3>
-    <p>Loads filesystem helper functions.</p>
 </section>
 
 <section class="docs-section">

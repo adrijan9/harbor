@@ -10,7 +10,7 @@ require __DIR__.'/../shared/header.php';
 ?>
 
 <section class="hero">
-    <span class="hero-eyebrow">Routing</span>
+    <span class="hero-eyebrow">namespace: route</span>
     <h1>Routing</h1>
     <p>Write routes in <code>.router</code>, compile to <code>public/routes.php</code> when <code>public/</code> exists (otherwise <code>routes.php</code>), then match by path segments.</p>
 </section>
@@ -136,16 +136,13 @@ $is_absolute = harbor_is_absolute_path('/var/www/site/.router');
     <h2>Read Route Data</h2>
 
     <h3>Example</h3>
-    <pre><code class="language-php">use Harbor\HelperLoader;
-use function Harbor\Router\route;
+    <pre><code class="language-php">use function Harbor\Router\route;
 use function Harbor\Router\route_exists;
 use function Harbor\Router\route_name_is;
 use function Harbor\Router\route_query;
 use function Harbor\Router\route_query_except;
 use function Harbor\Router\route_query_only;
 use function Harbor\Router\route_segment;
-
-HelperLoader::load('route');
 
 $guide_slug = route_segment(0, 'overview');
 $tab = route_query('tab', 'general');

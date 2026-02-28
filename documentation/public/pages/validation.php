@@ -10,19 +10,9 @@ require __DIR__.'/../shared/header.php';
 ?>
 
 <section class="hero">
-    <span class="hero-eyebrow">Helpers</span>
+    <span class="hero-eyebrow">namespace: validation</span>
     <h1>Validation Helpers</h1>
     <p>Define fluent validation rules and validate input using structured result objects.</p>
-</section>
-
-<section class="docs-section">
-    <h2>Load Helper</h2>
-    <h3>Example</h3>
-    <pre><code class="language-php">use Harbor\HelperLoader;
-
-HelperLoader::load('validation');</code></pre>
-    <h3>What it does</h3>
-    <p>Loads validation functions and rule/result classes in the <code>Harbor\Validation</code> namespace.</p>
 </section>
 
 <section class="docs-section">

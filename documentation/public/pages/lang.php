@@ -10,20 +10,9 @@ require __DIR__.'/../shared/header.php';
 ?>
 
 <section class="hero">
-    <span class="hero-eyebrow">Helpers</span>
+    <span class="hero-eyebrow">namespace: translation</span>
     <h1>Lang and Translation Helpers</h1>
     <p>Set locale, load translation files, and translate keys with replacements.</p>
-</section>
-
-<section class="docs-section">
-    <h2>Load Helpers</h2>
-    <h3>Example</h3>
-    <pre><code class="language-php">use Harbor\HelperLoader;
-
-HelperLoader::load('translation');
-// "translation" includes locale and translation functions.</code></pre>
-    <h3>What it does</h3>
-    <p>Loads language and translation functions into the <code>Harbor\Lang</code> namespace.</p>
 </section>
 
 <section class="docs-section">

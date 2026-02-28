@@ -10,22 +10,9 @@ require __DIR__.'/../shared/header.php';
 ?>
 
 <section class="hero">
-    <span class="hero-eyebrow">Helpers</span>
+    <span class="hero-eyebrow">namespace: cache</span>
     <h1>Cache Helpers</h1>
     <p>Use array, file, or APC cache helpers directly, or use the optional driver resolver for one unified cache API.</p>
-</section>
-
-<section class="docs-section">
-    <h2>Load Helpers</h2>
-    <h3>Example</h3>
-    <pre><code class="language-php">use Harbor\HelperLoader;
-
-HelperLoader::load('cache');      // loads cache resolver + cache_array + cache_file + cache_apc
-HelperLoader::load('cache_array'); // loads only array cache helpers
-HelperLoader::load('cache_file');  // loads only file cache helpers
-HelperLoader::load('cache_apc');   // loads only APC cache helpers</code></pre>
-    <h3>What it does</h3>
-    <p>Registers cache helper functions under <code>Harbor\Cache</code>. You can call <code>cache_array_*</code>, <code>cache_file_*</code>, and <code>cache_apc_*</code> directly without any resolver config.</p>
 </section>
 
 <section class="docs-section">
