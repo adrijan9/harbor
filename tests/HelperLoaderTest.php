@@ -31,6 +31,7 @@ final class HelperLoaderTest extends TestCase
         self::assertContains('value', $helpers);
         self::assertContains('array', $helpers);
         self::assertContains('carbon', $helpers);
+        self::assertContains('pipeline', $helpers);
         self::assertContains('request', $helpers);
         self::assertContains('response', $helpers);
         self::assertContains('db', $helpers);
@@ -193,6 +194,17 @@ final class HelperLoaderTest extends TestCase
         self::assertTrue(function_exists('Harbor\Date\carbon'));
         self::assertTrue(function_exists('Harbor\Date\date_now'));
         self::assertTrue(class_exists('Harbor\Date\Carbon'));
+    }
+
+    public function test_load_pipeline_helper_registers_namespaced_functions(): void
+    {
+        HelperLoader::load('pipeline');
+
+        self::assertTrue(function_exists('Harbor\Pipeline\pipeline_new'));
+        self::assertTrue(function_exists('Harbor\Pipeline\pipeline_send'));
+        self::assertTrue(function_exists('Harbor\Pipeline\pipeline_through'));
+        self::assertTrue(function_exists('Harbor\Pipeline\pipeline_clog'));
+        self::assertTrue(function_exists('Harbor\Pipeline\pipeline_get'));
     }
 
     public function test_load_filesystem_helper_registers_namespaced_functions(): void

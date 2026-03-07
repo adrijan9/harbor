@@ -71,6 +71,13 @@
 </route>
 
 <route>
+  path: /pipeline
+  method: GET
+  name: docs.pipeline
+  entry: pages/pipeline.php
+</route>
+
+<route>
   path: /validation
   method: GET
   name: docs.validation

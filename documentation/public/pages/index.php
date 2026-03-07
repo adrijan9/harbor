@@ -61,6 +61,10 @@ require __DIR__.'/../shared/header.php';
             <h3>Date Helpers</h3>
             <p>Carbon wrapper helpers for creating and reading date-time instances.</p>
         </a>
+        <a class="card" href="/pipeline">
+            <h3>Pipeline Helpers</h3>
+            <p>Function-based middleware pipeline for before/after request flows.</p>
+        </a>
         <a class="card" href="/validation">
             <h3>Validation</h3>
             <p>Fluent rule builders and result objects for request validation.</p>

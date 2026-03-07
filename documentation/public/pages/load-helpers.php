@@ -60,6 +60,11 @@ HelperLoader::load('cache');</code></pre>
                 <td>Carbon wrapper helper functions (<code>carbon()</code>, <code>date_now()</code>).</td>
             </tr>
             <tr>
+                <td><code>pipeline</code></td>
+                <td><code>Harbor\Pipeline</code></td>
+                <td>Function-based middleware pipeline helpers for before/after request flows.</td>
+            </tr>
+            <tr>
                 <td><code>request</code></td>
                 <td><code>Harbor\Request</code></td>
                 <td>Typed request helpers.</td>

@@ -72,6 +72,8 @@ final class HelperLoader
             'array' => __DIR__.'/Support/array.php',
             // Date
             'carbon' => __DIR__.'/Date/date.php',
+            // Pipeline
+            'pipeline' => __DIR__.'/Pipeline/pipeline.php',
             // Request
             'request' => __DIR__.'/Request/request.php',
             // Response

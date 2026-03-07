@@ -66,6 +66,12 @@ return [
             'entry' => 'pages/date.php',
         ],
         [
+            'path' => '/pipeline',
+            'method' => 'GET',
+            'name' => 'docs.pipeline',
+            'entry' => 'pages/pipeline.php',
+        ],
+        [
             'path' => '/validation',
             'method' => 'GET',
             'name' => 'docs.validation',
