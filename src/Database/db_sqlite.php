@@ -47,6 +47,13 @@ function db_sqlite_connect_dto(SqliteDto $dto): \PDO
     return db_sqlite_connect($dto->database_path, $dto->options);
 }
 
+function db_sqlite_close(\PDO $connection): bool
+{
+    db_sqlite_assert_driver($connection);
+
+    return true;
+}
+
 function db_sqlite_execute(\PDO $connection, string $sql, array $bindings = []): bool
 {
     db_sqlite_assert_driver($connection);

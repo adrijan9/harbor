@@ -14,6 +14,7 @@ use PHPUnit\Framework\Attributes\BeforeClass;
 use PHPUnit\Framework\TestCase;
 
 use function Harbor\Database\db_array;
+use function Harbor\Database\db_close;
 use function Harbor\Database\db_connect;
 use function Harbor\Database\db_driver;
 use function Harbor\Database\db_execute;
@@ -27,10 +28,12 @@ use function Harbor\Database\db_mysqli_connect_dto;
 use function Harbor\Database\db_mysql_connect;
 use function Harbor\Database\db_mysql_connect_dto;
 use function Harbor\Database\db_mysql_execute;
+use function Harbor\Database\db_mysql_pdo_close;
 use function Harbor\Database\db_objects;
 use function Harbor\Database\db_sqlite_array;
 use function Harbor\Database\db_sqlite_connect;
 use function Harbor\Database\db_sqlite_connect_dto;
+use function Harbor\Database\db_sqlite_close;
 use function Harbor\Database\db_sqlite_execute;
 use function Harbor\Database\db_sqlite_first;
 use function Harbor\Database\db_sqlite_last;
@@ -103,6 +106,24 @@ final class DatabaseHelpersTest extends TestCase
 
         $rows = db_sqlite_array($connection, 'SELECT title FROM notes ORDER BY id ASC');
         self::assertSame([['title' => 'DTO connect']], $rows);
+    }
+
+    public function test_db_sqlite_close_returns_true_for_sqlite_connection(): void
+    {
+        $connection = db_sqlite_connect($this->sqlite_database_path);
+
+        self::assertTrue(db_sqlite_close($connection));
+        self::assertTrue(db_close($connection));
+    }
+
+    public function test_db_mysql_pdo_close_throws_for_non_mysql_pdo_connection(): void
+    {
+        $connection = db_sqlite_connect($this->sqlite_database_path);
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Provided PDO connection is not a MySQL connection.');
+
+        db_mysql_pdo_close($connection);
     }
 
     public function test_sqlite_dto_from_config_reads_runtime_config(): void

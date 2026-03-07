@@ -71,6 +71,11 @@ function db_mysqli_connect_dto(MysqlDto $dto): \mysqli
     );
 }
 
+function db_mysqli_close(\mysqli $connection): bool
+{
+    return $connection->close();
+}
+
 function db_mysqli_execute(\mysqli $connection, string $sql): bool
 {
     $result = db_mysqli_query($connection, $sql);

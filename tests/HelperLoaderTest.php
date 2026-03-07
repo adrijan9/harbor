@@ -113,14 +113,17 @@ final class HelperLoaderTest extends TestCase
         self::assertTrue(function_exists('Harbor\Database\db_objects'));
         self::assertTrue(function_exists('Harbor\Database\db_sqlite_connect'));
         self::assertTrue(function_exists('Harbor\Database\db_sqlite_connect_dto'));
+        self::assertTrue(function_exists('Harbor\Database\db_sqlite_close'));
         self::assertTrue(function_exists('Harbor\Database\db_sqlite_first'));
         self::assertTrue(function_exists('Harbor\Database\db_sqlite_last'));
         self::assertTrue(function_exists('Harbor\Database\db_mysql_connect'));
         self::assertTrue(function_exists('Harbor\Database\db_mysql_connect_dto'));
+        self::assertTrue(function_exists('Harbor\Database\db_mysql_pdo_close'));
         self::assertTrue(function_exists('Harbor\Database\db_mysql_first'));
         self::assertTrue(function_exists('Harbor\Database\db_mysql_last'));
         self::assertTrue(function_exists('Harbor\Database\db_mysqli_connect'));
         self::assertTrue(function_exists('Harbor\Database\db_mysqli_connect_dto'));
+        self::assertTrue(function_exists('Harbor\Database\db_mysqli_close'));
         self::assertTrue(function_exists('Harbor\Database\db_mysqli_first'));
         self::assertTrue(function_exists('Harbor\Database\db_mysqli_last'));
         self::assertTrue(class_exists('Harbor\Database\SqliteDto'));

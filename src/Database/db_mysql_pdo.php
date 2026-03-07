@@ -76,6 +76,13 @@ function db_mysql_connect_dto(MysqlDto $dto): \PDO
     );
 }
 
+function db_mysql_pdo_close(\PDO $connection): bool
+{
+    db_mysql_assert_driver($connection);
+
+    return true;
+}
+
 function db_mysql_execute(\PDO $connection, string $sql, array $bindings = []): bool
 {
     db_mysql_assert_driver($connection);

@@ -170,6 +170,7 @@ $object_rows = db_sqlite_objects($connection, 'SELECT id, title FROM posts ORDER
         <div class="api-body">
             <pre><code class="language-php">function db_sqlite_connect(string $database_path, array $options = []): PDO
 function db_sqlite_connect_dto(SqliteDto $dto): PDO
+function db_sqlite_close(PDO $connection): bool
 function db_sqlite_execute(PDO $connection, string $sql, array $bindings = []): bool
 function db_sqlite_array(PDO $connection, string $sql, array $bindings = []): array
 function db_sqlite_first(PDO $connection, string $sql, array $bindings = []): array
@@ -212,6 +213,7 @@ $object_rows = db_mysql_objects($connection, 'SELECT id, name FROM users ORDER B
 ): PDO
 
 function db_mysql_connect_dto(MysqlDto $dto): PDO
+function db_mysql_pdo_close(PDO $connection): bool
 function db_mysql_execute(PDO $connection, string $sql, array $bindings = []): bool
 function db_mysql_array(PDO $connection, string $sql, array $bindings = []): array
 function db_mysql_first(PDO $connection, string $sql, array $bindings = []): array
@@ -253,6 +255,7 @@ $object_rows = db_mysqli_objects($connection, 'SELECT id, name FROM users ORDER 
 ): mysqli
 
 function db_mysqli_connect_dto(MysqlDto $dto): mysqli
+function db_mysqli_close(mysqli $connection): bool
 function db_mysqli_execute(mysqli $connection, string $sql): bool
 function db_mysqli_array(mysqli $connection, string $sql): array
 function db_mysqli_first(mysqli $connection, string $sql): array

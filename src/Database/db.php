@@ -169,7 +169,16 @@ function db_objects(\PDO|\mysqli $connection, string $sql, array $bindings = [])
 function db_close(\PDO|\mysqli $connection): bool
 {
     if ($connection instanceof \mysqli) {
-        return $connection->close();
+        return db_mysqli_close($connection);
+    }
+
+    $driver_name = strtolower((string) $connection->getAttribute(\PDO::ATTR_DRIVER_NAME));
+    if ('sqlite' === $driver_name) {
+        return db_sqlite_close($connection);
+    }
+
+    if ('mysql' === $driver_name) {
+        return db_mysql_pdo_close($connection);
     }
 
     return true;
