@@ -45,6 +45,10 @@ require __DIR__.'/../shared/header.php';
             <h3>Database Helpers</h3>
             <p>Lightweight wrappers for SQLite, MySQL PDO, MySQLi, and resolver helpers.</p>
         </a>
+        <a class="card" href="/migrations">
+            <h3>Migrations &amp; Seeders</h3>
+            <p>Create, run, and roll back tracked migration and seeder batches.</p>
+        </a>
         <a class="card" href="/lang">
             <h3>Lang &amp; Translation</h3>
             <p>Locale helpers and Laravel-style translation keys.</p>
@@ -101,7 +105,7 @@ require __DIR__.'/../shared/header.php';
             </tr>
             <tr>
                 <td><code>bin/</code></td>
-                <td>CLI commands (`harbor`, `harbor-docs`).</td>
+                <td>CLI commands (`harbor`, `harbor-config`, `harbor-migration`, `harbor-seed`, `harbor-docs`).</td>
             </tr>
             </tbody>
         </table>

@@ -19,7 +19,7 @@ It does not enforce architecture.
 - Route include preprocessing via `#include "path/to/file.router"` (recursive)
 - A small runtime router that resolves and includes PHP entry files
 - An optional helper loader for focused modules
-- CLI tools for scaffolding and docs
+- CLI tools for scaffolding, config publishing, migrations/seeders, and docs
 - A foundation for independent site/service units that share one core
 
 ## What Harbor Is Not
@@ -70,6 +70,8 @@ This command will serve the documentation site on `http://localhost:<SOME_PORT>`
   - `bin/harbor` compiles `.router` files into `public/routes.php` when `public/` exists, otherwise `routes.php`
   - `bin/harbor init` scaffolds a site structure
   - `bin/harbor-config` interactively publishes config files into the current working directory `config/` directory
+  - `bin/harbor-migration` creates/runs/rolls back migration files tracked in `migrations` table
+  - `bin/harbor-seed` creates/runs/rolls back seeder files tracked in `seeders` table
   - `bin/harbor-docs` serves the local docs site
 
 ## Project Layout
@@ -79,6 +81,8 @@ harbor/
   bin/
     harbor
     harbor-config
+    harbor-migration
+    harbor-seed
     harbor-docs
   src/
     Router/
@@ -158,6 +162,10 @@ composer install
 # Publish config templates for my-site/config (run inside that site directory)
 cd my-site
 ../bin/harbor-config
+
+# Run pending migrations/seeders (uses config/migration.php)
+../bin/harbor-migration
+../bin/harbor-seed
 cd ..
 
 # Serve a site root or public directory (optional: start port, default 8000)
@@ -227,5 +235,7 @@ composer test # run PHPUnit tests
 ./vendor/bin/php-cs-fixer fix # run PHP CS Fixer
 ./bin/harbor documentation/.router # compile docs routes
 cd my-site && ../bin/harbor-config # publish config files into my-site/config directory
+cd my-site && ../bin/harbor-migration # run pending migrations
+cd my-site && ../bin/harbor-seed # run pending seeders
 ./bin/harbor-docs # serve docs site
 ```

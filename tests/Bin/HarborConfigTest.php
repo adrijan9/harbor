@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\TestCase;
 
 require_once dirname(__DIR__, 2).'/bin/harbor-config';
+
 require_once dirname(__DIR__, 2).'/src/Support/value.php';
 
 use function Harbor\Support\harbor_is_blank;
@@ -31,7 +32,7 @@ final class HarborConfigTest extends TestCase
 
         $content = file_get_contents($published_path);
         self::assertIsString($content);
-        self::assertStringContainsString("use Harbor\\Cache\\CacheDriver;", $content);
+        self::assertStringContainsString('use Harbor\\Cache\\CacheDriver;', $content);
         self::assertStringContainsString("'driver' => CacheDriver::FILE->value", $content);
         self::assertStringContainsString("'file_path' => __DIR__.'/../cache'", $content);
     }
@@ -47,10 +48,27 @@ final class HarborConfigTest extends TestCase
 
         $content = file_get_contents($published_path);
         self::assertIsString($content);
-        self::assertStringContainsString("use Harbor\\Database\\DbDriver;", $content);
+        self::assertStringContainsString('use Harbor\\Database\\DbDriver;', $content);
         self::assertStringContainsString("'driver' => DbDriver::SQLITE->value", $content);
         self::assertStringContainsString("'path' => __DIR__.'/../storage/app.sqlite'", $content);
         self::assertStringContainsString("'host' => '127.0.0.1'", $content);
+    }
+
+    public function test_publish_migration_config_creates_file_in_current_site_config_directory(): void
+    {
+        $this->prepare_workspace();
+
+        $published_path = \harbor_publish_config('migration');
+
+        self::assertSame($this->workspace_path.'/config/migration.php', $published_path);
+        self::assertFileExists($published_path);
+
+        $content = file_get_contents($published_path);
+        self::assertIsString($content);
+        self::assertStringContainsString('use Harbor\\Database\\DbDriver;', $content);
+        self::assertStringContainsString("'driver' => DbDriver::SQLITE->value", $content);
+        self::assertStringContainsString("'directory' => __DIR__.'/../database/migrations'", $content);
+        self::assertStringContainsString("'directory' => __DIR__.'/../database/seeders'", $content);
     }
 
     public function test_publish_cache_config_does_not_overwrite_existing_file_by_default(): void
@@ -78,7 +96,7 @@ final class HarborConfigTest extends TestCase
 
         $content = file_get_contents($published_path);
         self::assertIsString($content);
-        self::assertStringContainsString("CacheDriver::FILE->value", $content);
+        self::assertStringContainsString('CacheDriver::FILE->value', $content);
     }
 
     public function test_publish_database_config_overwrites_existing_file_when_enabled(): void
@@ -93,7 +111,7 @@ final class HarborConfigTest extends TestCase
 
         $content = file_get_contents($published_path);
         self::assertIsString($content);
-        self::assertStringContainsString("DbDriver::SQLITE->value", $content);
+        self::assertStringContainsString('DbDriver::SQLITE->value', $content);
     }
 
     public function test_publish_config_throws_for_unknown_configuration_key(): void

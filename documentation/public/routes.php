@@ -42,6 +42,12 @@ return [
             'entry' => 'pages/database.php',
         ],
         [
+            'path' => '/migrations',
+            'method' => 'GET',
+            'name' => 'docs.migrations',
+            'entry' => 'pages/migrations.php',
+        ],
+        [
             'path' => '/lang',
             'method' => 'GET',
             'name' => 'docs.lang',

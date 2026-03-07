@@ -43,6 +43,13 @@
 </route>
 
 <route>
+  path: /migrations
+  method: GET
+  name: docs.migrations
+  entry: pages/migrations.php
+</route>
+
+<route>
   path: /lang
   method: GET
   name: docs.lang
