@@ -57,6 +57,10 @@ require __DIR__.'/../shared/header.php';
             <h3>Support Helpers</h3>
             <p>Shared value checks for blank and null behavior.</p>
         </a>
+        <a class="card" href="/date">
+            <h3>Date Helpers</h3>
+            <p>Carbon wrapper helpers for creating and reading date-time instances.</p>
+        </a>
         <a class="card" href="/validation">
             <h3>Validation</h3>
             <p>Fluent rule builders and result objects for request validation.</p>

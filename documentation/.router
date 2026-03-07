@@ -64,6 +64,13 @@
 </route>
 
 <route>
+  path: /date
+  method: GET
+  name: docs.date
+  entry: pages/date.php
+</route>
+
+<route>
   path: /validation
   method: GET
   name: docs.validation

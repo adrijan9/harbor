@@ -70,6 +70,8 @@ final class HelperLoader
             // Support
             'value' => __DIR__.'/Support/value.php',
             'array' => __DIR__.'/Support/array.php',
+            // Date
+            'carbon' => __DIR__.'/Date/date.php',
             // Request
             'request' => __DIR__.'/Request/request.php',
             // Response

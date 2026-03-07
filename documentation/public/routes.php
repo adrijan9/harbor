@@ -60,6 +60,12 @@ return [
             'entry' => 'pages/support.php',
         ],
         [
+            'path' => '/date',
+            'method' => 'GET',
+            'name' => 'docs.date',
+            'entry' => 'pages/date.php',
+        ],
+        [
             'path' => '/validation',
             'method' => 'GET',
             'name' => 'docs.validation',

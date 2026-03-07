@@ -55,6 +55,11 @@ HelperLoader::load('cache');</code></pre>
                 <td>Blank/null checks and array mutation helpers.</td>
             </tr>
             <tr>
+                <td><code>carbon</code></td>
+                <td><code>Harbor\Date</code></td>
+                <td>Carbon wrapper helper functions (<code>carbon()</code>, <code>date_now()</code>).</td>
+            </tr>
+            <tr>
                 <td><code>request</code></td>
                 <td><code>Harbor\Request</code></td>
                 <td>Typed request helpers.</td>

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Harbor\Tests;
 
+use Carbon\Carbon;
 use Harbor\HelperLoader;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\Before;
@@ -29,6 +30,7 @@ final class HelperLoaderTest extends TestCase
         self::assertContains('config', $helpers);
         self::assertContains('value', $helpers);
         self::assertContains('array', $helpers);
+        self::assertContains('carbon', $helpers);
         self::assertContains('request', $helpers);
         self::assertContains('response', $helpers);
         self::assertContains('db', $helpers);
@@ -178,6 +180,19 @@ final class HelperLoaderTest extends TestCase
         self::assertTrue(function_exists('Harbor\Support\array_forget'));
         self::assertTrue(function_exists('Harbor\Support\array_first'));
         self::assertTrue(function_exists('Harbor\Support\array_last'));
+    }
+
+    public function test_load_carbon_helper_registers_namespaced_functions(): void
+    {
+        if (! class_exists(Carbon::class)) {
+            self::markTestSkipped('nesbot/carbon is not installed in this environment.');
+        }
+
+        HelperLoader::load('carbon');
+
+        self::assertTrue(function_exists('Harbor\Date\carbon'));
+        self::assertTrue(function_exists('Harbor\Date\date_now'));
+        self::assertTrue(class_exists('Harbor\Date\Carbon'));
     }
 
     public function test_load_filesystem_helper_registers_namespaced_functions(): void
