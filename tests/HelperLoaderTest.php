@@ -34,6 +34,8 @@ final class HelperLoaderTest extends TestCase
         self::assertContains('pipeline', $helpers);
         self::assertContains('middleware', $helpers);
         self::assertContains('request', $helpers);
+        self::assertContains('cookie', $helpers);
+        self::assertContains('session', $helpers);
         self::assertContains('response', $helpers);
         self::assertContains('db', $helpers);
         self::assertContains('database', $helpers);
@@ -80,6 +82,24 @@ final class HelperLoaderTest extends TestCase
 
         self::assertTrue(function_exists('Harbor\Request\request'));
         self::assertTrue(function_exists('Harbor\Request\request_method'));
+    }
+
+    public function test_load_cookie_helper_registers_namespaced_functions(): void
+    {
+        HelperLoader::load('cookie');
+
+        self::assertTrue(function_exists('Harbor\Cookie\cookie_set'));
+        self::assertTrue(function_exists('Harbor\Cookie\cookie_get'));
+        self::assertTrue(function_exists('Harbor\Cookie\cookie_forget'));
+    }
+
+    public function test_load_session_helper_registers_namespaced_functions(): void
+    {
+        HelperLoader::load('session');
+
+        self::assertTrue(function_exists('Harbor\Session\session_set'));
+        self::assertTrue(function_exists('Harbor\Session\session_get'));
+        self::assertTrue(function_exists('Harbor\Session\session_forget'));
     }
 
     public function test_load_response_helper_registers_namespaced_functions(): void

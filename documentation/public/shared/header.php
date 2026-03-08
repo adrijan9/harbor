@@ -21,6 +21,8 @@ $docs_navigation = [
     ['id' => 'middleware', 'label' => 'Middleware', 'href' => '/middleware'],
     ['id' => 'validation', 'label' => 'Validation', 'href' => '/validation'],
     ['id' => 'request', 'label' => 'Request', 'href' => '/request'],
+    ['id' => 'cookie', 'label' => 'Cookie', 'href' => '/cookie'],
+    ['id' => 'session', 'label' => 'Session', 'href' => '/session'],
     ['id' => 'response', 'label' => 'Response', 'href' => '/response'],
     ['id' => 'performance', 'label' => 'Performance', 'href' => '/performance'],
     ['id' => 'units', 'label' => 'Units', 'href' => '/units'],

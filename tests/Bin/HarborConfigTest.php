@@ -32,7 +32,7 @@ final class HarborConfigTest extends TestCase
 
         $content = file_get_contents($published_path);
         self::assertIsString($content);
-        self::assertStringContainsString('use Harbor\\Cache\\CacheDriver;', $content);
+        self::assertStringContainsString('use Harbor\Cache\CacheDriver;', $content);
         self::assertStringContainsString("'driver' => CacheDriver::FILE->value", $content);
         self::assertStringContainsString("'file_path' => __DIR__.'/../cache'", $content);
     }
@@ -48,7 +48,7 @@ final class HarborConfigTest extends TestCase
 
         $content = file_get_contents($published_path);
         self::assertIsString($content);
-        self::assertStringContainsString('use Harbor\\Database\\DbDriver;', $content);
+        self::assertStringContainsString('use Harbor\Database\DbDriver;', $content);
         self::assertStringContainsString("'driver' => DbDriver::SQLITE->value", $content);
         self::assertStringContainsString("'path' => __DIR__.'/../storage/app.sqlite'", $content);
         self::assertStringContainsString("'host' => '127.0.0.1'", $content);
@@ -65,10 +65,26 @@ final class HarborConfigTest extends TestCase
 
         $content = file_get_contents($published_path);
         self::assertIsString($content);
-        self::assertStringContainsString('use Harbor\\Database\\DbDriver;', $content);
+        self::assertStringContainsString('use Harbor\Database\DbDriver;', $content);
         self::assertStringContainsString("'driver' => DbDriver::SQLITE->value", $content);
         self::assertStringContainsString("'directory' => __DIR__.'/../database/migrations'", $content);
         self::assertStringContainsString("'directory' => __DIR__.'/../database/seeders'", $content);
+    }
+
+    public function test_publish_session_config_creates_file_in_current_site_config_directory(): void
+    {
+        $this->prepare_workspace();
+
+        $published_path = \harbor_publish_config('session');
+
+        self::assertSame($this->workspace_path.'/config/session.php', $published_path);
+        self::assertFileExists($published_path);
+
+        $content = file_get_contents($published_path);
+        self::assertIsString($content);
+        self::assertStringContainsString("'prefix' => 'harbor'", $content);
+        self::assertStringContainsString("'ttl_seconds' => 7200", $content);
+        self::assertStringContainsString("'same_site' => 'Lax'", $content);
     }
 
     public function test_publish_cache_config_does_not_overwrite_existing_file_by_default(): void

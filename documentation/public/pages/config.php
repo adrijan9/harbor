@@ -97,6 +97,28 @@ return [
 </section>
 
 <section class="docs-section">
+    <h2>Optional Session Config File</h2>
+    <h3>Example</h3>
+    <pre><code class="language-php">use function Harbor\Config\config_init;
+
+// from public/index.php
+config_init(__DIR__.'/../config/session.php');
+
+// file: config/session.php
+return [
+    'prefix' => 'harbor',
+    'ttl_seconds' => 7200,
+    'path' => '/',
+    'domain' => null,
+    'secure' => false,
+    'http_only' => true,
+    'same_site' => 'Lax',
+];</code></pre>
+    <h3>What it does</h3>
+    <p>Loads <code>config/session.php</code> into <code>$_ENV['session']</code>, so session helpers can resolve cookie prefix, TTL, path/domain, and security flags from one place. Session payloads are cookie-backed and not signed/encrypted by default.</p>
+</section>
+
+<section class="docs-section">
     <h2>Read Config Values</h2>
     <h3>Example</h3>
     <pre><code class="language-php">use function Harbor\Config\config_arr;

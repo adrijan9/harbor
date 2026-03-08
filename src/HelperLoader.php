@@ -78,6 +78,10 @@ final class HelperLoader
             'middleware' => __DIR__.'/Middleware/middleware.php',
             // Request
             'request' => __DIR__.'/Request/request.php',
+            // Cookie
+            'cookie' => __DIR__.'/Cookie/cookie.php',
+            // Session
+            'session' => __DIR__.'/Session/session.php',
             // Response
             'response' => __DIR__.'/Response/response.php',
             // Database

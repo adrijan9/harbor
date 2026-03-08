@@ -37,6 +37,14 @@ require __DIR__.'/../shared/header.php';
             <h3>Request Helpers</h3>
             <p>Typed access to method, URL, headers, body, files, and cookies.</p>
         </a>
+        <a class="card" href="/cookie">
+            <h3>Cookie Helpers</h3>
+            <p>Set, read, and forget cookies with one helper module.</p>
+        </a>
+        <a class="card" href="/session">
+            <h3>Session Helpers</h3>
+            <p>Simplified cookie-backed sessions driven by session config.</p>
+        </a>
         <a class="card" href="/config">
             <h3>Config Helpers</h3>
             <p>Load one or many config files and read typed values from env.</p>

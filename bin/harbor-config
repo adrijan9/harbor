@@ -4,6 +4,7 @@
 declare(strict_types=1);
 
 require_once __DIR__.'/../src/Support/value.php';
+
 require_once __DIR__.'/harbor_site.php';
 
 use function Harbor\Support\harbor_is_blank;
@@ -21,7 +22,7 @@ function harbor_run_config_publisher(): void
 
     try {
         harbor_site_assert_selected();
-    } catch (\Throwable $throwable) {
+    } catch (Throwable $throwable) {
         fwrite(STDERR, $throwable->getMessage().PHP_EOL);
 
         exit(1);
@@ -55,6 +56,7 @@ function harbor_run_config_publisher(): void
     $selected_config_key = harbor_config_selection_to_key($selection, $selection_map);
     if (null === $selected_config_key) {
         fwrite(STDERR, sprintf('Invalid selection: %s%s', $selection, PHP_EOL));
+
         exit(1);
     }
 
@@ -75,8 +77,9 @@ function harbor_run_config_publisher(): void
 
     try {
         $published_path = harbor_publish_config($selected_config_key, $should_overwrite);
-    } catch (\Throwable $exception) {
+    } catch (Throwable $exception) {
         fwrite(STDERR, $exception->getMessage().PHP_EOL);
+
         exit(1);
     }
 
@@ -87,41 +90,41 @@ function harbor_publish_config(string $config_key, bool $overwrite = false, ?str
 {
     $normalized_config_key = strtolower(trim($config_key));
     if (harbor_is_blank($normalized_config_key)) {
-        throw new \InvalidArgumentException('Configuration key cannot be empty.');
+        throw new InvalidArgumentException('Configuration key cannot be empty.');
     }
 
     $publishable_configs = harbor_config_publishable_configs();
     $config_definition = $publishable_configs[$normalized_config_key] ?? null;
 
     if (! is_array($config_definition)) {
-        throw new \InvalidArgumentException(sprintf('Configuration "%s" is not publishable.', $config_key));
+        throw new InvalidArgumentException(sprintf('Configuration "%s" is not publishable.', $config_key));
     }
 
     $template_path = $config_definition['template_path'] ?? null;
     if (! is_string($template_path) || ! is_file($template_path)) {
-        throw new \RuntimeException(sprintf('Configuration template not found for "%s".', $normalized_config_key));
+        throw new RuntimeException(sprintf('Configuration template not found for "%s".', $normalized_config_key));
     }
 
     $resolved_working_directory = harbor_config_resolve_working_directory($working_directory);
     $config_directory_path = $resolved_working_directory.'/config';
 
     if (! is_dir($config_directory_path) && ! mkdir($config_directory_path, 0o777, true) && ! is_dir($config_directory_path)) {
-        throw new \RuntimeException(sprintf('Failed to create config directory: %s', $config_directory_path));
+        throw new RuntimeException(sprintf('Failed to create config directory: %s', $config_directory_path));
     }
 
     $target_path = $config_directory_path.'/'.$config_definition['file_name'];
 
     if (is_file($target_path) && ! $overwrite) {
-        throw new \RuntimeException(sprintf('Configuration file already exists: %s', $target_path));
+        throw new RuntimeException(sprintf('Configuration file already exists: %s', $target_path));
     }
 
     $template_content = file_get_contents($template_path);
     if (false === $template_content) {
-        throw new \RuntimeException(sprintf('Failed to read configuration template: %s', $template_path));
+        throw new RuntimeException(sprintf('Failed to read configuration template: %s', $template_path));
     }
 
     if (false === file_put_contents($target_path, $template_content)) {
-        throw new \RuntimeException(sprintf('Failed to write configuration file: %s', $target_path));
+        throw new RuntimeException(sprintf('Failed to write configuration file: %s', $target_path));
     }
 
     return $target_path;
@@ -145,6 +148,10 @@ function harbor_config_publishable_configs(): array
             'file_name' => 'migration.php',
             'template_path' => __DIR__.'/stubs/config/migration.php',
         ],
+        'session' => [
+            'file_name' => 'session.php',
+            'template_path' => __DIR__.'/stubs/config/session.php',
+        ],
     ];
 }
 
@@ -154,7 +161,7 @@ function harbor_config_target_path(string $config_key): string
     $config_definition = $publishable_configs[$config_key] ?? null;
 
     if (! is_array($config_definition)) {
-        throw new \InvalidArgumentException(sprintf('Configuration "%s" is not publishable.', $config_key));
+        throw new InvalidArgumentException(sprintf('Configuration "%s" is not publishable.', $config_key));
     }
 
     $working_directory = harbor_config_resolve_working_directory();
@@ -204,7 +211,7 @@ function harbor_config_resolve_working_directory(?string $working_directory = nu
 
     $resolved_working_directory = getcwd();
     if (false === $resolved_working_directory || harbor_is_blank($resolved_working_directory)) {
-        throw new \RuntimeException('Unable to resolve current working directory.');
+        throw new RuntimeException('Unable to resolve current working directory.');
     }
 
     return $resolved_working_directory;

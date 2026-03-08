@@ -21,6 +21,7 @@ require __DIR__.'/../shared/header.php';
     <pre><code class="language-php">use Harbor\HelperLoader;
 
 HelperLoader::load('request');
+HelperLoader::load('cookie', 'session');
 HelperLoader::load('validation', 'response');
 HelperLoader::load('cache');</code></pre>
     <h3>What it does</h3>
@@ -73,6 +74,16 @@ HelperLoader::load('cache');</code></pre>
                 <td><code>request</code></td>
                 <td><code>Harbor\Request</code></td>
                 <td>Typed request helpers.</td>
+            </tr>
+            <tr>
+                <td><code>cookie</code></td>
+                <td><code>Harbor\Cookie</code></td>
+                <td>Cookie set/get/forget helpers.</td>
+            </tr>
+            <tr>
+                <td><code>session</code></td>
+                <td><code>Harbor\Session</code></td>
+                <td>Simplified cookie-backed session helpers driven by <code>session</code> config.</td>
             </tr>
             <tr>
                 <td><code>response</code></td>

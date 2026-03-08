@@ -90,6 +90,18 @@ return [
             'entry' => 'pages/request.php',
         ],
         [
+            'path' => '/cookie',
+            'method' => 'GET',
+            'name' => 'docs.cookie',
+            'entry' => 'pages/cookie.php',
+        ],
+        [
+            'path' => '/session',
+            'method' => 'GET',
+            'name' => 'docs.session',
+            'entry' => 'pages/session.php',
+        ],
+        [
             'path' => '/response',
             'method' => 'GET',
             'name' => 'docs.response',
