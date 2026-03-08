@@ -6,6 +6,7 @@ namespace Harbor\Tests\Middleware;
 
 use Harbor\HelperLoader;
 use Harbor\Middleware\AuthMiddleware;
+use Harbor\Middleware\BasicAuthMiddleware;
 use Harbor\Middleware\CorsMiddleware;
 use Harbor\Middleware\CsrfMiddleware;
 use Harbor\Middleware\ThrottleMiddleware;
@@ -53,6 +54,34 @@ final class FirstClassMiddlewaresTest extends TestCase
         self::assertIsArray($result);
         self::assertSame('/protected', $result['path']);
         self::assertSame('Bearer token-123', $result['headers']['authorization']);
+    }
+
+    public function test_auth_middleware_rejects_non_bearer_http_auth_headers(): void
+    {
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        $_SERVER['REQUEST_URI'] = '/protected';
+        $_SERVER['HTTP_X_AUTH_TOKEN'] = 'legacy-token';
+
+        HelperLoader::load('middleware');
+
+        $middleware_action = new AuthMiddleware(
+            failure_handler: static fn (array $request, int|ResponseStatus $status): array => [
+                'blocked' => true,
+                'status' => $status instanceof ResponseStatus ? $status->value : $status,
+            ]
+        );
+
+        middleware($middleware_action);
+
+        $result = pipeline_get();
+
+        self::assertSame(
+            [
+                'blocked' => true,
+                'status' => 401,
+            ],
+            $result
+        );
     }
 
     public function test_auth_middleware_rejects_request_with_custom_failure_handler(): void
@@ -158,6 +187,51 @@ final class FirstClassMiddlewaresTest extends TestCase
             [
                 'blocked' => true,
                 'status' => 403,
+            ],
+            $result
+        );
+    }
+
+    public function test_basic_auth_middleware_allows_valid_basic_auth_header(): void
+    {
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        $_SERVER['REQUEST_URI'] = '/api/private';
+        $_SERVER['HTTP_AUTHORIZATION'] = 'Basic '.base64_encode('demo:secret');
+
+        HelperLoader::load('middleware');
+
+        middleware(new BasicAuthMiddleware());
+
+        $result = pipeline_get();
+
+        self::assertIsArray($result);
+        self::assertSame('/api/private', $result['path']);
+    }
+
+    public function test_basic_auth_middleware_rejects_invalid_credentials(): void
+    {
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        $_SERVER['REQUEST_URI'] = '/api/private';
+        $_SERVER['HTTP_AUTHORIZATION'] = 'Basic '.base64_encode('demo:wrong');
+
+        HelperLoader::load('middleware');
+
+        $middleware_action = new BasicAuthMiddleware(
+            credentials_resolver: static fn (string $username, string $password): bool => 'demo' === $username && 'secret' === $password,
+            failure_handler: static fn (array $request, int|ResponseStatus $status): array => [
+                'blocked' => true,
+                'status' => $status instanceof ResponseStatus ? $status->value : $status,
+            ]
+        );
+
+        middleware($middleware_action);
+
+        $result = pipeline_get();
+
+        self::assertSame(
+            [
+                'blocked' => true,
+                'status' => 401,
             ],
             $result
         );

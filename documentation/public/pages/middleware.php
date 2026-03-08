@@ -61,6 +61,7 @@ middleware(new EnsureApiKey());
     <h2>First-Class Middleware</h2>
     <h3>Built-In Classes</h3>
     <pre><code class="language-php">use Harbor\Middleware\AuthMiddleware;
+use Harbor\Middleware\BasicAuthMiddleware;
 use Harbor\Middleware\CorsMiddleware;
 use Harbor\Middleware\CsrfMiddleware;
 use Harbor\Middleware\ThrottleMiddleware;
@@ -69,12 +70,14 @@ use function Harbor\Middleware\middleware;
 middleware(
     new CorsMiddleware(allowed_origins: ['https://app.example.com']),
     new ThrottleMiddleware(max_attempts: 60, decay_seconds: 60),
-    new AuthMiddleware(),
+    new AuthMiddleware(), // Bearer token via Authorization header
+    new BasicAuthMiddleware(), // HTTP Basic auth (Authorization: Basic ...)
     new CsrfMiddleware()
 );</code></pre>
     <h3>Class Purpose</h3>
     <ul class="api-method-list">
-        <li><code>AuthMiddleware</code>: validates auth headers or custom auth resolver.</li>
+        <li><code>AuthMiddleware</code>: validates HTTP Bearer token authorization or custom auth resolver.</li>
+        <li><code>BasicAuthMiddleware</code>: validates HTTP Basic credentials (default non-empty, or custom credentials resolver).</li>
         <li><code>CsrfMiddleware</code>: verifies unsafe methods against CSRF token sources.</li>
         <li><code>ThrottleMiddleware</code>: applies per-key request rate limiting with retry-after support.</li>
         <li><code>CorsMiddleware</code>: handles origin checks and CORS response headers (including preflight).</li>
@@ -134,9 +137,17 @@ function csrf_field(
 ): string
 
 final class AuthMiddleware
+final class BasicAuthMiddleware
 final class CsrfMiddleware
 final class ThrottleMiddleware
 final class CorsMiddleware
+
+new BasicAuthMiddleware(
+    credentials_resolver: null, // fn(string $username, string $password, array $request): bool
+    realm: 'Restricted Area',
+    failure_status: 401,
+    failure_handler: null
+)
 
 new CsrfMiddleware(
     token_resolver: null,
