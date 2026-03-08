@@ -48,15 +48,35 @@ return [
 </section>
 
 <section class="docs-section">
+    <h2>Flash Data (Next Request Messaging)</h2>
+    <h3>Example</h3>
+    <pre><code class="language-php">use function Harbor\Session\session_flash_get;
+use function Harbor\Session\session_flash_set;
+
+// request A (before redirect)
+session_flash_set('notice', 'Profile updated');
+
+// request B (after redirect)
+$notice = session_flash_get('notice');</code></pre>
+    <h3>What it does</h3>
+    <p>Flash values are designed for redirect-style messaging between requests. Harbor keeps flash payloads for the next request cycle and then expires them automatically.</p>
+</section>
+
+<section class="docs-section">
     <h2>Use Session Helpers</h2>
     <h3>Example</h3>
-    <pre><code class="language-php">use function Harbor\Session\session_forget;
+    <pre><code class="language-php">use function Harbor\Session\session_flash_get;
+use function Harbor\Session\session_flash_set;
+use function Harbor\Session\session_forget;
 use function Harbor\Session\session_get;
 use function Harbor\Session\session_set;
 
 session_set('user_id', 42);
 
 $user_id = session_get('user_id');
+
+session_flash_set('notice', 'Profile saved');
+$notice = session_flash_get('notice');
 
 session_forget('user_id');</code></pre>
     <h3>What it does</h3>
@@ -94,6 +114,34 @@ session_forget('user_id');
 function session_pull(string $key, mixed $default = null): mixed
 // Reads and removes one session key in one call.
 $flash = session_pull('flash_notice', '');
+
+function session_flash_set(string $key, mixed $value): bool
+// Stores flash value for current + next request cycle.
+session_flash_set('notice', 'Profile updated');
+
+function session_flash_get(string $key, mixed $default = null): mixed
+// Reads one flash value.
+$notice = session_flash_get('notice', null);
+
+function session_flash_has(string $key): bool
+// Checks if one flash value exists.
+$has_notice = session_flash_has('notice');
+
+function session_flash_forget(string $key): bool
+// Removes one flash value.
+session_flash_forget('notice');
+
+function session_flash_pull(string $key, mixed $default = null): mixed
+// Reads and removes one flash value in one call.
+$notice = session_flash_pull('notice', null);
+
+function session_flash_all(): array
+// Returns all active flash values.
+$flash_values = session_flash_all();
+
+function session_flash_clear(): bool
+// Clears all active flash values.
+session_flash_clear();
 
 function session_all(): array
 // Returns all session entries for the configured prefix.

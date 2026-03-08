@@ -28,6 +28,8 @@ use function Harbor\Cookie\cookie_has;
 use function Harbor\Cookie\cookie_set;
 use function Harbor\Support\harbor_is_blank;
 
+$session_flash_processed_request_id = null;
+
 /** Public */
 function session_driver(SessionDriver|string $default_driver = SessionDriver::COOKIE): string
 {
@@ -134,6 +136,105 @@ function session_pull(string $key, mixed $default = null): mixed
     return $value;
 }
 
+function session_flash_set(string $key, mixed $value): bool
+{
+    session_flash_boot();
+
+    $normalized_key = session_normalize_key($key);
+    $flash_meta = session_flash_meta();
+    $flash_meta['old'] = session_flash_remove_key($flash_meta['old'], $normalized_key);
+    $flash_meta['new'][] = $normalized_key;
+    $flash_meta['new'] = session_flash_unique_keys($flash_meta['new']);
+
+    $is_set = session_set(session_flash_value_key($normalized_key), $value);
+    $is_meta_set = session_flash_write_meta($flash_meta);
+
+    return $is_set && $is_meta_set;
+}
+
+function session_flash_get(string $key, mixed $default = null): mixed
+{
+    session_flash_boot();
+
+    return session_get(session_flash_value_key(session_normalize_key($key)), $default);
+}
+
+function session_flash_has(string $key): bool
+{
+    session_flash_boot();
+
+    return session_has(session_flash_value_key(session_normalize_key($key)));
+}
+
+function session_flash_forget(string $key): bool
+{
+    session_flash_boot();
+
+    $normalized_key = session_normalize_key($key);
+    $flash_meta = session_flash_meta();
+    $flash_meta['new'] = session_flash_remove_key($flash_meta['new'], $normalized_key);
+    $flash_meta['old'] = session_flash_remove_key($flash_meta['old'], $normalized_key);
+
+    $is_forgotten = session_forget(session_flash_value_key($normalized_key));
+    $is_meta_set = session_flash_write_meta($flash_meta);
+
+    return $is_forgotten && $is_meta_set;
+}
+
+function session_flash_pull(string $key, mixed $default = null): mixed
+{
+    $value = session_flash_get($key, $default);
+    session_flash_forget($key);
+
+    return $value;
+}
+
+function session_flash_all(): array
+{
+    session_flash_boot();
+
+    $flash_meta = session_flash_meta();
+    $flash_keys = session_flash_unique_keys([
+        ...$flash_meta['old'],
+        ...$flash_meta['new'],
+    ]);
+    $flash_values = [];
+
+    foreach ($flash_keys as $flash_key) {
+        if (! session_has(session_flash_value_key($flash_key))) {
+            continue;
+        }
+
+        $flash_values[$flash_key] = session_get(session_flash_value_key($flash_key));
+    }
+
+    return $flash_values;
+}
+
+function session_flash_clear(): bool
+{
+    session_flash_boot();
+
+    $flash_meta = session_flash_meta();
+    $flash_keys = session_flash_unique_keys([
+        ...$flash_meta['old'],
+        ...$flash_meta['new'],
+    ]);
+    $is_cleared = true;
+
+    foreach ($flash_keys as $flash_key) {
+        if (! session_forget(session_flash_value_key($flash_key))) {
+            $is_cleared = false;
+        }
+    }
+
+    if (! session_forget(session_flash_meta_key())) {
+        $is_cleared = false;
+    }
+
+    return $is_cleared;
+}
+
 function session_all(): array
 {
     if (session_is_file()) {
@@ -185,6 +286,141 @@ function session_config(?string $key = null, mixed $default = null): mixed
 }
 
 /** Private */
+function session_flash_boot(): void
+{
+    global $session_flash_processed_request_id;
+
+    $current_request_id = session_flash_request_id();
+
+    if (
+        is_string($session_flash_processed_request_id)
+        && ! harbor_is_blank($session_flash_processed_request_id)
+        && $session_flash_processed_request_id === $current_request_id
+    ) {
+        return;
+    }
+
+    $flash_meta = session_flash_meta();
+
+    foreach ($flash_meta['old'] as $old_flash_key) {
+        session_forget(session_flash_value_key($old_flash_key));
+    }
+
+    $promoted_flash_keys = session_flash_unique_keys($flash_meta['new']);
+    session_flash_write_meta([
+        'new' => [],
+        'old' => $promoted_flash_keys,
+    ]);
+
+    $session_flash_processed_request_id = $current_request_id;
+}
+
+function session_flash_meta(): array
+{
+    $flash_meta = session_get(session_flash_meta_key(), [
+        'new' => [],
+        'old' => [],
+    ]);
+
+    if (! is_array($flash_meta)) {
+        return [
+            'new' => [],
+            'old' => [],
+        ];
+    }
+
+    return [
+        'new' => session_flash_unique_keys($flash_meta['new'] ?? []),
+        'old' => session_flash_unique_keys($flash_meta['old'] ?? []),
+    ];
+}
+
+function session_flash_write_meta(array $flash_meta): bool
+{
+    $normalized_flash_meta = [
+        'new' => session_flash_unique_keys($flash_meta['new'] ?? []),
+        'old' => session_flash_unique_keys($flash_meta['old'] ?? []),
+    ];
+
+    if (empty($normalized_flash_meta['new']) && empty($normalized_flash_meta['old'])) {
+        return session_forget(session_flash_meta_key());
+    }
+
+    return session_set(session_flash_meta_key(), $normalized_flash_meta);
+}
+
+function session_flash_meta_key(): string
+{
+    return '__flash_meta';
+}
+
+function session_flash_value_key(string $key): string
+{
+    return '__flash_value_'.rawurlencode($key);
+}
+
+/**
+ * @param array<int, mixed> $keys
+ *
+ * @return array<int, string>
+ */
+function session_flash_unique_keys(array $keys): array
+{
+    $unique_flash_keys = [];
+
+    foreach ($keys as $key) {
+        if (! is_string($key)) {
+            continue;
+        }
+
+        $normalized_key = trim($key);
+        if (harbor_is_blank($normalized_key)) {
+            continue;
+        }
+
+        $unique_flash_keys[$normalized_key] = $normalized_key;
+    }
+
+    return array_values($unique_flash_keys);
+}
+
+/**
+ * @param array<int, string> $keys
+ *
+ * @return array<int, string>
+ */
+function session_flash_remove_key(array $keys, string $target_key): array
+{
+    $filtered_keys = [];
+
+    foreach ($keys as $key) {
+        if (! is_string($key) || $key === $target_key) {
+            continue;
+        }
+
+        $filtered_keys[] = $key;
+    }
+
+    return session_flash_unique_keys($filtered_keys);
+}
+
+function session_flash_request_id(): string
+{
+    $request_time = $_SERVER['REQUEST_TIME_FLOAT']
+        ?? $_SERVER['REQUEST_TIME']
+        ?? null;
+
+    if (is_int($request_time) || is_float($request_time) || is_string($request_time)) {
+        $normalized_request_time = trim((string) $request_time);
+
+        if (! harbor_is_blank($normalized_request_time)) {
+            return $normalized_request_time;
+        }
+    }
+
+    return 'request-default';
+}
+
 function session_cookie_driver_set(string $key, mixed $value, int $ttl_seconds): bool
 {
     return cookie_set(

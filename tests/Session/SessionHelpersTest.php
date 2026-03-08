@@ -15,6 +15,13 @@ use function Harbor\Session\session_all;
 use function Harbor\Session\session_clear;
 use function Harbor\Session\session_config;
 use function Harbor\Session\session_driver;
+use function Harbor\Session\session_flash_all;
+use function Harbor\Session\session_flash_clear;
+use function Harbor\Session\session_flash_forget;
+use function Harbor\Session\session_flash_get;
+use function Harbor\Session\session_flash_has;
+use function Harbor\Session\session_flash_pull;
+use function Harbor\Session\session_flash_set;
 use function Harbor\Session\session_forget;
 use function Harbor\Session\session_get;
 use function Harbor\Session\session_has;
@@ -30,6 +37,7 @@ final class SessionHelpersTest extends TestCase
 {
     private array $original_cookie = [];
     private array $original_env = [];
+    private array $original_server = [];
     private array $created_directories = [];
 
     public function test_session_set_get_has_and_forget_use_cookie_storage(): void
@@ -146,6 +154,49 @@ final class SessionHelpersTest extends TestCase
         self::assertFalse(session_has('flash_notice'));
     }
 
+    public function test_session_flash_helpers_store_and_read_values(): void
+    {
+        $_SERVER['REQUEST_TIME_FLOAT'] = 100.1;
+
+        self::assertTrue(session_flash_set('notice', 'Saved'));
+        self::assertTrue(session_flash_has('notice'));
+        self::assertSame('Saved', session_flash_get('notice'));
+        self::assertSame(['notice' => 'Saved'], session_flash_all());
+    }
+
+    public function test_session_flash_helpers_expire_after_next_request(): void
+    {
+        $_SERVER['REQUEST_TIME_FLOAT'] = 200.1;
+        session_flash_set('status', 'Account updated');
+
+        $_SERVER['REQUEST_TIME_FLOAT'] = 201.1;
+        self::assertSame('Account updated', session_flash_get('status'));
+        self::assertTrue(session_flash_has('status'));
+
+        $_SERVER['REQUEST_TIME_FLOAT'] = 202.1;
+        self::assertSame('fallback', session_flash_get('status', 'fallback'));
+        self::assertFalse(session_flash_has('status'));
+    }
+
+    public function test_session_flash_pull_forget_and_clear_flow(): void
+    {
+        $_SERVER['REQUEST_TIME_FLOAT'] = 300.1;
+        session_flash_set('notice', 'Saved');
+        session_flash_set('warning', 'Careful');
+
+        self::assertSame('Saved', session_flash_pull('notice'));
+        self::assertFalse(session_flash_has('notice'));
+
+        self::assertTrue(session_flash_forget('warning'));
+        self::assertFalse(session_flash_has('warning'));
+
+        session_flash_set('a', 1);
+        session_flash_set('b', 2);
+
+        self::assertTrue(session_flash_clear());
+        self::assertSame([], session_flash_all());
+    }
+
     public function test_session_helpers_use_configured_prefix_and_options(): void
     {
         $_ENV['session'] = [
@@ -226,8 +277,11 @@ final class SessionHelpersTest extends TestCase
     {
         $this->original_cookie = is_array($_COOKIE) ? $_COOKIE : [];
         $this->original_env = is_array($_ENV) ? $_ENV : [];
+        $this->original_server = is_array($_SERVER) ? $_SERVER : [];
 
         $_COOKIE = [];
+        $_SERVER = $this->original_server;
+        $_SERVER['REQUEST_TIME_FLOAT'] = 1.0;
         $_ENV = $this->original_env;
         $_ENV['session'] = [
             'driver' => 'cookie',
@@ -254,6 +308,7 @@ final class SessionHelpersTest extends TestCase
     protected function restore_session_state(): void
     {
         $_COOKIE = $this->original_cookie;
+        $_SERVER = $this->original_server;
         $_ENV = $this->original_env;
         $GLOBALS['_ENV'] = $_ENV;
 

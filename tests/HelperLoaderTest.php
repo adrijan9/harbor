@@ -104,6 +104,9 @@ final class HelperLoaderTest extends TestCase
         self::assertTrue(function_exists('Harbor\Session\session_set'));
         self::assertTrue(function_exists('Harbor\Session\session_get'));
         self::assertTrue(function_exists('Harbor\Session\session_forget'));
+        self::assertTrue(function_exists('Harbor\Session\session_flash_set'));
+        self::assertTrue(function_exists('Harbor\Session\session_flash_get'));
+        self::assertTrue(function_exists('Harbor\Session\session_flash_pull'));
     }
 
     public function test_load_password_helper_registers_namespaced_functions(): void
