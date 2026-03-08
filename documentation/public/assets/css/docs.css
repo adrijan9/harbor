@@ -28,6 +28,7 @@
     --shadow: 0 22px 44px rgba(0, 0, 0, 0.34);
     --radius-lg: 10px;
     --radius-md: 7px;
+    --topbar-control-height: 34px;
 }
 
 :root[data-theme='light'] {
@@ -195,7 +196,7 @@ a {
 
 .docs-search-input {
     width: 100%;
-    height: 34px;
+    height: var(--topbar-control-height);
     padding: 0.45rem 2rem 0.45rem 0.75rem;
     border-radius: 8px;
     border: 1px solid var(--line);
@@ -310,7 +311,7 @@ a {
 }
 
 .repo-stars-link {
-    height: 34px;
+    height: var(--topbar-control-height);
     padding: 0 0.62rem;
     display: inline-flex;
     align-items: center;
@@ -369,14 +370,16 @@ a {
     display: inline-flex;
     align-items: center;
     gap: 0.24rem;
-    padding: 0.2rem;
+    box-sizing: border-box;
+    height: var(--topbar-control-height);
+    padding: 1px 2px;
     border-radius: 7px;
     border: 1px solid var(--line);
     background: var(--surface-alt);
 }
 
 .theme-option {
-    height: 34px;
+    height: 100%;
     padding: 0 0.58rem;
     border: 0;
     border-radius: 4px;
