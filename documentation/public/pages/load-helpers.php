@@ -67,7 +67,7 @@ HelperLoader::load('cache');</code></pre>
             <tr>
                 <td><code>middleware</code></td>
                 <td><code>Harbor\Middleware</code></td>
-                <td>Runs request middleware callbacks on top of the pipeline engine (closures and invokable classes).</td>
+                <td>Runs request middleware callbacks and first-class middleware classes (<code>AuthMiddleware</code>, <code>CsrfMiddleware</code>, <code>ThrottleMiddleware</code>, <code>CorsMiddleware</code>).</td>
             </tr>
             <tr>
                 <td><code>request</code></td>

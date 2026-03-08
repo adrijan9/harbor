@@ -7,7 +7,8 @@ namespace Harbor\Tests\Middleware;
 use Harbor\HelperLoader;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\Before;
-use PHPUnit\Framework\Attributes\BeforeClass;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use PHPUnit\Framework\TestCase;
 
 use function Harbor\Middleware\middleware;
@@ -16,15 +17,11 @@ use function Harbor\Pipeline\pipeline_get;
 /**
  * Class MiddlewareHelpersTest.
  */
+#[RunTestsInSeparateProcesses]
+#[PreserveGlobalState(false)]
 final class MiddlewareHelpersTest extends TestCase
 {
     private array $original_server = [];
-
-    #[BeforeClass]
-    public static function load_middleware_helpers(): void
-    {
-        HelperLoader::load('middleware');
-    }
 
     public function test_middleware_uses_request_snapshot_as_default_payload(): void
     {
@@ -34,6 +31,8 @@ final class MiddlewareHelpersTest extends TestCase
             'HTTP_HOST' => 'example.test',
             'SERVER_PORT' => '80',
         ];
+
+        HelperLoader::load('middleware');
 
         middleware(
             static function (array $request, callable $next): mixed {
@@ -64,6 +63,8 @@ final class MiddlewareHelpersTest extends TestCase
             'HTTP_HOST' => 'example.test',
             'SERVER_PORT' => '80',
         ];
+
+        HelperLoader::load('middleware');
 
         $factory_action = new class {
             public function __invoke(): callable

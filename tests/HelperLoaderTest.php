@@ -215,6 +215,10 @@ final class HelperLoaderTest extends TestCase
         HelperLoader::load('middleware');
 
         self::assertTrue(function_exists('Harbor\Middleware\middleware'));
+        self::assertTrue(class_exists('Harbor\Middleware\AuthMiddleware'));
+        self::assertTrue(class_exists('Harbor\Middleware\CsrfMiddleware'));
+        self::assertTrue(class_exists('Harbor\Middleware\ThrottleMiddleware'));
+        self::assertTrue(class_exists('Harbor\Middleware\CorsMiddleware'));
     }
 
     public function test_load_filesystem_helper_registers_namespaced_functions(): void
