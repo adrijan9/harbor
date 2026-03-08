@@ -51,7 +51,7 @@ require __DIR__.'/../shared/header.php';
     <pre><code class="language-bash">cd my-site
 ../bin/harbor-config</code></pre>
     <h3>What it does</h3>
-    <p>Interactive configuration publisher. Prompts for config type and publishes to the current working directory <code>./config/</code> directory.</p>
+    <p>Interactive runtime configuration publisher. Prompts for template type and publishes to the current working directory <code>./config/</code> directory.</p>
     <h3>API</h3>
     <details class="api-details">
         <summary class="api-summary">
@@ -62,8 +62,33 @@ require __DIR__.'/../shared/header.php';
             <ul class="api-method-list">
                 <li><code>cd my-site &amp;&amp; ../bin/harbor-config</code> Publish for a specific site directory.</li>
                 <li><code>Current working directory</code> Defines where <code>config/*.php</code> files are created.</li>
-                <li><code>cache.php</code>, <code>database.php</code>, <code>migration.php</code>, <code>session.php</code> Available published config templates.</li>
+                <li><code>cache.php</code>, <code>database.php</code>, <code>migration.php</code>, <code>session.php</code> Available published runtime config templates.</li>
                 <li><code>./config/cache.php</code>, <code>./config/database.php</code>, <code>./config/migration.php</code>, <code>./config/session.php</code> Target publish paths under the directory where you run the command.</li>
+                <li><code>-h</code> Show command usage.</li>
+            </ul>
+        </div>
+    </details>
+</section>
+
+<section class="docs-section">
+    <h2><code>bin/harbor-fixer</code></h2>
+    <h3>Example</h3>
+    <pre><code class="language-bash">cd my-site
+../bin/harbor-fixer</code></pre>
+    <h3>What it does</h3>
+    <p>Publishes Harbor's root <code>.php-cs-fixer.dist.php</code> preset into the current site root. It does not ask for confirmation and overwrites existing file content.</p>
+    <h3>API</h3>
+    <details class="api-details">
+        <summary class="api-summary">
+            <span>Fixer Publisher CLI API</span>
+            <span class="api-state"><span class="api-state-closed">Hidden - click to open</span><span class="api-state-open">Open</span></span>
+        </summary>
+        <div class="api-body">
+            <ul class="api-method-list">
+                <li><code>cd my-site &amp;&amp; ../bin/harbor-fixer</code> Publish Harbor style preset into current site root.</li>
+                <li><code>./.php-cs-fixer.dist.php</code> Target file path.</li>
+                <li><code>.router</code> Required in current working directory (selected site check).</li>
+                <li><code>Overwrite behavior</code> Existing <code>.php-cs-fixer.dist.php</code> is replaced without prompt.</li>
                 <li><code>-h</code> Show command usage.</li>
             </ul>
         </div>
@@ -154,6 +179,7 @@ require __DIR__.'/../shared/header.php';
 ./vendor/bin/php-cs-fixer fix --using-cache=no --sequential
 ./bin/harbor documentation/.router
 cd my-site && ../bin/harbor-config
+cd my-site && ../bin/harbor-fixer
 cd my-site && ../bin/harbor-migration
 cd my-site && ../bin/harbor-seed
 ./bin/harbor-docs</code></pre>
@@ -170,7 +196,8 @@ cd my-site && ../bin/harbor-seed
                 <li><code>composer test</code> Run PHPUnit suite.</li>
                 <li><code>./vendor/bin/php-cs-fixer fix --using-cache=no --sequential</code> Apply coding style fixes.</li>
                 <li><code>./bin/harbor documentation/.router</code> Compile docs route file.</li>
-                <li><code>cd my-site &amp;&amp; ../bin/harbor-config</code> Publish selected config templates into that site <code>config/</code>.</li>
+                <li><code>cd my-site &amp;&amp; ../bin/harbor-config</code> Publish selected runtime config templates into that site <code>config/</code>.</li>
+                <li><code>cd my-site &amp;&amp; ../bin/harbor-fixer</code> Publish Harbor <code>.php-cs-fixer.dist.php</code> preset into that site root.</li>
                 <li><code>cd my-site &amp;&amp; ../bin/harbor-migration</code> Run pending migrations.</li>
                 <li><code>cd my-site &amp;&amp; ../bin/harbor-seed</code> Run pending seeders.</li>
                 <li><code>/migrations</code> Full guide for migrations + seeders setup and workflow.</li>

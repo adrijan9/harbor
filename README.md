@@ -71,7 +71,8 @@ This command will serve the documentation site on `http://localhost:<SOME_PORT>`
 - CLI:
   - `bin/harbor` compiles `.router` files into `public/routes.php` when `public/` exists, otherwise `routes.php`
   - `bin/harbor init` scaffolds a site structure
-  - `bin/harbor-config` interactively publishes config files (`cache`, `database`, `migration`, `session`) into the current working directory `config/` directory
+  - `bin/harbor-config` interactively publishes runtime config templates (`cache`, `database`, `migration`, `session`) into `config/`
+  - `bin/harbor-fixer` publishes Harbor's `.php-cs-fixer.dist.php` into the current site root (overwrites without prompt)
   - `bin/harbor-migration` creates/runs/rolls back migration files tracked in `migrations` table
   - `bin/harbor-seed` creates/runs/rolls back seeder files tracked in `seeders` table
   - `bin/harbor-docs` serves the local docs site
@@ -83,6 +84,7 @@ harbor/
   bin/
     harbor
     harbor-config
+    harbor-fixer
     harbor-migration
     harbor-seed
     harbor-docs
@@ -164,6 +166,8 @@ composer install
 # Publish config templates for my-site/config (run inside that site directory)
 cd my-site
 ../bin/harbor-config
+# Publish Harbor .php-cs-fixer.dist.php preset into current site root
+../bin/harbor-fixer
 
 # Run pending migrations/seeders (uses config/migration.php)
 ../bin/harbor-migration
@@ -236,7 +240,8 @@ Current model:
 composer test # run PHPUnit tests
 ./vendor/bin/php-cs-fixer fix # run PHP CS Fixer
 ./bin/harbor documentation/.router # compile docs routes
-cd my-site && ../bin/harbor-config # publish config files into my-site/config directory
+cd my-site && ../bin/harbor-config # publish runtime config templates
+cd my-site && ../bin/harbor-fixer # publish .php-cs-fixer.dist.php preset from Harbor root config
 cd my-site && ../bin/harbor-migration # run pending migrations
 cd my-site && ../bin/harbor-seed # run pending seeders
 ./bin/harbor-docs # serve docs site

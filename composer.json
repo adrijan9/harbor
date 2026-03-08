@@ -5,6 +5,7 @@
         "bin/harbor",
         "bin/harbor-docs",
         "bin/harbor-config",
+        "bin/harbor-fixer",
         "bin/harbor-migration",
         "bin/harbor-seed"
     ],

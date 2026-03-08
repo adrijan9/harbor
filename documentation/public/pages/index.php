@@ -29,6 +29,10 @@ require __DIR__.'/../shared/header.php';
             <h3>Load Helpers</h3>
             <p>One place to see all helper module keys and how to load them.</p>
         </a>
+        <a class="card" href="/cli">
+            <h3>CLI Tooling</h3>
+            <p>Scaffold sites and compile `.router` files.</p>
+        </a>
         <a class="card" href="/routing">
             <h3>Routing</h3>
             <p>Route files with segment and query support.</p>
@@ -93,10 +97,6 @@ require __DIR__.'/../shared/header.php';
             <h3>Logging</h3>
             <p>Levels, context, and reusable log entries.</p>
         </a>
-        <a class="card" href="/cli">
-            <h3>CLI Tooling</h3>
-            <p>Scaffold sites and compile `.router` files.</p>
-        </a>
     </div>
 </section>
 
@@ -125,7 +125,7 @@ require __DIR__.'/../shared/header.php';
             </tr>
             <tr>
                 <td><code>bin/</code></td>
-                <td>CLI commands (`harbor`, `harbor-config`, `harbor-migration`, `harbor-seed`, `harbor-docs`).</td>
+                <td>CLI commands (<code>harbor</code>, <code>harbor-config</code>, <code>harbor-fixer</code>, <code>harbor-migration</code>, <code>harbor-seed</code>, <code>harbor-docs</code>).</td>
             </tr>
             </tbody>
         </table>

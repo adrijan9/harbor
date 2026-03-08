@@ -8,6 +8,7 @@ $page_id ??= 'home';
 
 $docs_navigation = [
     ['id' => 'home', 'label' => 'Overview', 'href' => '/'],
+    ['id' => 'cli', 'label' => 'CLI', 'href' => '/cli'],
     ['id' => 'load_helpers', 'label' => 'Load Helpers', 'href' => '/load-helpers'],
     ['id' => 'installation', 'label' => 'Installation', 'href' => '/installation'],
     ['id' => 'routing', 'label' => 'Routing', 'href' => '/routing'],
@@ -29,7 +30,6 @@ $docs_navigation = [
     ['id' => 'filesystem', 'label' => 'Filesystem', 'href' => '/filesystem'],
     ['id' => 'cache', 'label' => 'Cache', 'href' => '/cache'],
     ['id' => 'logging', 'label' => 'Logging', 'href' => '/logging'],
-    ['id' => 'cli', 'label' => 'CLI', 'href' => '/cli'],
 ];
 ?>
 <!doctype html>
