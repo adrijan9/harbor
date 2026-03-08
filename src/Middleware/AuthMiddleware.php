@@ -56,22 +56,17 @@ final class AuthMiddleware
         $headers = is_array($request['headers'] ?? null) ? $request['headers'] : [];
 
         $authorization = $headers['authorization'] ?? null;
-        if (is_string($authorization)) {
-            $normalized_authorization = trim($authorization);
-            if (! harbor_is_blank($normalized_authorization)) {
-                if (! str_starts_with(strtolower($normalized_authorization), 'bearer ')) {
-                    return true;
-                }
-
-                $token = trim(substr($normalized_authorization, 7));
-                if (! harbor_is_blank($token)) {
-                    return true;
-                }
-            }
+        if (! is_string($authorization)) {
+            return false;
         }
 
-        $x_auth_token = $headers['x-auth-token'] ?? null;
+        $normalized_authorization = trim($authorization);
+        if (! str_starts_with(strtolower($normalized_authorization), 'bearer ')) {
+            return false;
+        }
 
-        return is_string($x_auth_token) && ! harbor_is_blank(trim($x_auth_token));
+        $token = trim(substr($normalized_authorization, 7));
+
+        return ! harbor_is_blank($token);
     }
 }
