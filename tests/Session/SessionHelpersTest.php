@@ -82,6 +82,10 @@ final class SessionHelpersTest extends TestCase
             'secure' => true,
             'http_only' => false,
             'same_site' => 'strict',
+            'signed' => true,
+            'signing_key' => 'session-signing-key',
+            'encrypted' => false,
+            'encryption_key' => null,
         ];
         $GLOBALS['_ENV'] = $_ENV;
 
@@ -94,6 +98,41 @@ final class SessionHelpersTest extends TestCase
         self::assertSame('example.test', session_config()['domain']);
         self::assertTrue(session_config()['secure']);
         self::assertFalse(session_config()['http_only']);
+        self::assertTrue(session_config()['signed']);
+        self::assertFalse(session_config()['encrypted']);
+        self::assertSame('session-signing-key', session_config()['signing_key']);
+        self::assertNull(session_config()['encryption_key']);
+    }
+
+    public function test_session_helpers_can_sign_and_encrypt_cookie_payload(): void
+    {
+        if (! function_exists('openssl_encrypt') || ! function_exists('openssl_decrypt')) {
+            self::markTestSkipped('OpenSSL extension is required for encrypted session tests.');
+        }
+
+        $_ENV['session'] = [
+            'prefix' => 'harbor',
+            'ttl_seconds' => 7200,
+            'path' => '/',
+            'domain' => null,
+            'secure' => false,
+            'http_only' => true,
+            'same_site' => 'lax',
+            'signed' => true,
+            'encrypted' => true,
+            'signing_key' => 'session-signing-key',
+            'encryption_key' => 'session-encryption-key',
+        ];
+        $GLOBALS['_ENV'] = $_ENV;
+
+        self::assertTrue(session_set('auth_token', 'abc123'));
+        self::assertArrayHasKey('harbor_auth_token', $_COOKIE);
+        self::assertNotSame('abc123', $_COOKIE['harbor_auth_token']);
+        self::assertSame('abc123', session_get('auth_token'));
+
+        $_COOKIE['harbor_auth_token'] .= 'tampered';
+
+        self::assertSame('fallback', session_get('auth_token', 'fallback'));
     }
 
     public function test_session_set_throws_for_blank_key(): void
@@ -120,6 +159,10 @@ final class SessionHelpersTest extends TestCase
             'secure' => false,
             'http_only' => true,
             'same_site' => 'lax',
+            'signed' => false,
+            'encrypted' => false,
+            'signing_key' => null,
+            'encryption_key' => null,
         ];
         $GLOBALS['_ENV'] = $_ENV;
 

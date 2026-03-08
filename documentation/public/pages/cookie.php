@@ -12,7 +12,7 @@ require __DIR__.'/../shared/header.php';
 <section class="hero">
     <span class="hero-eyebrow">namespace: cookie</span>
     <h1>Cookie Helpers</h1>
-    <p>Simple cookie set/get/forget helpers with option support.</p>
+    <p>Simple cookie set/get/forget helpers with optional signing and encryption.</p>
 </section>
 
 <section class="docs-section">
@@ -29,6 +29,16 @@ cookie_set('theme', 'dark', 3600, [
     'same_site' => 'Lax',
 ]);
 
+cookie_set('remember_token', 'abc123', 3600, [
+    'signed' => true,
+    'signing_key' => 'replace-with-secret',
+]);
+
+cookie_set('api_token', 'secret-value', 3600, [
+    'encrypted' => true,
+    'encryption_key' => 'replace-with-secret',
+]);
+
 $theme = cookie_get('theme', 'light');
 
 cookie_forget('theme');</code></pre>
@@ -36,7 +46,7 @@ cookie_forget('theme');</code></pre>
     <p>Writes or removes response cookies and mirrors values in <code>$_COOKIE</code> for immediate runtime reads.</p>
 
     <h3>Security Note</h3>
-    <p>Cookie values are plain cookie values by default and are <strong>not signed</strong> and <strong>not encrypted</strong> by Harbor. Avoid storing sensitive values directly unless you sign or encrypt them yourself.</p>
+    <p>Cookie values are plain by default. Enable <code>signed</code> and/or <code>encrypted</code> options to protect values. Signed/encrypted reads require the same keys used during write. Encrypted cookies require the PHP OpenSSL extension.</p>
 
     <h3>API</h3>
     <details class="api-details">
@@ -50,10 +60,28 @@ cookie_forget('theme');</code></pre>
 // ttl_seconds: 0 = browser session cookie.
 $ok = cookie_set('theme', 'dark', 3600);
 
-function cookie_get(?string $key = null, mixed $default = null): mixed
+function cookie_get(?string $key = null, mixed $default = null, array $options = []): mixed
 // Reads one cookie value or returns full cookie map when key is null.
+// For signed/encrypted cookies pass matching key options.
 $theme = cookie_get('theme', 'light');
+$token = cookie_get('remember_token', null, ['signed' => true, 'signing_key' => 'secret']);
 $all = cookie_get();
+
+function cookie_set_signed(string $key, string $value, string $signing_key, int $ttl_seconds = 0, array $options = []): bool
+// Convenience helper for signed cookies.
+cookie_set_signed('remember_token', 'abc123', 'secret', 3600);
+
+function cookie_get_signed(string $key, string $signing_key, mixed $default = null): mixed
+// Reads a signed cookie and verifies signature.
+$token = cookie_get_signed('remember_token', 'secret');
+
+function cookie_set_encrypted(string $key, string $value, string $encryption_key, int $ttl_seconds = 0, array $options = []): bool
+// Convenience helper for encrypted cookies.
+cookie_set_encrypted('api_token', 'secret-value', 'secret', 3600);
+
+function cookie_get_encrypted(string $key, string $encryption_key, mixed $default = null): mixed
+// Reads and decrypts an encrypted cookie.
+$token = cookie_get_encrypted('api_token', 'secret');
 
 function cookie_has(string $key): bool
 // Checks if one cookie key exists.

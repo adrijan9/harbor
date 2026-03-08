@@ -27,14 +27,19 @@ return [
     'secure' => false,
     'http_only' => true,
     'same_site' => 'Lax',
+    'signed' => false,
+    'encrypted' => false,
+    'key' => null,
+    'signing_key' => null,
+    'encryption_key' => null,
 ];</code></pre>
     <h3>What it does</h3>
-    <p>Defines cookie naming and security options used by all session helper calls.</p>
+    <p>Defines cookie naming and security options used by all session helper calls. Enable signing/encryption and provide keys when you want protected session payloads.</p>
 </section>
 
 <section class="docs-section">
     <h2>Security Note</h2>
-    <p>Session values are stored in client cookies and are <strong>not signed</strong> and <strong>not encrypted</strong> by Harbor. Do not store sensitive data in session cookies unless you add your own signing or encryption layer.</p>
+    <p>Session values are stored in client cookies. They are plain by default, but Harbor can sign and/or encrypt them when <code>session.signed</code> or <code>session.encrypted</code> is enabled and keys are configured. Encrypted sessions require the PHP OpenSSL extension.</p>
 </section>
 
 <section class="docs-section">

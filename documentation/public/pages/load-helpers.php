@@ -78,12 +78,12 @@ HelperLoader::load('cache');</code></pre>
             <tr>
                 <td><code>cookie</code></td>
                 <td><code>Harbor\Cookie</code></td>
-                <td>Cookie set/get/forget helpers.</td>
+                <td>Cookie set/get/forget helpers with optional signing and encryption.</td>
             </tr>
             <tr>
                 <td><code>session</code></td>
                 <td><code>Harbor\Session</code></td>
-                <td>Simplified cookie-backed session helpers driven by <code>session</code> config.</td>
+                <td>Simplified cookie-backed session helpers driven by <code>session</code> config (including optional signed/encrypted payloads).</td>
             </tr>
             <tr>
                 <td><code>response</code></td>

@@ -85,6 +85,9 @@ final class HarborConfigTest extends TestCase
         self::assertStringContainsString("'prefix' => 'harbor'", $content);
         self::assertStringContainsString("'ttl_seconds' => 7200", $content);
         self::assertStringContainsString("'same_site' => 'Lax'", $content);
+        self::assertStringContainsString("'signed' => false", $content);
+        self::assertStringContainsString("'encrypted' => false", $content);
+        self::assertStringContainsString("'key' => null", $content);
     }
 
     public function test_publish_cache_config_does_not_overwrite_existing_file_by_default(): void

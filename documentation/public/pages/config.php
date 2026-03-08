@@ -113,9 +113,14 @@ return [
     'secure' => false,
     'http_only' => true,
     'same_site' => 'Lax',
+    'signed' => false,
+    'encrypted' => false,
+    'key' => null,
+    'signing_key' => null,
+    'encryption_key' => null,
 ];</code></pre>
     <h3>What it does</h3>
-    <p>Loads <code>config/session.php</code> into <code>$_ENV['session']</code>, so session helpers can resolve cookie prefix, TTL, path/domain, and security flags from one place. Session payloads are cookie-backed and not signed/encrypted by default.</p>
+    <p>Loads <code>config/session.php</code> into <code>$_ENV['session']</code>, so session helpers can resolve cookie prefix, TTL, path/domain, cookie flags, and optional signing/encryption keys from one place.</p>
 </section>
 
 <section class="docs-section">

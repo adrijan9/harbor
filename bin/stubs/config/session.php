@@ -42,4 +42,19 @@ return [
     'secure' => false,
     'http_only' => true,
     'same_site' => 'Lax',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Session Cookie Signing / Encryption
+    |--------------------------------------------------------------------------
+    |
+    | Enable signing and/or encryption for session cookie payloads.
+    | "key" is a shared fallback for both signing_key and encryption_key.
+    |
+    */
+    'signed' => false,
+    'encrypted' => false,
+    'key' => null,
+    'signing_key' => null,
+    'encryption_key' => null,
 ];

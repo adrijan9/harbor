@@ -13,6 +13,7 @@ require_once __DIR__.'/../Support/value.php';
 use function Harbor\Config\config_bool;
 use function Harbor\Config\config_get;
 use function Harbor\Config\config_int;
+use function Harbor\Config\config_resolve;
 use function Harbor\Config\config_str;
 use function Harbor\Cookie\cookie_all;
 use function Harbor\Cookie\cookie_forget;
@@ -48,7 +49,12 @@ function session_get(?string $key = null, mixed $default = null): mixed
         return $default;
     }
 
-    return session_decode_value(cookie_get($cookie_key));
+    $cookie_value = cookie_get($cookie_key, null, session_cookie_options());
+    if (null === $cookie_value) {
+        return $default;
+    }
+
+    return session_decode_value($cookie_value);
 }
 
 function session_has(string $key): bool
@@ -77,8 +83,9 @@ function session_all(): array
 {
     $cookie_prefix = session_cookie_prefix().'_';
     $session_values = [];
+    $session_cookie_options = session_cookie_options();
 
-    foreach (cookie_all() as $cookie_name => $cookie_value) {
+    foreach (array_keys(cookie_all()) as $cookie_name) {
         if (! is_string($cookie_name) || ! str_starts_with($cookie_name, $cookie_prefix)) {
             continue;
         }
@@ -88,7 +95,12 @@ function session_all(): array
             continue;
         }
 
-        $session_values[$session_key] = session_decode_value($cookie_value);
+        $decoded_cookie_value = cookie_get($cookie_name, null, $session_cookie_options);
+        if (null === $decoded_cookie_value) {
+            continue;
+        }
+
+        $session_values[$session_key] = session_decode_value($decoded_cookie_value);
     }
 
     return $session_values;
@@ -128,6 +140,10 @@ function session_config(?string $key = null, mixed $default = null): mixed
             'secure' => session_cookie_secure(),
             'http_only' => session_cookie_http_only(),
             'same_site' => session_cookie_same_site(),
+            'signed' => session_cookie_signed(),
+            'encrypted' => session_cookie_encrypted(),
+            'signing_key' => session_cookie_signing_key(),
+            'encryption_key' => session_cookie_encryption_key(),
         ];
     }
 
@@ -148,6 +164,10 @@ function session_cookie_options(): array
         'secure' => session_cookie_secure(),
         'http_only' => session_cookie_http_only(),
         'same_site' => session_cookie_same_site(),
+        'signed' => session_cookie_signed(),
+        'encrypted' => session_cookie_encrypted(),
+        'signing_key' => session_cookie_signing_key(),
+        'encryption_key' => session_cookie_encryption_key(),
     ];
 }
 
@@ -214,6 +234,50 @@ function session_cookie_http_only(): bool
 function session_cookie_same_site(): string
 {
     return session_normalize_same_site(config_str('session.same_site', 'Lax'));
+}
+
+function session_cookie_signed(): bool
+{
+    return config_bool('session.signed', false);
+}
+
+function session_cookie_encrypted(): bool
+{
+    return config_bool('session.encrypted', false);
+}
+
+function session_cookie_signing_key(): ?string
+{
+    $signing_key = config_resolve('session.signing_key', 'session.key');
+
+    if (! is_string($signing_key)) {
+        return null;
+    }
+
+    $normalized_signing_key = trim($signing_key);
+
+    if (harbor_is_blank($normalized_signing_key)) {
+        return null;
+    }
+
+    return $normalized_signing_key;
+}
+
+function session_cookie_encryption_key(): ?string
+{
+    $encryption_key = config_resolve('session.encryption_key', 'session.key');
+
+    if (! is_string($encryption_key)) {
+        return null;
+    }
+
+    $normalized_encryption_key = trim($encryption_key);
+
+    if (harbor_is_blank($normalized_encryption_key)) {
+        return null;
+    }
+
+    return $normalized_encryption_key;
 }
 
 function session_normalize_key(string $key): string
