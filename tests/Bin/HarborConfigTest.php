@@ -82,12 +82,16 @@ final class HarborConfigTest extends TestCase
 
         $content = file_get_contents($published_path);
         self::assertIsString($content);
+        self::assertStringContainsString('use Harbor\Session\SessionDriver;', $content);
+        self::assertStringContainsString("'driver' => SessionDriver::COOKIE->value", $content);
         self::assertStringContainsString("'prefix' => 'harbor'", $content);
         self::assertStringContainsString("'ttl_seconds' => 7200", $content);
         self::assertStringContainsString("'same_site' => 'Lax'", $content);
         self::assertStringContainsString("'signed' => false", $content);
         self::assertStringContainsString("'encrypted' => false", $content);
         self::assertStringContainsString("'key' => null", $content);
+        self::assertStringContainsString("'file_path' => __DIR__.'/../storage/session'", $content);
+        self::assertStringContainsString("'id_cookie' => 'harbor-session-id'", $content);
     }
 
     public function test_publish_cache_config_does_not_overwrite_existing_file_by_default(): void

@@ -47,7 +47,7 @@ require __DIR__.'/../shared/header.php';
         </a>
         <a class="card" href="/session">
             <h3>Session Helpers</h3>
-            <p>Simplified cookie-backed sessions driven by session config.</p>
+            <p>Simplified sessions with cookie, array, and file drivers.</p>
         </a>
         <a class="card" href="/config">
             <h3>Config Helpers</h3>

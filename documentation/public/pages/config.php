@@ -18,7 +18,8 @@ require __DIR__.'/../shared/header.php';
 <section class="docs-section">
     <h2>Init Config Files</h2>
     <h3>Example</h3>
-    <pre><code class="language-php">use function Harbor\Config\config_init;
+    <pre><code class="language-php">use Harbor\Session\SessionDriver;
+use function Harbor\Config\config_init;
 
 config_init(
     __DIR__.'/config/app.php',
@@ -99,13 +100,15 @@ return [
 <section class="docs-section">
     <h2>Optional Session Config File</h2>
     <h3>Example</h3>
-    <pre><code class="language-php">use function Harbor\Config\config_init;
+    <pre><code class="language-php">use Harbor\Session\SessionDriver;
+use function Harbor\Config\config_init;
 
 // from public/index.php
 config_init(__DIR__.'/../config/session.php');
 
 // file: config/session.php
 return [
+    'driver' => SessionDriver::COOKIE->value, // cookie | array | file
     'prefix' => 'harbor',
     'ttl_seconds' => 7200,
     'path' => '/',
@@ -118,9 +121,11 @@ return [
     'key' => null,
     'signing_key' => null,
     'encryption_key' => null,
+    'file_path' => __DIR__.'/../storage/session',
+    'id_cookie' => 'harbor-session-id',
 ];</code></pre>
     <h3>What it does</h3>
-    <p>Loads <code>config/session.php</code> into <code>$_ENV['session']</code>, so session helpers can resolve cookie prefix, TTL, path/domain, cookie flags, and optional signing/encryption keys from one place.</p>
+    <p>Loads <code>config/session.php</code> into <code>$_ENV['session']</code>, so session helpers can resolve driver selection, cookie options, file storage path, and optional signing/encryption keys from one place.</p>
 </section>
 
 <section class="docs-section">

@@ -83,7 +83,7 @@ HelperLoader::load('cache');</code></pre>
             <tr>
                 <td><code>session</code></td>
                 <td><code>Harbor\Session</code></td>
-                <td>Simplified cookie-backed session helpers driven by <code>session</code> config (including optional signed/encrypted payloads).</td>
+                <td>Simplified session helpers driven by <code>session</code> config with <code>cookie</code>, <code>array</code>, and <code>file</code> drivers.</td>
             </tr>
             <tr>
                 <td><code>response</code></td>

@@ -2,7 +2,19 @@
 
 declare(strict_types=1);
 
+use Harbor\Session\SessionDriver;
+
 return [
+    /*
+    |--------------------------------------------------------------------------
+    | Session Driver
+    |--------------------------------------------------------------------------
+    |
+    | Supported: "cookie", "array", "file"
+    |
+    */
+    'driver' => SessionDriver::COOKIE->value,
+
     /*
     |--------------------------------------------------------------------------
     | Session Cookie Prefix
@@ -57,4 +69,16 @@ return [
     'key' => null,
     'signing_key' => null,
     'encryption_key' => null,
+
+    /*
+    |--------------------------------------------------------------------------
+    | File Driver Options
+    |--------------------------------------------------------------------------
+    |
+    | "file_path" stores server-side session payload files.
+    | "id_cookie" stores the session identifier cookie name.
+    |
+    */
+    'file_path' => __DIR__.'/../storage/session',
+    'id_cookie' => 'harbor-session-id',
 ];

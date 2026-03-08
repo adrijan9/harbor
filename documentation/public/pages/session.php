@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 $page_title = 'Harbor Docs - Session Helpers';
-$page_description = 'Cookie-backed session helpers using config/session.php values.';
+$page_description = 'Session helpers using cookie, array, or file drivers from config/session.php.';
 $page_id = 'session';
 
 require __DIR__.'/../shared/header.php';
@@ -12,14 +12,17 @@ require __DIR__.'/../shared/header.php';
 <section class="hero">
     <span class="hero-eyebrow">namespace: session</span>
     <h1>Session Helpers</h1>
-    <p>Simplified cookie-backed sessions configured by <code>config/session.php</code>.</p>
+    <p>Simplified sessions configured by <code>config/session.php</code> with cookie, array, or file drivers.</p>
 </section>
 
 <section class="docs-section">
     <h2>Configure Session Cookies</h2>
     <h3>Example</h3>
-    <pre><code class="language-php">// file: config/session.php
+    <pre><code class="language-php">use Harbor\Session\SessionDriver;
+
+// file: config/session.php
 return [
+    'driver' => SessionDriver::COOKIE->value, // cookie | array | file
     'prefix' => 'harbor',
     'ttl_seconds' => 7200,
     'path' => '/',
@@ -32,14 +35,16 @@ return [
     'key' => null,
     'signing_key' => null,
     'encryption_key' => null,
+    'file_path' => __DIR__.'/../storage/session',
+    'id_cookie' => 'harbor-session-id',
 ];</code></pre>
     <h3>What it does</h3>
-    <p>Defines cookie naming and security options used by all session helper calls. Enable signing/encryption and provide keys when you want protected session payloads.</p>
+    <p>Defines session driver and options used by all session helper calls. For cookie driver, signing/encryption options protect cookie payloads. For file driver, payloads are server-side and the browser stores only the session id cookie.</p>
 </section>
 
 <section class="docs-section">
     <h2>Security Note</h2>
-    <p>Session values are stored in client cookies. They are plain by default, but Harbor can sign and/or encrypt them when <code>session.signed</code> or <code>session.encrypted</code> is enabled and keys are configured. Encrypted sessions require the PHP OpenSSL extension.</p>
+    <p>Cookie driver stores values in browser cookies. They are plain by default, but Harbor can sign and/or encrypt them when <code>session.signed</code> or <code>session.encrypted</code> is enabled and keys are configured. Encrypted cookies require the PHP OpenSSL extension.</p>
 </section>
 
 <section class="docs-section">
@@ -55,7 +60,7 @@ $user_id = session_get('user_id');
 
 session_forget('user_id');</code></pre>
     <h3>What it does</h3>
-    <p>Stores and reads session values directly from cookies with a shared prefix and cookie options from config.</p>
+    <p>Provides one session API that automatically dispatches to the configured driver (<code>cookie</code>, <code>array</code>, or <code>file</code>).</p>
 
     <h3>API</h3>
     <details class="api-details">
@@ -65,9 +70,13 @@ session_forget('user_id');</code></pre>
         </summary>
         <div class="api-body">
             <pre><code class="language-php">function session_set(string $key, mixed $value, ?int $ttl_seconds = null): bool
-// Stores one session value in a prefixed cookie.
+// Stores one session value in active session driver.
 // Uses config/session.php defaults when ttl_seconds is null.
 session_set('user_id', 42);
+
+function session_driver(SessionDriver|string $default_driver = SessionDriver::COOKIE): string
+// Returns active driver: cookie, array, or file.
+$driver = session_driver();
 
 function session_get(?string $key = null, mixed $default = null): mixed
 // Reads one session value or all session values when key is null.
@@ -97,6 +106,37 @@ session_clear();
 function session_config(?string $key = null, mixed $default = null): mixed
 // Reads session config values.
 $prefix = session_config('prefix', 'harbor');</code></pre>
+        </div>
+    </details>
+
+    <h3>Driver-Specific API</h3>
+    <details class="api-details">
+        <summary class="api-summary">
+            <span>Session Driver Helpers API</span>
+            <span class="api-state"><span class="api-state-closed">Hidden - click to open</span><span class="api-state-open">Open</span></span>
+        </summary>
+        <div class="api-body">
+            <pre><code class="language-php">// Array driver helpers (in-memory runtime storage)
+function session_array_set(string $key, mixed $value, int $ttl_seconds = 0): bool
+function session_array_get(string $key, mixed $default = null): mixed
+function session_array_has(string $key): bool
+function session_array_forget(string $key): bool
+function session_array_all(): array
+function session_array_clear(): bool
+
+// File driver helpers (server-side payload files + session id cookie)
+function session_file_set_path(string $path): void
+// Overrides runtime session file root path.
+
+function session_file_reset_path(): void
+// Resets runtime path override and falls back to config/session.php.
+
+function session_file_set(string $key, mixed $value, int $ttl_seconds, array $cookie_options = []): bool
+function session_file_get(string $key, mixed $default = null, array $cookie_options = []): mixed
+function session_file_has(string $key, array $cookie_options = []): bool
+function session_file_forget(string $key, array $cookie_options = []): bool
+function session_file_all(array $cookie_options = []): array
+function session_file_clear(array $cookie_options = []): bool</code></pre>
         </div>
     </details>
 </section>
