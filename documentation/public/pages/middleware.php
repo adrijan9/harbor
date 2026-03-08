@@ -75,9 +75,40 @@ middleware(
     <h3>Class Purpose</h3>
     <ul class="api-method-list">
         <li><code>AuthMiddleware</code>: validates auth headers or custom auth resolver.</li>
-        <li><code>CsrfMiddleware</code>: validates unsafe request methods against CSRF token sources.</li>
+        <li><code>CsrfMiddleware</code>: verifies unsafe methods against CSRF token sources.</li>
         <li><code>ThrottleMiddleware</code>: applies per-key request rate limiting with retry-after support.</li>
         <li><code>CorsMiddleware</code>: handles origin checks and CORS response headers (including preflight).</li>
+    </ul>
+</section>
+
+<section class="docs-section">
+    <h2>CSRF Flow</h2>
+    <h3>Form Token Helper (Laravel-like <code>@csrf</code>)</h3>
+    <pre><code class="language-php">use function Harbor\Middleware\csrf_field;
+
+// inside form markup:
+echo '&lt;form method="POST" action="/posts"&gt;';
+echo csrf_field(); // renders: &lt;input type="hidden" name="_token" value="..."&gt;
+echo '&lt;input type="text" name="title"&gt;';
+echo '&lt;button type="submit"&gt;Save&lt;/button&gt;';
+echo '&lt;/form&gt;';</code></pre>
+    <h3>Generate + Verify</h3>
+    <pre><code class="language-php">use Harbor\Middleware\CsrfMiddleware;
+use function Harbor\Middleware\middleware;
+
+middleware(
+    new CsrfMiddleware(
+        body_token_key: '_token',
+        header_token_key: 'x-csrf-token',
+        cookie_token_key: 'XSRF-TOKEN',
+    )
+);</code></pre>
+    <h3>What happens by default</h3>
+    <ul class="api-method-list">
+        <li>Safe methods (<code>GET</code>, <code>HEAD</code>, <code>OPTIONS</code>, <code>TRACE</code>) bypass CSRF verification.</li>
+        <li><code>csrf_field()</code> renders hidden <code>_token</code> input and reuses the same cookie token.</li>
+        <li>Unsafe methods verify submitted token from header <code>x-csrf-token</code> or body key <code>_token</code>.</li>
+        <li>Token check uses constant-time comparison via <code>hash_equals</code>.</li>
     </ul>
 </section>
 
@@ -90,11 +121,32 @@ middleware(
         </summary>
         <div class="api-body">
             <pre><code class="language-php">function middleware(callable ...$actions): void
+function csrf_token(
+    string $cookie_token_key = 'XSRF-TOKEN',
+    int $cookie_ttl_seconds = 0,
+    array $cookie_options = ['http_only' => false, 'same_site' => 'Lax']
+): string
+function csrf_field(
+    string $field_name = '_token',
+    string $cookie_token_key = 'XSRF-TOKEN',
+    int $cookie_ttl_seconds = 0,
+    array $cookie_options = ['http_only' => false, 'same_site' => 'Lax']
+): string
 
 final class AuthMiddleware
 final class CsrfMiddleware
 final class ThrottleMiddleware
-final class CorsMiddleware</code></pre>
+final class CorsMiddleware
+
+new CsrfMiddleware(
+    token_resolver: null,
+    safe_methods: ['GET', 'HEAD', 'OPTIONS', 'TRACE'],
+    body_token_key: '_token',
+    header_token_key: 'x-csrf-token',
+    cookie_token_key: 'XSRF-TOKEN',
+    failure_status: 403,
+    failure_handler: null
+)</code></pre>
         </div>
     </details>
 </section>

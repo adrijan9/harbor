@@ -100,6 +100,40 @@ final class FirstClassMiddlewaresTest extends TestCase
         self::assertSame('/forms', $result['path']);
     }
 
+    public function test_csrf_middleware_does_not_generate_token_for_safe_requests(): void
+    {
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        $_SERVER['REQUEST_URI'] = '/forms';
+
+        HelperLoader::load('middleware');
+
+        middleware(new CsrfMiddleware());
+
+        $result = pipeline_get();
+
+        self::assertIsArray($result);
+        self::assertSame('/forms', $result['path']);
+        self::assertArrayNotHasKey('csrf_token', $result);
+        self::assertArrayNotHasKey('XSRF-TOKEN', $_COOKIE);
+    }
+
+    public function test_csrf_middleware_allows_matching_body_tokens(): void
+    {
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+        $_SERVER['REQUEST_URI'] = '/forms';
+        $_COOKIE['XSRF-TOKEN'] = 'csrf-token';
+        $_POST['_token'] = 'csrf-token';
+
+        HelperLoader::load('middleware');
+
+        middleware(new CsrfMiddleware());
+
+        $result = pipeline_get();
+
+        self::assertIsArray($result);
+        self::assertSame('/forms', $result['path']);
+    }
+
     public function test_csrf_middleware_rejects_mismatched_tokens(): void
     {
         $_SERVER['REQUEST_METHOD'] = 'POST';

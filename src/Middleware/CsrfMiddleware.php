@@ -60,8 +60,11 @@ final class CsrfMiddleware
     {
         if ($this->token_resolver instanceof \Closure) {
             $resolved_token = ($this->token_resolver)($request);
+            $normalized_token = is_string($resolved_token) ? trim($resolved_token) : '';
 
-            return is_string($resolved_token) ? trim($resolved_token) : '';
+            if (! harbor_is_blank($normalized_token)) {
+                return $normalized_token;
+            }
         }
 
         $cookies = is_array($request['cookies'] ?? null) ? $request['cookies'] : [];

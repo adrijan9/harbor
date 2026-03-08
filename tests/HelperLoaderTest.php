@@ -249,6 +249,8 @@ final class HelperLoaderTest extends TestCase
         HelperLoader::load('middleware');
 
         self::assertTrue(function_exists('Harbor\Middleware\middleware'));
+        self::assertTrue(function_exists('Harbor\Middleware\csrf_token'));
+        self::assertTrue(function_exists('Harbor\Middleware\csrf_field'));
         self::assertTrue(class_exists('Harbor\Middleware\AuthMiddleware'));
         self::assertTrue(class_exists('Harbor\Middleware\CsrfMiddleware'));
         self::assertTrue(class_exists('Harbor\Middleware\ThrottleMiddleware'));
