@@ -177,6 +177,138 @@ a {
     gap: 0.55rem;
 }
 
+.docs-search {
+    position: relative;
+    width: min(360px, 38vw);
+}
+
+.docs-search-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+    padding: 0;
+}
+
+.docs-search-input {
+    width: 100%;
+    height: 34px;
+    padding: 0.45rem 2rem 0.45rem 0.75rem;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: var(--surface-alt);
+    color: var(--text);
+    font-family: "IBM Plex Mono", "Menlo", "Consolas", monospace;
+    font-size: 0.8rem;
+    line-height: 1.2;
+    transition: border-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
+}
+
+.docs-search-input::placeholder {
+    color: var(--text-muted);
+}
+
+.docs-search-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(30, 164, 221, 0.24);
+    outline: 0;
+}
+
+.docs-search-shortcut {
+    position: absolute;
+    right: 0.44rem;
+    top: 50%;
+    transform: translateY(-50%);
+    min-width: 1.2rem;
+    height: 1.2rem;
+    border-radius: 4px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--text-muted);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "IBM Plex Mono", "Menlo", "Consolas", monospace;
+    font-size: 0.68rem;
+    font-weight: 600;
+    pointer-events: none;
+}
+
+.docs-search-results {
+    position: absolute;
+    top: calc(100% + 0.44rem);
+    left: 0;
+    right: 0;
+    max-height: min(62vh, 460px);
+    overflow-y: auto;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--surface-alt);
+    box-shadow: var(--shadow);
+    z-index: 45;
+}
+
+.docs-search-status {
+    margin: 0;
+    padding: 0.72rem 0.8rem;
+    color: var(--text-muted);
+    font-size: 0.78rem;
+}
+
+.docs-search-results-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.docs-search-result-item + .docs-search-result-item {
+    border-top: 1px solid var(--line);
+}
+
+.docs-search-result-link {
+    display: block;
+    padding: 0.68rem 0.8rem;
+    transition: background-color 140ms ease;
+}
+
+.docs-search-result-link:hover {
+    background: rgba(30, 164, 221, 0.12);
+}
+
+.docs-search-result-link.is-active {
+    background: rgba(30, 164, 221, 0.18);
+}
+
+.docs-search-result-link:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
+}
+
+.docs-search-result-title {
+    color: var(--text);
+    font-weight: 700;
+    font-size: 0.86rem;
+    line-height: 1.35;
+}
+
+.docs-search-result-path {
+    margin-top: 0.18rem;
+    color: var(--accent);
+    font-family: "IBM Plex Mono", "Menlo", "Consolas", monospace;
+    font-size: 0.72rem;
+    line-height: 1.25;
+}
+
+.docs-search-result-snippet {
+    margin-top: 0.22rem;
+    color: var(--text-muted);
+    font-size: 0.74rem;
+    line-height: 1.35;
+}
+
 .repo-stars-link {
     height: 34px;
     padding: 0 0.62rem;
@@ -306,21 +438,51 @@ a {
 .docs-layout {
     max-width: 1360px;
     margin: 0 auto;
-    padding: 1.5rem 1.25rem 3.5rem;
+    padding: 1.5rem 1.25rem 1rem;
     display: grid;
     grid-template-columns: 260px minmax(0, 1fr) 220px;
     gap: 1.4rem;
+    align-items: start;
 }
 
 .docs-sidebar {
     position: sticky;
     top: 88px;
     align-self: start;
+    max-height: calc(100dvh - 104px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable both-edges;
+    -webkit-overflow-scrolling: touch;
     padding: 1rem;
     border: 1px solid var(--line);
     border-radius: var(--radius-lg);
     background: var(--sidebar-bg);
     box-shadow: var(--shadow);
+    scrollbar-width: thin;
+    scrollbar-color: rgba(30, 164, 221, 0.52) rgba(255, 255, 255, 0.08);
+}
+
+.docs-sidebar::-webkit-scrollbar {
+    width: 10px;
+}
+
+.docs-sidebar::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 999px;
+}
+
+.docs-sidebar::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, rgba(30, 164, 221, 0.72), rgba(19, 143, 203, 0.72));
+    border-radius: 999px;
+    border: 2px solid rgba(0, 0, 0, 0);
+    background-clip: padding-box;
+}
+
+.docs-sidebar::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, rgba(30, 164, 221, 0.88), rgba(19, 143, 203, 0.88));
+    border: 2px solid rgba(0, 0, 0, 0);
+    background-clip: padding-box;
 }
 
 .sidebar-block + .sidebar-block {
@@ -763,8 +925,11 @@ li + li {
 }
 
 .site-footer {
+    margin-top: 1.1rem;
     border-top: 1px solid var(--line);
     background: var(--footer-bg);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
 }
 
 .back-to-top {
@@ -812,15 +977,21 @@ li + li {
 }
 
 .site-footer-inner {
-    max-width: 1360px;
-    margin: 0 auto;
-    padding: 1rem 1.25rem 1.5rem;
+    width: 100%;
+    margin: 0;
+    padding: 1rem 1rem 1.2rem;
     display: flex;
-    justify-content: space-between;
-    gap: 0.75rem;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 0.35rem;
     color: var(--text-muted);
     font-size: 0.84rem;
-    flex-wrap: wrap;
+    text-align: right;
+}
+
+.site-footer-inner p {
+    margin: 0;
 }
 
 @media (max-width: 1200px) {
@@ -831,9 +1002,14 @@ li + li {
     .docs-toc {
         display: none;
     }
+
 }
 
 @media (max-width: 980px) {
+    .docs-search {
+        width: min(320px, 52vw);
+    }
+
     .mobile-nav-toggle {
         display: inline-flex;
     }
@@ -874,9 +1050,18 @@ li + li {
     .brand-logo {
         height: 32px;
     }
+
 }
 
 @media (max-width: 760px) {
+    .docs-search {
+        width: min(250px, 58vw);
+    }
+
+    .docs-search-shortcut {
+        display: none;
+    }
+
     .theme-option-label {
         display: none;
     }
@@ -890,6 +1075,14 @@ li + li {
 @media (max-width: 620px) {
     .topbar-inner {
         padding: 0.78rem 0.95rem;
+    }
+
+    .docs-search {
+        width: min(180px, 42vw);
+    }
+
+    .repo-stars-link {
+        display: none;
     }
 
     .brand-text {

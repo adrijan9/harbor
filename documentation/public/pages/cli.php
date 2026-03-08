@@ -173,11 +173,35 @@ require __DIR__.'/../shared/header.php';
 </section>
 
 <section class="docs-section">
+    <h2><code>bin/harbor-docs-index</code></h2>
+    <h3>Example</h3>
+    <pre><code class="language-bash">./bin/harbor-docs-index
+./bin/harbor-docs-index --output=documentation/public/assets/search-index.json</code></pre>
+    <h3>What it does</h3>
+    <p>Builds the docs search index JSON from <code>documentation/.router</code> and page files.</p>
+    <h3>API</h3>
+    <details class="api-details">
+        <summary class="api-summary">
+            <span>Docs Search Index CLI API</span>
+            <span class="api-state"><span class="api-state-closed">Hidden - click to open</span><span class="api-state-open">Open</span></span>
+        </summary>
+        <div class="api-body">
+            <ul class="api-method-list">
+                <li><code>./bin/harbor-docs-index</code> Generate <code>documentation/public/assets/search-index.json</code>.</li>
+                <li><code>--output=PATH</code> Write the generated JSON to a custom path.</li>
+                <li><code>Re-index after docs edits</code> Run this command after every docs content change so search results stay accurate.</li>
+            </ul>
+        </div>
+    </details>
+</section>
+
+<section class="docs-section">
     <h2>Dev Workflow</h2>
     <h3>Example</h3>
     <pre><code class="language-bash">composer test
 ./vendor/bin/php-cs-fixer fix --using-cache=no --sequential
 ./bin/harbor documentation/.router
+./bin/harbor-docs-index
 cd my-site && ../bin/harbor-config
 cd my-site && ../bin/harbor-fixer
 cd my-site && ../bin/harbor-migration
@@ -196,6 +220,7 @@ cd my-site && ../bin/harbor-seed
                 <li><code>composer test</code> Run PHPUnit suite.</li>
                 <li><code>./vendor/bin/php-cs-fixer fix --using-cache=no --sequential</code> Apply coding style fixes.</li>
                 <li><code>./bin/harbor documentation/.router</code> Compile docs route file.</li>
+                <li><code>./bin/harbor-docs-index</code> Rebuild docs search index JSON after docs updates.</li>
                 <li><code>cd my-site &amp;&amp; ../bin/harbor-config</code> Publish selected runtime config templates into that site <code>config/</code>.</li>
                 <li><code>cd my-site &amp;&amp; ../bin/harbor-fixer</code> Publish Harbor <code>.php-cs-fixer.dist.php</code> preset into that site root.</li>
                 <li><code>cd my-site &amp;&amp; ../bin/harbor-migration</code> Run pending migrations.</li>

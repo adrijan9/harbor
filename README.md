@@ -43,6 +43,12 @@ The documentation site is not publish on the server because it is meant to be a 
 ```
 This command will serve the documentation site on `http://localhost:<SOME_PORT>`, where you can explore the core concepts, API references, and examples in detail.
 
+Docs search index is generated locally:
+```bash
+./bin/harbor-docs-index
+```
+Run this after every documentation content change so search results stay in sync.
+
 ## Core Building Blocks
 
 - `Router` runtime:
@@ -78,6 +84,7 @@ This command will serve the documentation site on `http://localhost:<SOME_PORT>`
   - `bin/harbor-migration` creates/runs/rolls back migration files tracked in `migrations` table
   - `bin/harbor-seed` creates/runs/rolls back seeder files tracked in `seeders` table
   - `bin/harbor-docs` serves the local docs site
+  - `bin/harbor-docs-index` rebuilds `documentation/public/assets/search-index.json`
 
 ## Project Layout
 
@@ -242,6 +249,7 @@ Current model:
 composer test # run PHPUnit tests
 ./vendor/bin/php-cs-fixer fix # run PHP CS Fixer
 ./bin/harbor documentation/.router # compile docs routes
+./bin/harbor-docs-index # rebuild docs search index after docs changes
 cd my-site && ../bin/harbor-config # publish runtime config templates
 cd my-site && ../bin/harbor-fixer # publish .php-cs-fixer.dist.php preset from Harbor root config
 cd my-site && ../bin/harbor-migration # run pending migrations

@@ -8,6 +8,11 @@
     const toc_nav = document.getElementById('docs_toc_nav');
     const back_to_top_button = document.getElementById('back_to_top');
     const repo_star_count = document.getElementById('repo_star_count');
+    const search_form = document.getElementById('docs_search_form');
+    const search_input = document.getElementById('docs_search_input');
+    const search_results = document.getElementById('docs_search_results');
+    const search_status = document.getElementById('docs_search_status');
+    const search_results_list = document.getElementById('docs_search_results_list');
     const hljs_theme_light = document.getElementById('hljs_theme_light');
     const hljs_theme_dark = document.getElementById('hljs_theme_dark');
     const system_theme_query = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
@@ -138,6 +143,7 @@
     load_theme_mode();
     init_code_highlight();
     setup_repo_star_count();
+    setup_docs_search();
 
     theme_option_buttons.forEach((button) => {
         button.addEventListener('click', () => {
@@ -158,6 +164,355 @@
         } else if ('function' === typeof system_theme_query.addListener) {
             system_theme_query.addListener(on_system_theme_change);
         }
+    }
+
+    function setup_docs_search() {
+        if (!search_form || !search_input || !search_results || !search_status || !search_results_list) {
+            return;
+        }
+
+        let search_items = [];
+        let search_index_loaded = false;
+        let search_index_failed = false;
+        let last_query = '';
+        let active_result_index = -1;
+
+        const normalize_text = (value) => String(value || '').toLowerCase().trim();
+        const result_links = () => Array.from(search_results_list.querySelectorAll('.docs-search-result-link'));
+
+        const clear_active_result = () => {
+            active_result_index = -1;
+
+            result_links().forEach((link) => {
+                link.classList.remove('is-active');
+                link.setAttribute('aria-selected', 'false');
+            });
+        };
+
+        const set_active_result = (index, should_scroll = false) => {
+            const links = result_links();
+
+            if (0 === links.length) {
+                clear_active_result();
+
+                return;
+            }
+
+            const normalized_index = Math.max(0, Math.min(index, links.length - 1));
+            active_result_index = normalized_index;
+
+            links.forEach((link, link_index) => {
+                const is_active = link_index === normalized_index;
+                link.classList.toggle('is-active', is_active);
+                link.setAttribute('aria-selected', is_active ? 'true' : 'false');
+
+                if (is_active && should_scroll) {
+                    link.scrollIntoView({
+                        block: 'nearest',
+                        inline: 'nearest',
+                    });
+                }
+            });
+        };
+
+        const show_results = () => {
+            search_results.hidden = false;
+        };
+
+        const hide_results = () => {
+            search_results.hidden = true;
+            search_results_list.innerHTML = '';
+            search_status.textContent = 'Type to search docs.';
+            search_status.hidden = false;
+            clear_active_result();
+        };
+
+        const set_status = (message) => {
+            search_results_list.innerHTML = '';
+            search_status.textContent = message;
+            search_status.hidden = false;
+            clear_active_result();
+            show_results();
+        };
+
+        const result_snippet = (item, query_tokens) => {
+            const content = String(item.content || '');
+            if ('' === content) {
+                return '';
+            }
+
+            const lower_content = content.toLowerCase();
+            let first_match_index = -1;
+
+            query_tokens.forEach((token) => {
+                const index = lower_content.indexOf(token);
+                if (index >= 0 && (-1 === first_match_index || index < first_match_index)) {
+                    first_match_index = index;
+                }
+            });
+
+            if (-1 === first_match_index) {
+                return content.slice(0, 130);
+            }
+
+            const snippet_start = Math.max(0, first_match_index - 38);
+            const snippet = content.slice(snippet_start, snippet_start + 150).trim();
+
+            return snippet_start > 0 ? `...${snippet}` : snippet;
+        };
+
+        const score_item = (item, query_tokens) => {
+            const title_text = normalize_text(item.title);
+            const path_text = normalize_text(item.path);
+            const description_text = normalize_text(item.description);
+            const headings_text = normalize_text(Array.isArray(item.headings) ? item.headings.join(' ') : '');
+            const content_text = normalize_text(item.content);
+            const searchable = `${title_text} ${path_text} ${description_text} ${headings_text} ${content_text}`;
+
+            let score = 0;
+
+            for (const token of query_tokens) {
+                if (!searchable.includes(token)) {
+                    return null;
+                }
+
+                if (title_text.includes(token)) {
+                    score += 55;
+                }
+
+                if (path_text.includes(token)) {
+                    score += 30;
+                }
+
+                if (headings_text.includes(token)) {
+                    score += 20;
+                }
+
+                if (description_text.includes(token)) {
+                    score += 12;
+                }
+
+                if (content_text.includes(token)) {
+                    score += 4;
+                }
+            }
+
+            if (title_text.startsWith(query_tokens[0])) {
+                score += 18;
+            }
+
+            return {
+                item,
+                score,
+            };
+        };
+
+        const render_results = (query) => {
+            const normalized_query = normalize_text(query);
+            const query_tokens = normalized_query.split(/\s+/).filter((token) => '' !== token);
+
+            if (0 === query_tokens.length) {
+                hide_results();
+
+                return;
+            }
+
+            if (!search_index_loaded) {
+                set_status(search_index_failed ? 'Search index failed to load.' : 'Loading search index...');
+
+                return;
+            }
+
+            const scored_results = search_items
+                .map((item) => score_item(item, query_tokens))
+                .filter((candidate) => candidate && Number.isFinite(candidate.score))
+                .sort((left, right) => {
+                    if (right.score !== left.score) {
+                        return right.score - left.score;
+                    }
+
+                    return String(left.item.title || '').localeCompare(String(right.item.title || ''));
+                })
+                .slice(0, 8);
+
+            if (0 === scored_results.length) {
+                set_status(`No results for "${query}".`);
+
+                return;
+            }
+
+            search_results_list.innerHTML = '';
+            search_status.hidden = true;
+
+            scored_results.forEach((result, result_index) => {
+                const list_item = document.createElement('li');
+                list_item.className = 'docs-search-result-item';
+
+                const link = document.createElement('a');
+                link.className = 'docs-search-result-link';
+                link.href = String(result.item.path || '/');
+                link.dataset.resultIndex = String(result_index);
+                link.setAttribute('aria-selected', 'false');
+
+                const title = document.createElement('p');
+                title.className = 'docs-search-result-title';
+                title.textContent = String(result.item.title || result.item.path || '/');
+
+                const path = document.createElement('p');
+                path.className = 'docs-search-result-path';
+                path.textContent = String(result.item.path || '/');
+
+                const snippet = document.createElement('p');
+                snippet.className = 'docs-search-result-snippet';
+                snippet.textContent = result_snippet(result.item, query_tokens);
+
+                link.appendChild(title);
+                link.appendChild(path);
+                if ('' !== String(snippet.textContent || '').trim()) {
+                    link.appendChild(snippet);
+                }
+
+                list_item.appendChild(link);
+                search_results_list.appendChild(list_item);
+            });
+
+            clear_active_result();
+            show_results();
+        };
+
+        fetch('/assets/search-index.json', { cache: 'no-cache' })
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error(`Search index response: ${response.status}`);
+                }
+
+                return response.json();
+            })
+            .then((payload) => {
+                const items = payload && Array.isArray(payload.items) ? payload.items : [];
+                search_items = items
+                    .filter((item) => item && 'object' === typeof item)
+                    .map((item) => ({
+                        path: String(item.path || '/'),
+                        title: String(item.title || item.path || '/'),
+                        description: String(item.description || ''),
+                        headings: Array.isArray(item.headings) ? item.headings.map((heading) => String(heading || '')) : [],
+                        content: String(item.content || ''),
+                    }));
+                search_index_loaded = true;
+
+                if ('' !== last_query.trim()) {
+                    render_results(last_query);
+                }
+            })
+            .catch(() => {
+                search_index_loaded = true;
+                search_index_failed = true;
+
+                if ('' !== last_query.trim()) {
+                    set_status('Search index failed to load.');
+                }
+            });
+
+        search_form.addEventListener('submit', (event) => {
+            event.preventDefault();
+            render_results(search_input.value || '');
+        });
+
+        search_input.addEventListener('input', () => {
+            last_query = search_input.value || '';
+            render_results(last_query);
+        });
+
+        search_input.addEventListener('focus', () => {
+            if ('' !== (search_input.value || '').trim()) {
+                render_results(search_input.value || '');
+            }
+        });
+
+        search_input.addEventListener('keydown', (event) => {
+            const links = result_links();
+
+            if ('ArrowDown' === event.key || 'ArrowUp' === event.key) {
+                if (0 === links.length) {
+                    return;
+                }
+
+                event.preventDefault();
+
+                if ('ArrowDown' === event.key) {
+                    const next_index = -1 === active_result_index ? 0 : (active_result_index + 1) % links.length;
+                    set_active_result(next_index, true);
+
+                    return;
+                }
+
+                const previous_index = -1 === active_result_index
+                    ? links.length - 1
+                    : (active_result_index - 1 + links.length) % links.length;
+                set_active_result(previous_index, true);
+
+                return;
+            }
+
+            if ('Enter' === event.key && active_result_index >= 0) {
+                const selected_link = links[active_result_index] || null;
+                if (!selected_link) {
+                    return;
+                }
+
+                event.preventDefault();
+                window.location.assign(selected_link.href);
+            }
+        });
+
+        search_results_list.addEventListener('mousemove', (event) => {
+            const target = event.target;
+            const hovered_link = target instanceof HTMLElement ? target.closest('.docs-search-result-link') : null;
+
+            if (!hovered_link) {
+                return;
+            }
+
+            const hovered_index = Number.parseInt(hovered_link.dataset.resultIndex || '-1', 10);
+            if (Number.isInteger(hovered_index) && hovered_index >= 0) {
+                set_active_result(hovered_index, false);
+            }
+        });
+
+        search_results_list.addEventListener('click', () => {
+            hide_results();
+        });
+
+        document.addEventListener('click', (event) => {
+            if (!search_form.contains(event.target)) {
+                hide_results();
+            }
+        });
+
+        document.addEventListener('keydown', (event) => {
+            if ('/' === event.key) {
+                const target = event.target;
+                const tag_name = target && target.tagName ? target.tagName.toLowerCase() : '';
+                const is_form_element = ['input', 'textarea', 'select'].includes(tag_name);
+                const is_editable = Boolean(target && target.isContentEditable);
+
+                if (is_form_element || is_editable) {
+                    return;
+                }
+
+                event.preventDefault();
+                search_input.focus();
+                search_input.select();
+
+                return;
+            }
+
+            if ('Escape' === event.key && search_form.contains(document.activeElement)) {
+                hide_results();
+                search_input.blur();
+            }
+        });
     }
 
     const build_page_toc = () => {

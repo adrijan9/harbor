@@ -4,6 +4,13 @@ declare(strict_types=1);
 
 $current_year = (int) date('Y');
 ?>
+
+        <footer class="site-footer">
+            <div class="site-footer-inner">
+                <p>Harbor Documentation</p>
+                <p>&copy; <?php echo $current_year; ?> Built for practical PHP applications.</p>
+            </div>
+        </footer>
     </main>
 
     <aside id="docs_toc" class="docs-toc" aria-label="On this page">
@@ -11,13 +18,6 @@ $current_year = (int) date('Y');
         <nav id="docs_toc_nav" class="toc-nav" aria-label="Page sections"></nav>
     </aside>
 </div>
-
-<footer class="site-footer">
-    <div class="site-footer-inner">
-        <p>Harbor Documentation</p>
-        <p>&copy; <?php echo $current_year; ?> Built for practical PHP applications.</p>
-    </div>
-</footer>
 
 <button id="back_to_top" class="back-to-top" type="button" aria-label="Back to top" title="Back to top">
     <svg viewBox="0 0 24 24" aria-hidden="true">

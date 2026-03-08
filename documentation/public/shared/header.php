@@ -102,6 +102,25 @@ $docs_navigation = [
         </a>
 
         <div class="topbar-actions">
+            <form id="docs_search_form" class="docs-search" role="search" action="#" method="get" onsubmit="return false;">
+                <label class="docs-search-label" for="docs_search_input">Search documentation</label>
+                <input
+                    id="docs_search_input"
+                    class="docs-search-input"
+                    type="search"
+                    name="q"
+                    placeholder="Search docs..."
+                    autocomplete="off"
+                    spellcheck="false"
+                    aria-label="Search documentation"
+                >
+                <kbd class="docs-search-shortcut" aria-hidden="true">/</kbd>
+                <div id="docs_search_results" class="docs-search-results" hidden>
+                    <p id="docs_search_status" class="docs-search-status">Type to search docs.</p>
+                    <ul id="docs_search_results_list" class="docs-search-results-list" aria-label="Search results"></ul>
+                </div>
+            </form>
+
             <div id="theme_switcher" class="theme-switcher" role="group" aria-label="Theme Mode">
                 <button class="theme-option" type="button" data-theme-choice="light" aria-pressed="false" title="Light theme">
                     <svg class="theme-option-icon" viewBox="0 0 24 24" aria-hidden="true">

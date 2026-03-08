@@ -4,6 +4,7 @@
     "bin": [
         "bin/harbor",
         "bin/harbor-docs",
+        "bin/harbor-docs-index",
         "bin/harbor-config",
         "bin/harbor-fixer",
         "bin/harbor-migration",
