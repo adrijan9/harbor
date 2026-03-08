@@ -18,6 +18,7 @@ $docs_navigation = [
     ['id' => 'support', 'label' => 'Support', 'href' => '/support'],
     ['id' => 'date', 'label' => 'Date', 'href' => '/date'],
     ['id' => 'pipeline', 'label' => 'Pipeline', 'href' => '/pipeline'],
+    ['id' => 'middleware', 'label' => 'Middleware', 'href' => '/middleware'],
     ['id' => 'validation', 'label' => 'Validation', 'href' => '/validation'],
     ['id' => 'request', 'label' => 'Request', 'href' => '/request'],
     ['id' => 'response', 'label' => 'Response', 'href' => '/response'],

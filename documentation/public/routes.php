@@ -72,6 +72,12 @@ return [
             'entry' => 'pages/pipeline.php',
         ],
         [
+            'path' => '/middleware',
+            'method' => 'GET',
+            'name' => 'docs.middleware',
+            'entry' => 'pages/middleware.php',
+        ],
+        [
             'path' => '/validation',
             'method' => 'GET',
             'name' => 'docs.validation',

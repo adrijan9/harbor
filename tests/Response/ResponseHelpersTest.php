@@ -5,14 +5,15 @@ declare(strict_types=1);
 namespace Harbor\Tests\Response;
 
 use Harbor\HelperLoader;
+use Harbor\Response\ResponseStatus;
 use Harbor\Validation\ValidationResult;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\Attributes\BeforeClass;
 use PHPUnit\Framework\TestCase;
 
-use function Harbor\Response\response_file;
 use function Harbor\Response\response_download;
+use function Harbor\Response\response_file;
 use function Harbor\Response\response_header;
 use function Harbor\Response\response_json;
 use function Harbor\Response\response_status;
@@ -35,6 +36,13 @@ final class ResponseHelpersTest extends TestCase
     public function test_response_status_sets_http_status_code(): void
     {
         response_status(204);
+
+        self::assertSame(204, http_response_code());
+    }
+
+    public function test_response_status_accepts_response_status_enum(): void
+    {
+        response_status(ResponseStatus::NO_CONTENT);
 
         self::assertSame(204, http_response_code());
     }
@@ -193,6 +201,40 @@ final class ResponseHelpersTest extends TestCase
 
         self::assertSame('Validation failed.', $output);
         self::assertSame(422, http_response_code());
+    }
+
+    public function test_abort_stops_execution_and_outputs_content_in_subprocess(): void
+    {
+        $script_path = $this->workspace_path.'/abort_test.php';
+        $autoload_path = dirname(__DIR__, 2).'/vendor/autoload.php';
+
+        $script_content = <<<'PHP'
+            <?php
+
+            declare(strict_types=1);
+
+            require %s;
+
+            \Harbor\HelperLoader::load('response');
+
+            echo 'before|';
+            \Harbor\Response\abort(\Harbor\Response\ResponseStatus::NOT_FOUND, 'Not Found');
+            echo '|after';
+            PHP;
+
+        $written = file_put_contents(
+            $script_path,
+            sprintf($script_content, var_export($autoload_path, true))
+        );
+        self::assertNotFalse($written);
+
+        $command = escapeshellarg(PHP_BINARY).' '.escapeshellarg($script_path);
+        $output_lines = [];
+        $exit_code = 0;
+        exec($command, $output_lines, $exit_code);
+
+        self::assertSame(0, $exit_code);
+        self::assertSame('before|Not Found', implode(PHP_EOL, $output_lines));
     }
 
     #[Before]

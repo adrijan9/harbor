@@ -32,6 +32,7 @@ final class HelperLoaderTest extends TestCase
         self::assertContains('array', $helpers);
         self::assertContains('carbon', $helpers);
         self::assertContains('pipeline', $helpers);
+        self::assertContains('middleware', $helpers);
         self::assertContains('request', $helpers);
         self::assertContains('response', $helpers);
         self::assertContains('db', $helpers);
@@ -90,6 +91,8 @@ final class HelperLoaderTest extends TestCase
         self::assertTrue(function_exists('Harbor\Response\response_file'));
         self::assertTrue(function_exists('Harbor\Response\response_download'));
         self::assertTrue(function_exists('Harbor\Response\response_validation'));
+        self::assertTrue(function_exists('Harbor\Response\abort'));
+        self::assertTrue(class_exists('Harbor\Response\ResponseStatus'));
     }
 
     public function test_load_validation_helper_registers_namespaced_functions(): void
@@ -205,6 +208,13 @@ final class HelperLoaderTest extends TestCase
         self::assertTrue(function_exists('Harbor\Pipeline\pipeline_through'));
         self::assertTrue(function_exists('Harbor\Pipeline\pipeline_clog'));
         self::assertTrue(function_exists('Harbor\Pipeline\pipeline_get'));
+    }
+
+    public function test_load_middleware_helper_registers_namespaced_functions(): void
+    {
+        HelperLoader::load('middleware');
+
+        self::assertTrue(function_exists('Harbor\Middleware\middleware'));
     }
 
     public function test_load_filesystem_helper_registers_namespaced_functions(): void

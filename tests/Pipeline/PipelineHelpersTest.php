@@ -101,4 +101,56 @@ final class PipelineHelpersTest extends TestCase
         self::assertSame('done', $pipeline['result']);
         self::assertSame('done', pipeline_get());
     }
+
+    public function test_pipeline_accepts_invokable_class_actions(): void
+    {
+        $pipeline = pipeline_new();
+        $action = new class {
+            public function __invoke(string $payload, callable $next): string
+            {
+                return $next($payload.'-class');
+            }
+        };
+
+        pipeline_send($pipeline, 'request');
+        pipeline_through($pipeline, $action);
+        pipeline_clog($pipeline);
+
+        self::assertSame('request-class', $pipeline['result']);
+        self::assertSame('request-class', pipeline_get());
+    }
+
+    public function test_pipeline_accepts_invokable_class_factories_returning_callback(): void
+    {
+        $pipeline = pipeline_new();
+        $factory_action = new class {
+            public function __invoke(): callable
+            {
+                return static fn (string $payload, callable $next): string => $next($payload.'-factory');
+            }
+        };
+
+        pipeline_send($pipeline, 'request');
+        pipeline_through($pipeline, $factory_action);
+        pipeline_clog($pipeline);
+
+        self::assertSame('request-factory', $pipeline['result']);
+        self::assertSame('request-factory', pipeline_get());
+    }
+
+    public function test_pipeline_throws_for_invalid_invokable_class_factory_result(): void
+    {
+        $pipeline = pipeline_new();
+        $invalid_factory_action = new class {
+            public function __invoke(): string
+            {
+                return 'invalid';
+            }
+        };
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Invokable pipeline action factory must return a callable.');
+
+        pipeline_through($pipeline, $invalid_factory_action);
+    }
 }

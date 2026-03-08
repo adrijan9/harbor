@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 $page_title = 'Harbor Docs - Pipeline Helpers';
-$page_description = 'Function-based middleware pipeline helpers for before/after request lifecycle flows.';
+$page_description = 'Function-based pipeline helpers for before/after action flows.';
 $page_id = 'pipeline';
 
 require __DIR__.'/../shared/header.php';
@@ -12,7 +12,7 @@ require __DIR__.'/../shared/header.php';
 <section class="hero">
     <span class="hero-eyebrow">namespace: pipeline</span>
     <h1>Pipeline Helpers</h1>
-    <p>Build a middleware-style pipeline with plain functions, without a class-based kernel.</p>
+    <p>Build pipeline flows with plain functions.</p>
 </section>
 
 <section class="docs-section">
@@ -72,6 +72,8 @@ function pipeline_get(): mixed</code></pre>
     <ul class="api-method-list">
         <li>Load with <code>HelperLoader::load('pipeline')</code>.</li>
         <li>Each action receives passable arguments plus <code>callable $next</code> as the last parameter.</li>
+        <li>You can pass closures or invokable class instances.</li>
+        <li>Invokable class factories are supported: <code>__invoke(): callable</code>.</li>
         <li>If <code>$next()</code> is called without arguments, current passable values continue unchanged.</li>
     </ul>
 </section>

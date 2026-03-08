@@ -78,6 +78,13 @@
 </route>
 
 <route>
+  path: /middleware
+  method: GET
+  name: docs.middleware
+  entry: pages/middleware.php
+</route>
+
+<route>
   path: /validation
   method: GET
   name: docs.validation

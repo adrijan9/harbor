@@ -4,19 +4,24 @@ declare(strict_types=1);
 
 namespace Harbor\Response;
 
+use Harbor\Validation\ValidationResult;
+
+require_once __DIR__.'/ResponseStatus.php';
+
 require_once __DIR__.'/../Support/value.php';
+
 require_once __DIR__.'/../Validation/ValidationResult.php';
 
 use function Harbor\Support\harbor_is_blank;
 use function Harbor\Support\harbor_is_null;
 
-function response_status(int $status): void
+function response_status(int|ResponseStatus $status): void
 {
     if (headers_sent()) {
         return;
     }
 
-    http_response_code($status);
+    http_response_code(response_resolve_status_code($status));
 }
 
 function response_header(string $name, string $value, bool $replace = true): void
@@ -33,7 +38,7 @@ function response_header(string $name, string $value, bool $replace = true): voi
     header($normalized_name.': '.$value, $replace);
 }
 
-function response_json(array $payload, int $status = 200, array $headers = []): void
+function response_json(array $payload, int|ResponseStatus $status = ResponseStatus::OK, array $headers = []): void
 {
     response_status($status);
 
@@ -51,7 +56,7 @@ function response_json(array $payload, int $status = 200, array $headers = []): 
     echo is_string($json_content) ? $json_content : '{}';
 }
 
-function response_text(string $content, int $status = 200, array $headers = []): void
+function response_text(string $content, int|ResponseStatus $status = ResponseStatus::OK, array $headers = []): void
 {
     response_status($status);
 
@@ -108,8 +113,11 @@ function response_download(string $file_path, ?string $download_name = null, arr
     response_file($file_path, $resolved_download_name, $headers);
 }
 
-function response_validation(\Harbor\Validation\ValidationResult $result, int $status = 422, array $headers = []): void
-{
+function response_validation(
+    ValidationResult $result,
+    int|ResponseStatus $status = ResponseStatus::UNPROCESSABLE_CONTENT,
+    array $headers = [],
+): void {
     $payload = [
         'message' => 'Validation failed.',
         'errors' => $result->errors(),
@@ -130,6 +138,23 @@ function response_validation(\Harbor\Validation\ValidationResult $result, int $s
     response_apply_headers($headers);
 
     echo $payload['message'];
+}
+
+function abort(int|ResponseStatus $status, ?string $content = null): never
+{
+    $resolved_status = response_resolve_status_code($status);
+    response_status($resolved_status);
+
+    $error_page_path = response_resolve_abort_error_page_path($resolved_status);
+    if (is_string($error_page_path)) {
+        require $error_page_path;
+
+        exit;
+    }
+
+    echo response_resolve_abort_content($resolved_status, $content);
+
+    exit;
 }
 
 function response_apply_headers(array $headers): void
@@ -234,9 +259,60 @@ function response_request_prefers_json(): bool
     }
 
     $requested_with = $_SERVER['HTTP_X_REQUESTED_WITH'] ?? null;
-    if (is_string($requested_with) && strtolower(trim($requested_with)) === 'xmlhttprequest') {
+    if (is_string($requested_with) && 'xmlhttprequest' === strtolower(trim($requested_with))) {
         return true;
     }
 
     return false;
+}
+
+function response_resolve_abort_content(int|ResponseStatus $status, ?string $content = null): string
+{
+    if (is_string($content)) {
+        $normalized_content = trim($content);
+        if (! harbor_is_blank($normalized_content)) {
+            return $normalized_content;
+        }
+    }
+
+    return ResponseStatus::message_for($status);
+}
+
+function response_resolve_abort_error_page_path(int $status): ?string
+{
+    $error_page_name = sprintf('%d.php', $status);
+    $candidates = [];
+
+    $document_root = $_SERVER['DOCUMENT_ROOT'] ?? null;
+    if (is_string($document_root) && ! harbor_is_blank($document_root)) {
+        $normalized_document_root = rtrim($document_root, '/');
+        $candidates[] = $normalized_document_root.'/pages/error/'.$error_page_name;
+        $candidates[] = $normalized_document_root.'/error/'.$error_page_name;
+    }
+
+    $script_filename = $_SERVER['SCRIPT_FILENAME'] ?? null;
+    if (is_string($script_filename) && ! harbor_is_blank($script_filename)) {
+        $script_directory = dirname($script_filename);
+        $candidates[] = $script_directory.'/pages/error/'.$error_page_name;
+        $candidates[] = $script_directory.'/error/'.$error_page_name;
+    }
+
+    $candidates[] = __DIR__.'/../../public/pages/error/'.$error_page_name;
+
+    foreach ($candidates as $candidate) {
+        if (is_file($candidate)) {
+            return $candidate;
+        }
+    }
+
+    return null;
+}
+
+function response_resolve_status_code(int|ResponseStatus $status): int
+{
+    if ($status instanceof ResponseStatus) {
+        return $status->value;
+    }
+
+    return $status;
 }

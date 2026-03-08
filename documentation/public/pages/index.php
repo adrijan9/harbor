@@ -63,7 +63,11 @@ require __DIR__.'/../shared/header.php';
         </a>
         <a class="card" href="/pipeline">
             <h3>Pipeline Helpers</h3>
-            <p>Function-based middleware pipeline for before/after request flows.</p>
+            <p>Functional pipeline helpers for composing action chains.</p>
+        </a>
+        <a class="card" href="/middleware">
+            <h3>Middleware Helpers</h3>
+            <p>Run request middleware callbacks backed by the pipeline engine.</p>
         </a>
         <a class="card" href="/validation">
             <h3>Validation</h3>

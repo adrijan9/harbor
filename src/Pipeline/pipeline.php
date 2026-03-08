@@ -27,7 +27,7 @@ function pipeline_through(array &$pipeline, callable ...$actions): void
 {
     pipeline_bootstrap($pipeline);
 
-    $pipeline['actions'] = array_values($actions);
+    $pipeline['actions'] = pipeline_prepare_actions($actions);
     $pipeline['result'] = null;
     $pipeline['closed'] = false;
 }
@@ -101,6 +101,36 @@ function pipeline_finalize_passable(array $passable): mixed
     }
 
     return $passable;
+}
+
+function pipeline_prepare_actions(array $actions): array
+{
+    $prepared_actions = [];
+
+    foreach ($actions as $action) {
+        $prepared_actions[] = pipeline_prepare_action($action);
+    }
+
+    return $prepared_actions;
+}
+
+function pipeline_prepare_action(callable $action): callable
+{
+    if (! is_object($action) || ! method_exists($action, '__invoke')) {
+        return $action;
+    }
+
+    $invoke_reflection = new \ReflectionMethod($action, '__invoke');
+    if (0 !== $invoke_reflection->getNumberOfRequiredParameters()) {
+        return $action;
+    }
+
+    $resolved_action = $action();
+    if (! is_callable($resolved_action)) {
+        throw new \InvalidArgumentException('Invokable pipeline action factory must return a callable.');
+    }
+
+    return $resolved_action;
 }
 
 function pipeline_result_global_key(): string

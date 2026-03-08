@@ -62,7 +62,12 @@ HelperLoader::load('cache');</code></pre>
             <tr>
                 <td><code>pipeline</code></td>
                 <td><code>Harbor\Pipeline</code></td>
-                <td>Function-based middleware pipeline helpers for before/after request flows.</td>
+                <td>Functional pipeline primitives (<code>pipeline_new()</code>, <code>pipeline_send()</code>, <code>pipeline_through()</code>, <code>pipeline_clog()</code>, <code>pipeline_get()</code>).</td>
+            </tr>
+            <tr>
+                <td><code>middleware</code></td>
+                <td><code>Harbor\Middleware</code></td>
+                <td>Runs request middleware callbacks on top of the pipeline engine (closures and invokable classes).</td>
             </tr>
             <tr>
                 <td><code>request</code></td>
@@ -72,7 +77,7 @@ HelperLoader::load('cache');</code></pre>
             <tr>
                 <td><code>response</code></td>
                 <td><code>Harbor\Response</code></td>
-                <td>HTTP response helpers.</td>
+                <td>HTTP response helpers, full official <code>ResponseStatus</code> enum set, and <code>abort()</code>.</td>
             </tr>
             <tr>
                 <td><code>db</code>, <code>database</code>, <code>db_sqlite</code>, <code>db_mysql_pdo</code>, <code>db_mysqli</code></td>

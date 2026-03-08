@@ -74,6 +74,8 @@ final class HelperLoader
             'carbon' => __DIR__.'/Date/date.php',
             // Pipeline
             'pipeline' => __DIR__.'/Pipeline/pipeline.php',
+            // Middleware
+            'middleware' => __DIR__.'/Middleware/middleware.php',
             // Request
             'request' => __DIR__.'/Request/request.php',
             // Response
