@@ -99,6 +99,27 @@
 </route>
 
 <route>
+  path: /cookie
+  method: GET
+  name: docs.cookie
+  entry: pages/cookie.php
+</route>
+
+<route>
+  path: /session
+  method: GET
+  name: docs.session
+  entry: pages/session.php
+</route>
+
+<route>
+  path: /password
+  method: GET
+  name: docs.password
+  entry: pages/password.php
+</route>
+
+<route>
   path: /response
   method: GET
   name: docs.response

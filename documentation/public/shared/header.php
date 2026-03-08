@@ -24,6 +24,7 @@ $docs_navigation = [
     ['id' => 'request', 'label' => 'Request', 'href' => '/request'],
     ['id' => 'cookie', 'label' => 'Cookie', 'href' => '/cookie'],
     ['id' => 'session', 'label' => 'Session', 'href' => '/session'],
+    ['id' => 'password', 'label' => 'Password', 'href' => '/password'],
     ['id' => 'response', 'label' => 'Response', 'href' => '/response'],
     ['id' => 'performance', 'label' => 'Performance', 'href' => '/performance'],
     ['id' => 'units', 'label' => 'Units', 'href' => '/units'],

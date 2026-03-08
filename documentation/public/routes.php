@@ -102,6 +102,12 @@ return [
             'entry' => 'pages/session.php',
         ],
         [
+            'path' => '/password',
+            'method' => 'GET',
+            'name' => 'docs.password',
+            'entry' => 'pages/password.php',
+        ],
+        [
             'path' => '/response',
             'method' => 'GET',
             'name' => 'docs.response',

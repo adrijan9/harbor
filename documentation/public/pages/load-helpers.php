@@ -86,6 +86,11 @@ HelperLoader::load('cache');</code></pre>
                 <td>Simplified session helpers driven by <code>session</code> config with <code>cookie</code>, <code>array</code>, and <code>file</code> drivers.</td>
             </tr>
             <tr>
+                <td><code>password</code></td>
+                <td><code>Harbor\Password</code></td>
+                <td>Password hash/verify wrappers, enum-based algorithm selection, and direct shortcuts (<code>bcrypt()</code>, <code>argon2i()</code>, <code>argon2id()</code>).</td>
+            </tr>
+            <tr>
                 <td><code>response</code></td>
                 <td><code>Harbor\Response</code></td>
                 <td>HTTP response helpers, full official <code>ResponseStatus</code> enum set, and <code>abort()</code>.</td>

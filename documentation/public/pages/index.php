@@ -49,6 +49,10 @@ require __DIR__.'/../shared/header.php';
             <h3>Session Helpers</h3>
             <p>Simplified sessions with cookie, array, and file drivers.</p>
         </a>
+        <a class="card" href="/password">
+            <h3>Password Helpers</h3>
+            <p>Password hashing and verification wrappers around PHP password APIs.</p>
+        </a>
         <a class="card" href="/config">
             <h3>Config Helpers</h3>
             <p>Load one or many config files and read typed values from env.</p>

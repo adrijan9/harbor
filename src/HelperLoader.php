@@ -82,6 +82,8 @@ final class HelperLoader
             'cookie' => __DIR__.'/Cookie/cookie.php',
             // Session
             'session' => __DIR__.'/Session/session.php',
+            // Password
+            'password' => __DIR__.'/Password/password.php',
             // Response
             'response' => __DIR__.'/Response/response.php',
             // Database

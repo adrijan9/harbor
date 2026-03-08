@@ -36,6 +36,7 @@ final class HelperLoaderTest extends TestCase
         self::assertContains('request', $helpers);
         self::assertContains('cookie', $helpers);
         self::assertContains('session', $helpers);
+        self::assertContains('password', $helpers);
         self::assertContains('response', $helpers);
         self::assertContains('db', $helpers);
         self::assertContains('database', $helpers);
@@ -100,6 +101,19 @@ final class HelperLoaderTest extends TestCase
         self::assertTrue(function_exists('Harbor\Session\session_set'));
         self::assertTrue(function_exists('Harbor\Session\session_get'));
         self::assertTrue(function_exists('Harbor\Session\session_forget'));
+    }
+
+    public function test_load_password_helper_registers_namespaced_functions(): void
+    {
+        HelperLoader::load('password');
+
+        self::assertTrue(function_exists('Harbor\Password\password_hash'));
+        self::assertTrue(function_exists('Harbor\Password\password_verify'));
+        self::assertTrue(function_exists('Harbor\Password\password_needs_rehash'));
+        self::assertTrue(function_exists('Harbor\Password\bcrypt'));
+        self::assertTrue(function_exists('Harbor\Password\argon2i'));
+        self::assertTrue(function_exists('Harbor\Password\argon2id'));
+        self::assertTrue(enum_exists('Harbor\Password\PasswordAlgorithm'));
     }
 
     public function test_load_response_helper_registers_namespaced_functions(): void
