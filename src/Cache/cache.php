@@ -20,7 +20,8 @@ use function Harbor\Config\config_resolve;
 use function Harbor\Support\harbor_is_blank;
 use function Harbor\Support\harbor_is_null;
 
-function cache_driver(string|CacheDriver $default_driver = CacheDriver::ARRAY): string
+/** Public */
+function cache_driver(CacheDriver|string $default_driver = CacheDriver::ARRAY): string
 {
     $resolved_default_driver = cache_resolve_driver($default_driver);
     if (harbor_is_null($resolved_default_driver)) {
@@ -143,6 +144,7 @@ function cache_count(): int
     return cache_array_count();
 }
 
+/** Private */
 function cache_resolve_driver(mixed $driver): ?CacheDriver
 {
     if ($driver instanceof CacheDriver) {

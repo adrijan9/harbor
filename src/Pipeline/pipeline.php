@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Harbor\Pipeline;
 
+/** Public */
 function pipeline_new(): array
 {
     return [
@@ -71,6 +72,7 @@ function pipeline_get(): mixed
     return $GLOBALS[pipeline_result_global_key()] ?? null;
 }
 
+/** Private */
 function pipeline_bootstrap(array &$pipeline): void
 {
     if (! isset($pipeline['passable']) || ! is_array($pipeline['passable'])) {

@@ -11,6 +11,7 @@ use function Harbor\Support\harbor_is_null;
 /**
  * Segment functions.
  */
+/** Public */
 function route_segment(int $index, mixed $default = null): mixed
 {
     $segments = route_segments();
@@ -182,6 +183,7 @@ function route_segment_exists(int $index): bool
     return array_key_exists($index, $segments);
 }
 
+/** Private */
 function route_segment_decode_json(string $value, bool $assoc): mixed
 {
     try {

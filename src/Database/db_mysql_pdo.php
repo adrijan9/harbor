@@ -14,6 +14,7 @@ use function Harbor\Support\array_first;
 use function Harbor\Support\array_last;
 use function Harbor\Support\harbor_is_blank;
 
+/** Public */
 function db_mysql_connect(
     string $host,
     string $user,
@@ -128,6 +129,7 @@ function db_mysql_objects(\PDO $connection, string $sql, array $bindings = []): 
     return is_array($rows) ? $rows : [];
 }
 
+/** Private */
 function db_mysql_prepare_and_execute(\PDO $connection, string $sql, array $bindings = []): \PDOStatement
 {
     $normalized_sql = trim($sql);

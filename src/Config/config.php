@@ -11,6 +11,7 @@ use function Harbor\Support\harbor_is_null;
 
 $config_global_file_path = null;
 
+/** Public */
 function config_init(string ...$config_files): void
 {
     if (empty($config_files)) {
@@ -119,6 +120,7 @@ function config_json(string $key, mixed $default = null): mixed
     return config_value_to_json(config_get($key), $default);
 }
 
+/** Private */
 function config_array_get(array $array, string $key, mixed $default = null): mixed
 {
     if (array_key_exists($key, $array)) {

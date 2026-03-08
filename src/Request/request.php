@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Harbor\Request;
 
 require_once __DIR__.'/../Support/array.php';
+
 require_once __DIR__.'/../Support/value.php';
 
 use function Harbor\Support\array_forget;
@@ -13,6 +14,7 @@ use function Harbor\Support\harbor_is_blank;
 /**
  * Full request snapshot.
  */
+/** Public */
 function request(): array
 {
     return [
@@ -578,6 +580,7 @@ function request_server(?string $key = null, mixed $default = null): mixed
 /**
  * Internal helpers.
  */
+/** Private */
 function request_body_data(): mixed
 {
     static $parsed_body = null;

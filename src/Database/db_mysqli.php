@@ -14,6 +14,7 @@ use function Harbor\Support\array_first;
 use function Harbor\Support\array_last;
 use function Harbor\Support\harbor_is_blank;
 
+/** Public */
 function db_mysqli_connect(
     string $host,
     string $user,
@@ -133,7 +134,8 @@ function db_mysqli_objects(\mysqli $connection, string $sql): array
     return $rows;
 }
 
-function db_mysqli_query(\mysqli $connection, string $sql): \mysqli_result|bool
+/** Private */
+function db_mysqli_query(\mysqli $connection, string $sql): bool|\mysqli_result
 {
     $normalized_sql = trim($sql);
     if (harbor_is_blank($normalized_sql)) {

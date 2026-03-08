@@ -14,6 +14,7 @@ use function Harbor\Pipeline\pipeline_send;
 use function Harbor\Pipeline\pipeline_through;
 use function Harbor\Request\request;
 
+/** Public */
 function middleware(callable ...$actions): void
 {
     $pipeline = pipeline_new();

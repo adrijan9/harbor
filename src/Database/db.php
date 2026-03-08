@@ -11,8 +11,11 @@ require_once __DIR__.'/../Support/array.php';
 require_once __DIR__.'/../Support/value.php';
 
 require_once __DIR__.'/DbDriver.php';
+
 require_once __DIR__.'/db_sqlite.php';
+
 require_once __DIR__.'/db_mysql_pdo.php';
+
 require_once __DIR__.'/db_mysqli.php';
 
 use function Harbor\Config\config_array_get;
@@ -22,7 +25,8 @@ use function Harbor\Support\array_last;
 use function Harbor\Support\harbor_is_blank;
 use function Harbor\Support\harbor_is_null;
 
-function db_driver(string|DbDriver $default_driver = DbDriver::SQLITE): string
+/** Public */
+function db_driver(DbDriver|string $default_driver = DbDriver::SQLITE): string
 {
     $resolved_default_driver = db_resolve_driver($default_driver);
     if (harbor_is_null($resolved_default_driver)) {
@@ -54,7 +58,7 @@ function db_is_mysqli(): bool
     return DbDriver::MYSQLI->value === db_driver();
 }
 
-function db_connect(string|DbDriver|null $driver = null, array $config = []): \PDO|\mysqli
+function db_connect(DbDriver|string|null $driver = null, array $config = []): \mysqli|\PDO
 {
     $resolved_driver = db_resolve_driver($driver ?? db_driver());
     if (harbor_is_null($resolved_driver)) {
@@ -84,10 +88,10 @@ function db_connect(string|DbDriver|null $driver = null, array $config = []): \P
     return db_mysql_connect($host, $user, $password, $database, $port, $charset);
 }
 
-function db_execute(\PDO|\mysqli $connection, string $sql, array $bindings = []): bool
+function db_execute(\mysqli|\PDO $connection, string $sql, array $bindings = []): bool
 {
     if ($connection instanceof \mysqli) {
-        if (empty($bindings) === false) {
+        if (false === empty($bindings)) {
             throw new \InvalidArgumentException('MySQLi wrapper does not support bindings in db_execute().');
         }
 
@@ -106,10 +110,10 @@ function db_execute(\PDO|\mysqli $connection, string $sql, array $bindings = [])
     return db_pdo_execute($connection, $sql, $bindings);
 }
 
-function db_array(\PDO|\mysqli $connection, string $sql, array $bindings = []): array
+function db_array(\mysqli|\PDO $connection, string $sql, array $bindings = []): array
 {
     if ($connection instanceof \mysqli) {
-        if (empty($bindings) === false) {
+        if (false === empty($bindings)) {
             throw new \InvalidArgumentException('MySQLi wrapper does not support bindings in db_array().');
         }
 
@@ -128,7 +132,7 @@ function db_array(\PDO|\mysqli $connection, string $sql, array $bindings = []): 
     return db_pdo_array($connection, $sql, $bindings);
 }
 
-function db_first(\PDO|\mysqli $connection, string $sql, array $bindings = []): array
+function db_first(\mysqli|\PDO $connection, string $sql, array $bindings = []): array
 {
     $rows = db_array($connection, $sql, $bindings);
     $first_row = array_first($rows, []);
@@ -136,7 +140,7 @@ function db_first(\PDO|\mysqli $connection, string $sql, array $bindings = []): 
     return is_array($first_row) ? $first_row : [];
 }
 
-function db_last(\PDO|\mysqli $connection, string $sql, array $bindings = []): array
+function db_last(\mysqli|\PDO $connection, string $sql, array $bindings = []): array
 {
     $rows = db_array($connection, $sql, $bindings);
     $last_row = array_last($rows, []);
@@ -144,10 +148,10 @@ function db_last(\PDO|\mysqli $connection, string $sql, array $bindings = []): a
     return is_array($last_row) ? $last_row : [];
 }
 
-function db_objects(\PDO|\mysqli $connection, string $sql, array $bindings = []): array
+function db_objects(\mysqli|\PDO $connection, string $sql, array $bindings = []): array
 {
     if ($connection instanceof \mysqli) {
-        if (empty($bindings) === false) {
+        if (false === empty($bindings)) {
             throw new \InvalidArgumentException('MySQLi wrapper does not support bindings in db_objects().');
         }
 
@@ -166,7 +170,7 @@ function db_objects(\PDO|\mysqli $connection, string $sql, array $bindings = [])
     return db_pdo_objects($connection, $sql, $bindings);
 }
 
-function db_close(\PDO|\mysqli $connection): bool
+function db_close(\mysqli|\PDO $connection): bool
 {
     if ($connection instanceof \mysqli) {
         return db_mysqli_close($connection);
@@ -184,6 +188,7 @@ function db_close(\PDO|\mysqli $connection): bool
     return true;
 }
 
+/** Private */
 function db_resolve_driver(mixed $driver): ?DbDriver
 {
     if ($driver instanceof DbDriver) {

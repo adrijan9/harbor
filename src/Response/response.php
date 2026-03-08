@@ -15,6 +15,7 @@ require_once __DIR__.'/../Validation/ValidationResult.php';
 use function Harbor\Support\harbor_is_blank;
 use function Harbor\Support\harbor_is_null;
 
+/** Public */
 function response_status(int|ResponseStatus $status): void
 {
     if (headers_sent()) {
@@ -157,6 +158,7 @@ function abort(int|ResponseStatus $status, ?string $content = null): never
     exit;
 }
 
+/** Private */
 function response_apply_headers(array $headers): void
 {
     foreach ($headers as $name => $value) {

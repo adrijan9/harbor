@@ -5,9 +5,12 @@ declare(strict_types=1);
 namespace Harbor\Validation;
 
 require_once __DIR__.'/ValidationRule.php';
+
 require_once __DIR__.'/ValidationResult.php';
+
 require_once __DIR__.'/ValidationValidator.php';
 
+/** Public */
 function validation_rule(string $field): ValidationRule
 {
     return new ValidationRule($field);

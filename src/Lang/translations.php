@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Harbor\Lang;
 
 require_once __DIR__.'/language.php';
+
 require_once __DIR__.'/../Support/value.php';
 
 use function Harbor\Support\harbor_is_blank;
@@ -18,6 +19,7 @@ use function Harbor\Support\harbor_is_blank;
  *     'es' => [__DIR__.'/../../lang/es/messages.php'],
  * ]);
  */
+/** Public */
 function translation_init(array $translations): void
 {
     if (empty($translations)) {
@@ -99,6 +101,7 @@ function translation_locale_translations(?string $locale = null): array
     return is_array($locale_translations) ? $locale_translations : [];
 }
 
+/** Private */
 function translation_normalize_locale(mixed $locale): string
 {
     if (! is_string($locale)) {

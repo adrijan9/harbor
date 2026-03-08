@@ -9,6 +9,7 @@ require_once __DIR__.'/../Support/value.php';
 use function Harbor\Support\harbor_is_blank;
 use function Harbor\Support\harbor_is_null;
 
+/** Public */
 function cache_apc_available(): bool
 {
     if (
@@ -154,6 +155,7 @@ function cache_apc_count(): int
     return count(cache_apc_all());
 }
 
+/** Private */
 function cache_apc_require_available(): void
 {
     if (cache_apc_available()) {

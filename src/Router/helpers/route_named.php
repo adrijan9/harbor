@@ -12,6 +12,7 @@ use function Harbor\Support\harbor_is_null;
 /**
  * Named route functions.
  */
+/** Public */
 function route_exists(string $name): bool
 {
     if (harbor_is_blank($name)) {
@@ -63,6 +64,7 @@ function route_current_name(): ?string
 /**
  * @return array<int, array<string, mixed>>
  */
+/** Private */
 function route_all_definitions(): array
 {
     global $routes, $route;
@@ -121,7 +123,7 @@ function route_compile_named_path(string $name, string $path, array $parameters)
         }
 
         $segments[$index] = rawurlencode(route_parameter_to_string($parameter_values[$parameter_index], $name, $parameter_index));
-        $parameter_index++;
+        ++$parameter_index;
     }
 
     if ($parameter_index < count($parameter_values)) {

@@ -26,6 +26,7 @@ use function Harbor\Support\harbor_is_null;
 
 $cache_file_runtime_path = null;
 
+/** Public */
 function cache_file_set_path(string $path): void
 {
     global $cache_file_runtime_path;
@@ -167,6 +168,7 @@ function cache_file_count(): int
     return count(cache_file_all());
 }
 
+/** Private */
 function cache_file_path_for_key(string $key): string
 {
     $cache_key_hash = sha1($key);

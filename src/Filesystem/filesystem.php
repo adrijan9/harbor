@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Harbor\Filesystem;
 
+/** Public */
 function fs_read(string $file_path): string
 {
     if (! fs_exists($file_path)) {

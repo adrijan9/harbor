@@ -7,6 +7,7 @@ namespace Harbor\Log;
 require_once __DIR__.'/LogLevel.php';
 
 require_once __DIR__.'/../Filesystem/filesystem.php';
+
 require_once __DIR__.'/../Support/value.php';
 
 use function Harbor\Filesystem\fs_append;
@@ -35,6 +36,7 @@ if (
     $GLOBALS['log_default_channel'] = 'app';
 }
 
+/** Public */
 function log_init(string $file_path, string $channel = 'app'): void
 {
     global $log_file_path, $log_is_initialized, $log_default_channel;
@@ -183,6 +185,7 @@ function log_exception(\Throwable $exception, array $context = [], LogLevel|stri
     log_write($level, $message, array_merge($context, $exception_context), $channel);
 }
 
+/** Private */
 function log_bail_if_not_initialized(): void
 {
     global $log_is_initialized, $log_file_path;

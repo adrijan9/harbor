@@ -21,6 +21,7 @@ use function Harbor\Cookie\cookie_has;
 use function Harbor\Cookie\cookie_set;
 use function Harbor\Support\harbor_is_blank;
 
+/** Public */
 function session_set(string $key, mixed $value, ?int $ttl_seconds = null): bool
 {
     $normalized_key = session_normalize_key($key);
@@ -133,6 +134,7 @@ function session_config(?string $key = null, mixed $default = null): mixed
     return config_get('session.'.trim($key), $default);
 }
 
+/** Private */
 function session_cookie_name(string $key): string
 {
     return session_cookie_prefix().'_'.rawurlencode($key);

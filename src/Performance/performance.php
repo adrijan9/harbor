@@ -6,6 +6,7 @@ namespace Harbor\Performance;
 
 require_once __DIR__.'/PerformanceTracker.php';
 
+/** Public */
 function performance_begin(?string $marker = null): void
 {
     PerformanceTracker::begin($marker);

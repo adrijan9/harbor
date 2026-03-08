@@ -11,6 +11,7 @@ use function Harbor\Support\harbor_is_null;
 
 $cache_array = [];
 
+/** Public */
 function cache_array_set(string $key, mixed $value, int $ttl_seconds = 0): bool
 {
     global $cache_array;
@@ -113,6 +114,7 @@ function cache_array_count(): int
     return count(cache_array_all());
 }
 
+/** Private */
 function cache_array_prune_expired(): void
 {
     global $cache_array;

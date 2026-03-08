@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace Harbor\Lang;
 
 require_once __DIR__.'/../Config/config.php';
+
 require_once __DIR__.'/../Support/value.php';
 
 use function Harbor\Config\config;
 use function Harbor\Support\harbor_is_blank;
 
+/** Public */
 function lang_get(string $default = 'en'): string
 {
     $locale = config('lang', $default);

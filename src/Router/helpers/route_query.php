@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Harbor\Router;
 
 require_once __DIR__.'/../../Support/array.php';
+
 require_once __DIR__.'/../../Support/value.php';
 
 use function Harbor\Support\array_forget;
@@ -14,6 +15,7 @@ use function Harbor\Support\harbor_is_null;
 /**
  * Query functions.
  */
+/** Public */
 function route_query(?string $key = null, mixed $default = null): mixed
 {
     $query = route_queries();
@@ -222,6 +224,7 @@ function route_query_exists(string $key): bool
     return route_array_has(route_queries(), $key);
 }
 
+/** Private */
 function route_query_decode_json(string $value, bool $assoc): mixed
 {
     $decoded = json_decode(rawurldecode($value), $assoc);

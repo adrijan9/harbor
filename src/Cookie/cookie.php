@@ -8,6 +8,7 @@ require_once __DIR__.'/../Support/value.php';
 
 use function Harbor\Support\harbor_is_blank;
 
+/** Public */
 function cookie_set(string $key, string $value, int $ttl_seconds = 0, array $options = []): bool
 {
     $normalized_key = cookie_normalize_key($key);
@@ -79,6 +80,7 @@ function cookie_all(): array
     return is_array($_COOKIE) ? $_COOKIE : [];
 }
 
+/** Private */
 function cookie_normalize_key(string $key): string
 {
     $normalized_key = trim($key);
