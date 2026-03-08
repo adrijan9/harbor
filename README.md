@@ -60,6 +60,7 @@ This command will serve the documentation site on `http://localhost:<SOME_PORT>`
   - `cookie` for cookie set/get/forget helpers (`cookie_set`, `cookie_get`, `cookie_forget`) with optional signed/encrypted payload support
   - `session` for simplified session helpers (`session_set`, `session_get`, `session_forget`) with `cookie` / `array` / `file` drivers and config-driven optional signed/encrypted cookie payloads
   - `password` for password hashing wrappers (`password_hash`, `password_verify`, `password_needs_rehash`, `password_info`), `PasswordAlgorithm` enum support, and direct helpers (`bcrypt`, `argon2i`, `argon2id`)
+  - `auth` for custom Bearer token helpers (`auth_token_issue`, `auth_token_verify`, `auth_token_revoke`, `auth_logout`) with automatic revocation tracking
   - `response` for response convenience helpers (`response_status`, `response_json`, `response_file`, `response_download`, `response_validation`)
   - `validation` for fluent validation rules and object-based validation results (`validation_rule`, `validation_validate`, `validation_errors`, `validation_has_errors`)
   - `performance` for explicit timing/memory markers (`performance_begin`, `performance_end`, `performance_end_log`) with tracking logs in `current_site_directory/logs/performance_Y-m-d-H-s-i_tracking.log`

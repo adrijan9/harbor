@@ -53,6 +53,10 @@ require __DIR__.'/../shared/header.php';
             <h3>Password Helpers</h3>
             <p>Password hashing and verification wrappers around PHP password APIs.</p>
         </a>
+        <a class="card" href="/auth">
+            <h3>Auth Helpers</h3>
+            <p>Use explicit <code>auth_web_*</code> and <code>auth_api_*</code> helpers for session and bearer auth flows.</p>
+        </a>
         <a class="card" href="/config">
             <h3>Config Helpers</h3>
             <p>Load one or many config files and read typed values from env.</p>

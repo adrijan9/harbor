@@ -62,8 +62,8 @@ require __DIR__.'/../shared/header.php';
             <ul class="api-method-list">
                 <li><code>cd my-site &amp;&amp; ../bin/harbor-config</code> Publish for a specific site directory.</li>
                 <li><code>Current working directory</code> Defines where <code>config/*.php</code> files are created.</li>
-                <li><code>cache.php</code>, <code>database.php</code>, <code>migration.php</code>, <code>session.php</code> Available published runtime config templates.</li>
-                <li><code>./config/cache.php</code>, <code>./config/database.php</code>, <code>./config/migration.php</code>, <code>./config/session.php</code> Target publish paths under the directory where you run the command.</li>
+                <li><code>auth.php</code>, <code>cache.php</code>, <code>database.php</code>, <code>migration.php</code>, <code>session.php</code> Available published runtime config templates.</li>
+                <li><code>./config/auth.php</code>, <code>./config/cache.php</code>, <code>./config/database.php</code>, <code>./config/migration.php</code>, <code>./config/session.php</code> Target publish paths under the directory where you run the command.</li>
                 <li><code>-h</code> Show command usage.</li>
             </ul>
         </div>

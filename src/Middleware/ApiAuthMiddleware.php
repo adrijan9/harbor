@@ -6,14 +6,14 @@ namespace Harbor\Middleware;
 
 use Harbor\Response\ResponseStatus;
 
+require_once __DIR__.'/../Auth/auth_api.php';
+
 require_once __DIR__.'/../Response/response.php';
 
-require_once __DIR__.'/../Support/value.php';
+use function Harbor\Auth\auth_api_exists;
+use function Harbor\Response\response_json;
 
-use function Harbor\Response\abort;
-use function Harbor\Support\harbor_is_blank;
-
-final class AuthMiddleware
+final class ApiAuthMiddleware
 {
     private ?\Closure $auth_resolver;
     private readonly \Closure $failure_handler;
@@ -26,7 +26,16 @@ final class AuthMiddleware
         $this->auth_resolver = is_callable($auth_resolver) ? \Closure::fromCallable($auth_resolver) : null;
         $this->failure_handler = is_callable($failure_handler)
             ? \Closure::fromCallable($failure_handler)
-            : static fn (array $request, int|ResponseStatus $status): never => abort($status);
+            : static function (array $request, int|ResponseStatus $status): never {
+                $resolved_status = $status instanceof ResponseStatus ? $status->value : $status;
+
+                response_json([
+                    'message' => ResponseStatus::message_for($status, 'Unauthorized'),
+                    'status' => $resolved_status,
+                ], $status);
+
+                exit;
+            };
     }
 
     public function __invoke(): callable
@@ -48,25 +57,6 @@ final class AuthMiddleware
             return (bool) ($this->auth_resolver)($request);
         }
 
-        return $this->default_auth_check($request);
-    }
-
-    private function default_auth_check(array $request): bool
-    {
-        $headers = is_array($request['headers'] ?? null) ? $request['headers'] : [];
-
-        $authorization = $headers['authorization'] ?? null;
-        if (! is_string($authorization)) {
-            return false;
-        }
-
-        $normalized_authorization = trim($authorization);
-        if (! str_starts_with(strtolower($normalized_authorization), 'bearer ')) {
-            return false;
-        }
-
-        $token = trim(substr($normalized_authorization, 7));
-
-        return ! harbor_is_blank($token);
+        return auth_api_exists($request);
     }
 }

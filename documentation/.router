@@ -120,6 +120,13 @@
 </route>
 
 <route>
+  path: /auth
+  method: GET
+  name: docs.auth
+  entry: pages/auth.php
+</route>
+
+<route>
   path: /response
   method: GET
   name: docs.response

@@ -84,6 +84,13 @@ final class HelperLoader
             'session' => __DIR__.'/Session/session.php',
             // Password
             'password' => __DIR__.'/Password/password.php',
+            // Auth
+            'auth_web' => __DIR__.'/Auth/auth_web.php',
+            'auth_api' => __DIR__.'/Auth/auth_api.php',
+            'auth' => [
+                __DIR__.'/Auth/auth_web.php',
+                __DIR__.'/Auth/auth_api.php',
+            ],
             // Response
             'response' => __DIR__.'/Response/response.php',
             // Database

@@ -60,23 +60,26 @@ middleware(new EnsureApiKey());
 <section class="docs-section">
     <h2>First-Class Middleware</h2>
     <h3>Built-In Classes</h3>
-    <pre><code class="language-php">use Harbor\Middleware\AuthMiddleware;
+    <pre><code class="language-php">use Harbor\Middleware\ApiAuthMiddleware;
 use Harbor\Middleware\BasicAuthMiddleware;
 use Harbor\Middleware\CorsMiddleware;
 use Harbor\Middleware\CsrfMiddleware;
 use Harbor\Middleware\ThrottleMiddleware;
+use Harbor\Middleware\WebAuthMiddleware;
 use function Harbor\Middleware\middleware;
 
 middleware(
     new CorsMiddleware(allowed_origins: ['https://app.example.com']),
     new ThrottleMiddleware(max_attempts: 60, decay_seconds: 60),
-    new AuthMiddleware(), // Bearer token via Authorization header
+    new WebAuthMiddleware(login_path: '/login'),
+    new ApiAuthMiddleware(), // API token auth via Authorization header
     new BasicAuthMiddleware(), // HTTP Basic auth (Authorization: Basic ...)
     new CsrfMiddleware()
 );</code></pre>
     <h3>Class Purpose</h3>
     <ul class="api-method-list">
-        <li><code>AuthMiddleware</code>: validates HTTP Bearer token authorization or custom auth resolver.</li>
+        <li><code>WebAuthMiddleware</code>: validates web session auth and redirects guests to login (302 by default).</li>
+        <li><code>ApiAuthMiddleware</code>: validates API token auth and returns JSON 401 payload by default.</li>
         <li><code>BasicAuthMiddleware</code>: validates HTTP Basic credentials (default non-empty, or custom credentials resolver).</li>
         <li><code>CsrfMiddleware</code>: verifies unsafe methods against CSRF token sources.</li>
         <li><code>ThrottleMiddleware</code>: applies per-key request rate limiting with retry-after support.</li>
@@ -136,11 +139,25 @@ function csrf_field(
     array $cookie_options = ['http_only' => false, 'same_site' => 'Lax']
 ): string
 
-final class AuthMiddleware
+final class WebAuthMiddleware
+final class ApiAuthMiddleware
 final class BasicAuthMiddleware
 final class CsrfMiddleware
 final class ThrottleMiddleware
 final class CorsMiddleware
+
+new WebAuthMiddleware(
+    auth_resolver: null, // fn(array $request): bool
+    login_path: '/login',
+    failure_status: 302,
+    failure_handler: null
+)
+
+new ApiAuthMiddleware(
+    auth_resolver: null, // fn(array $request): bool
+    failure_status: 401,
+    failure_handler: null
+)
 
 new BasicAuthMiddleware(
     credentials_resolver: null, // fn(string $username, string $password, array $request): bool

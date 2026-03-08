@@ -5,11 +5,12 @@ declare(strict_types=1);
 namespace Harbor\Tests\Middleware;
 
 use Harbor\HelperLoader;
-use Harbor\Middleware\AuthMiddleware;
+use Harbor\Middleware\ApiAuthMiddleware;
 use Harbor\Middleware\BasicAuthMiddleware;
 use Harbor\Middleware\CorsMiddleware;
 use Harbor\Middleware\CsrfMiddleware;
 use Harbor\Middleware\ThrottleMiddleware;
+use Harbor\Middleware\WebAuthMiddleware;
 use Harbor\Response\ResponseStatus;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\Before;
@@ -19,6 +20,8 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use PHPUnit\Framework\TestCase;
 
 use function Harbor\Cache\cache_array_clear;
+use function Harbor\Auth\auth_token_issue;
+use function Harbor\Auth\auth_web_login;
 use function Harbor\Middleware\middleware;
 use function Harbor\Pipeline\pipeline_get;
 
@@ -32,6 +35,7 @@ final class FirstClassMiddlewaresTest extends TestCase
     private array $original_server = [];
     private array $original_cookie = [];
     private array $original_post = [];
+    private array $original_env = [];
 
     #[BeforeClass]
     public static function load_helpers(): void
@@ -39,32 +43,33 @@ final class FirstClassMiddlewaresTest extends TestCase
         HelperLoader::load('cache');
     }
 
-    public function test_auth_middleware_allows_authenticated_request_by_default(): void
+    public function test_api_auth_middleware_allows_verified_bearer_token_request_by_default(): void
     {
         $_SERVER['REQUEST_METHOD'] = 'GET';
         $_SERVER['REQUEST_URI'] = '/protected';
-        $_SERVER['HTTP_AUTHORIZATION'] = 'Bearer token-123';
+        HelperLoader::load('auth', 'middleware');
 
-        HelperLoader::load('middleware');
+        $access_token = auth_token_issue('42');
+        $_SERVER['HTTP_AUTHORIZATION'] = 'Bearer '.$access_token;
 
-        middleware(new AuthMiddleware());
+        middleware(new ApiAuthMiddleware());
 
         $result = pipeline_get();
 
         self::assertIsArray($result);
         self::assertSame('/protected', $result['path']);
-        self::assertSame('Bearer token-123', $result['headers']['authorization']);
+        self::assertIsArray($result['headers'] ?? null);
     }
 
-    public function test_auth_middleware_rejects_non_bearer_http_auth_headers(): void
+    public function test_api_auth_middleware_rejects_invalid_bearer_token_with_custom_failure_handler(): void
     {
         $_SERVER['REQUEST_METHOD'] = 'GET';
         $_SERVER['REQUEST_URI'] = '/protected';
-        $_SERVER['HTTP_X_AUTH_TOKEN'] = 'legacy-token';
+        $_SERVER['HTTP_AUTHORIZATION'] = 'Bearer invalid-token';
 
-        HelperLoader::load('middleware');
+        HelperLoader::load('auth', 'middleware');
 
-        $middleware_action = new AuthMiddleware(
+        $middleware_action = new ApiAuthMiddleware(
             failure_handler: static fn (array $request, int|ResponseStatus $status): array => [
                 'blocked' => true,
                 'status' => $status instanceof ResponseStatus ? $status->value : $status,
@@ -84,18 +89,38 @@ final class FirstClassMiddlewaresTest extends TestCase
         );
     }
 
-    public function test_auth_middleware_rejects_request_with_custom_failure_handler(): void
+    public function test_web_auth_middleware_allows_authenticated_session_request_by_default(): void
     {
         $_SERVER['REQUEST_METHOD'] = 'GET';
         $_SERVER['REQUEST_URI'] = '/protected';
-        unset($_SERVER['HTTP_AUTHORIZATION']);
+        HelperLoader::load('auth', 'middleware');
 
-        HelperLoader::load('middleware');
+        auth_web_login([
+            'id' => 5,
+            'name' => 'Ada',
+        ]);
 
-        $middleware_action = new AuthMiddleware(
+        middleware(new WebAuthMiddleware());
+
+        $result = pipeline_get();
+
+        self::assertIsArray($result);
+        self::assertSame('/protected', $result['path']);
+    }
+
+    public function test_web_auth_middleware_rejects_guest_request_with_custom_failure_handler(): void
+    {
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        $_SERVER['REQUEST_URI'] = '/protected';
+
+        HelperLoader::load('auth', 'middleware');
+
+        $middleware_action = new WebAuthMiddleware(
+            login_path: '/signin',
             failure_handler: static fn (array $request, int|ResponseStatus $status): array => [
                 'blocked' => true,
                 'status' => $status instanceof ResponseStatus ? $status->value : $status,
+                'redirect' => '/signin',
             ]
         );
 
@@ -106,7 +131,8 @@ final class FirstClassMiddlewaresTest extends TestCase
         self::assertSame(
             [
                 'blocked' => true,
-                'status' => 401,
+                'status' => 302,
+                'redirect' => '/signin',
             ],
             $result
         );
@@ -330,6 +356,7 @@ final class FirstClassMiddlewaresTest extends TestCase
         $this->original_server = $_SERVER;
         $this->original_cookie = $_COOKIE;
         $this->original_post = $_POST;
+        $this->original_env = is_array($_ENV) ? $_ENV : [];
 
         $_SERVER = [
             'REQUEST_METHOD' => 'GET',
@@ -340,6 +367,8 @@ final class FirstClassMiddlewaresTest extends TestCase
         ];
         $_COOKIE = [];
         $_POST = [];
+
+        $this->set_auth_config();
 
         header_remove();
         cache_array_clear();
@@ -354,5 +383,28 @@ final class FirstClassMiddlewaresTest extends TestCase
         $_SERVER = $this->original_server;
         $_COOKIE = $this->original_cookie;
         $_POST = $this->original_post;
+        $_ENV = $this->original_env;
+        $GLOBALS['_ENV'] = $_ENV;
+    }
+
+    private function set_auth_config(): void
+    {
+        $_ENV['auth'] = [
+            'web' => [
+                'session_key' => 'auth_web_user',
+                'attempt_resolver' => null,
+            ],
+            'api' => [
+                'secret' => 'test-auth-secret-should-be-at-least-32-bytes',
+                'issuer' => 'harbor-tests',
+                'audience' => 'harbor-tests-api',
+                'ttl_seconds' => 3600,
+                'leeway_seconds' => 0,
+                'revoke_store_path' => sys_get_temp_dir().'/harbor_middleware_auth_revoked.json',
+                'attempt_resolver' => null,
+                'user_resolver' => null,
+            ],
+        ];
+        $GLOBALS['_ENV'] = $_ENV;
     }
 }

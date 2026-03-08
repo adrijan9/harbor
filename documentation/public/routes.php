@@ -108,6 +108,12 @@ return [
             'entry' => 'pages/password.php',
         ],
         [
+            'path' => '/auth',
+            'method' => 'GET',
+            'name' => 'docs.auth',
+            'entry' => 'pages/auth.php',
+        ],
+        [
             'path' => '/response',
             'method' => 'GET',
             'name' => 'docs.response',

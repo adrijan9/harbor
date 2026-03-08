@@ -68,7 +68,7 @@ HelperLoader::load('cache');</code></pre>
             <tr>
                 <td><code>middleware</code></td>
                 <td><code>Harbor\Middleware</code></td>
-                <td>Runs request middleware callbacks and first-class middleware classes (<code>AuthMiddleware</code>, <code>BasicAuthMiddleware</code>, <code>CsrfMiddleware</code>, <code>ThrottleMiddleware</code>, <code>CorsMiddleware</code>).</td>
+                <td>Runs request middleware callbacks and first-class middleware classes (<code>WebAuthMiddleware</code>, <code>ApiAuthMiddleware</code>, <code>BasicAuthMiddleware</code>, <code>CsrfMiddleware</code>, <code>ThrottleMiddleware</code>, <code>CorsMiddleware</code>).</td>
             </tr>
             <tr>
                 <td><code>request</code></td>
@@ -89,6 +89,11 @@ HelperLoader::load('cache');</code></pre>
                 <td><code>password</code></td>
                 <td><code>Harbor\Password</code></td>
                 <td>Password hash/verify wrappers, enum-based algorithm selection, and direct shortcuts (<code>bcrypt()</code>, <code>argon2i()</code>, <code>argon2id()</code>).</td>
+            </tr>
+            <tr>
+                <td><code>auth</code>, <code>auth_web</code>, <code>auth_api</code></td>
+                <td><code>Harbor\Auth</code></td>
+                <td>Split auth helpers: load all with <code>auth</code>, or only <code>auth_web</code> / <code>auth_api</code> depending on transport.</td>
             </tr>
             <tr>
                 <td><code>response</code></td>

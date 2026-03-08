@@ -37,6 +37,9 @@ final class HelperLoaderTest extends TestCase
         self::assertContains('cookie', $helpers);
         self::assertContains('session', $helpers);
         self::assertContains('password', $helpers);
+        self::assertContains('auth_web', $helpers);
+        self::assertContains('auth_api', $helpers);
+        self::assertContains('auth', $helpers);
         self::assertContains('response', $helpers);
         self::assertContains('db', $helpers);
         self::assertContains('database', $helpers);
@@ -114,6 +117,46 @@ final class HelperLoaderTest extends TestCase
         self::assertTrue(function_exists('Harbor\Password\argon2i'));
         self::assertTrue(function_exists('Harbor\Password\argon2id'));
         self::assertTrue(enum_exists('Harbor\Password\PasswordAlgorithm'));
+    }
+
+    public function test_load_auth_helper_registers_namespaced_functions(): void
+    {
+        HelperLoader::load('auth');
+
+        self::assertFalse(function_exists('Harbor\Auth\auth_init'));
+        self::assertTrue(function_exists('Harbor\Auth\auth_attempt'));
+        self::assertTrue(function_exists('Harbor\Auth\auth_web_exists'));
+        self::assertTrue(function_exists('Harbor\Auth\auth_web_login'));
+        self::assertTrue(function_exists('Harbor\Auth\auth_web_logout'));
+        self::assertTrue(function_exists('Harbor\Auth\auth_api_token'));
+        self::assertTrue(function_exists('Harbor\Auth\auth_api_exists'));
+        self::assertTrue(function_exists('Harbor\Auth\auth_api_get'));
+        self::assertTrue(function_exists('Harbor\Auth\auth_api_login'));
+        self::assertTrue(function_exists('Harbor\Auth\auth_api_logout'));
+        self::assertTrue(function_exists('Harbor\Auth\auth_token_issue'));
+        self::assertTrue(function_exists('Harbor\Auth\auth_token_verify'));
+        self::assertTrue(function_exists('Harbor\Auth\auth_token_revoke'));
+    }
+
+    public function test_load_auth_web_helper_registers_web_auth_functions(): void
+    {
+        HelperLoader::load('auth_web');
+
+        self::assertTrue(function_exists('Harbor\Auth\auth_web_exists'));
+        self::assertTrue(function_exists('Harbor\Auth\auth_web_get'));
+        self::assertTrue(function_exists('Harbor\Auth\auth_web_login'));
+        self::assertTrue(function_exists('Harbor\Auth\auth_web_logout'));
+    }
+
+    public function test_load_auth_api_helper_registers_api_auth_functions(): void
+    {
+        HelperLoader::load('auth_api');
+
+        self::assertTrue(function_exists('Harbor\Auth\auth_api_token'));
+        self::assertTrue(function_exists('Harbor\Auth\auth_api_exists'));
+        self::assertTrue(function_exists('Harbor\Auth\auth_api_get'));
+        self::assertTrue(function_exists('Harbor\Auth\auth_api_login'));
+        self::assertTrue(function_exists('Harbor\Auth\auth_api_logout'));
     }
 
     public function test_load_response_helper_registers_namespaced_functions(): void
@@ -251,7 +294,8 @@ final class HelperLoaderTest extends TestCase
         self::assertTrue(function_exists('Harbor\Middleware\middleware'));
         self::assertTrue(function_exists('Harbor\Middleware\csrf_token'));
         self::assertTrue(function_exists('Harbor\Middleware\csrf_field'));
-        self::assertTrue(class_exists('Harbor\Middleware\AuthMiddleware'));
+        self::assertTrue(class_exists('Harbor\Middleware\ApiAuthMiddleware'));
+        self::assertTrue(class_exists('Harbor\Middleware\WebAuthMiddleware'));
         self::assertTrue(class_exists('Harbor\Middleware\BasicAuthMiddleware'));
         self::assertTrue(class_exists('Harbor\Middleware\CsrfMiddleware'));
         self::assertTrue(class_exists('Harbor\Middleware\ThrottleMiddleware'));

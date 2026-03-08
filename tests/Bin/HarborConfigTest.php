@@ -37,6 +37,23 @@ final class HarborConfigTest extends TestCase
         self::assertStringContainsString("'file_path' => __DIR__.'/../cache'", $content);
     }
 
+    public function test_publish_auth_config_creates_file_in_current_site_config_directory(): void
+    {
+        $this->prepare_workspace();
+
+        $published_path = \harbor_publish_config('auth');
+
+        self::assertSame($this->workspace_path.'/config/auth.php', $published_path);
+        self::assertFileExists($published_path);
+
+        $content = file_get_contents($published_path);
+        self::assertIsString($content);
+        self::assertStringContainsString("'web' => [", $content);
+        self::assertStringContainsString("'session_key' => 'auth_web_user'", $content);
+        self::assertStringContainsString("'api' => [", $content);
+        self::assertStringContainsString("'secret' => 'replace-with-strong-secret-at-least-32-bytes'", $content);
+    }
+
     public function test_publish_database_config_creates_file_in_current_site_config_directory(): void
     {
         $this->prepare_workspace();

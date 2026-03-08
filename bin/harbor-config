@@ -136,6 +136,10 @@ function harbor_publish_config(string $config_key, bool $overwrite = false, ?str
 function harbor_config_publishable_configs(): array
 {
     return [
+        'auth' => [
+            'file_name' => 'auth.php',
+            'template_path' => __DIR__.'/stubs/config/auth.php',
+        ],
         'cache' => [
             'file_name' => 'cache.php',
             'template_path' => __DIR__.'/stubs/config/cache.php',
