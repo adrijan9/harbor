@@ -19,7 +19,7 @@ It does not enforce architecture.
 - Route include preprocessing via `#include "path/to/file.router"` (recursive)
 - A small runtime router that resolves and includes PHP entry files
 - An optional helper loader for focused modules
-- CLI tools for scaffolding, config publishing, migrations/seeders, and docs
+- CLI tools for scaffolding, config publishing, testing, migrations/seeders, and docs
 - A foundation for independent site/service units that share one core
 
 ## What Harbor Is Not
@@ -79,6 +79,7 @@ Run this after every documentation content change so search results stay in sync
 - CLI:
   - `bin/harbor` compiles `.router` files into `public/routes.php` when `public/` exists, otherwise `routes.php`
   - `bin/harbor init` scaffolds a site structure
+  - `bin/harbor-test` runs a site's PHPUnit suite using `phpunit.xml`
   - `bin/harbor-config` interactively publishes runtime config templates (`cache`, `database`, `migration`, `session`) into `config/`
   - `bin/harbor-fixer` publishes Harbor's `.php-cs-fixer.dist.php` into the current site root (overwrites without prompt)
   - `bin/harbor-migration` creates/runs/rolls back migration files tracked in `migrations` table
@@ -92,6 +93,7 @@ Run this after every documentation content change so search results stay in sync
 harbor/
   bin/
     harbor
+    harbor-test
     harbor-config
     harbor-fixer
     harbor-migration
@@ -141,8 +143,15 @@ Example generated site layout:
 my-site/
   .router
   global.php
+  phpunit.xml
   config/
   lang/
+  tests/
+    TestCase.php
+    Feature/
+      HomePageTest.php
+    Unit/
+      ExampleTest.php
   public/
     routes.php
     index.php
@@ -174,6 +183,7 @@ composer install
 
 # Publish config templates for my-site/config (run inside that site directory)
 cd my-site
+../bin/harbor-test
 ../bin/harbor-config
 # Publish Harbor .php-cs-fixer.dist.php preset into current site root
 ../bin/harbor-fixer
@@ -251,6 +261,7 @@ composer test # run PHPUnit tests
 ./bin/harbor documentation/.router # compile docs routes
 ./bin/harbor-docs-index # rebuild docs search index after docs changes
 cd my-site && ../bin/harbor-config # publish runtime config templates
+cd my-site && ../bin/harbor-test # run site feature/unit tests from phpunit.xml
 cd my-site && ../bin/harbor-fixer # publish .php-cs-fixer.dist.php preset from Harbor root config
 cd my-site && ../bin/harbor-migration # run pending migrations
 cd my-site && ../bin/harbor-seed # run pending seeders

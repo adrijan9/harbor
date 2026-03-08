@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 $page_title = 'Harbor Docs - Installation';
-$page_description = 'Install Harbor, scaffold a site, and run docs locally.';
+$page_description = 'Install Harbor, scaffold a site, run tests, and run docs locally.';
 $page_id = 'installation';
 
 require __DIR__.'/../shared/header.php';
@@ -12,7 +12,7 @@ require __DIR__.'/../shared/header.php';
 <section class="hero">
     <span class="hero-eyebrow">Getting Started</span>
     <h1>Install and Run</h1>
-    <p>Install dependencies, scaffold a site, compile routes, and run docs.</p>
+    <p>Install dependencies, scaffold a site, compile routes, run tests, and run docs.</p>
 </section>
 
 <section class="docs-section">
@@ -66,6 +66,30 @@ require __DIR__.'/../shared/header.php';
                 <li><code>./bin/harbor &lt;directory&gt;</code> Compile <code>&lt;directory&gt;/.router</code>.</li>
                 <li><code>public/routes.php</code> Output file is generated there when <code>public/</code> exists beside <code>.router</code>.</li>
                 <li><code>routes.php</code> Output file is generated beside input when no <code>public/</code> directory exists.</li>
+            </ul>
+        </div>
+    </details>
+</section>
+
+<section class="docs-section">
+    <h2>Run Site Tests</h2>
+    <h3>Example</h3>
+    <pre><code class="language-bash">cd documentation
+../bin/harbor-test
+../bin/harbor-test -- --filter HomePageTest</code></pre>
+    <h3>What it does</h3>
+    <p>Runs PHPUnit for the selected site using that site's <code>phpunit.xml</code>.</p>
+    <h3>API</h3>
+    <details class="api-details">
+        <summary class="api-summary">
+            <span>Site Test API</span>
+            <span class="api-state"><span class="api-state-closed">Hidden - click to open</span><span class="api-state-open">Open</span></span>
+        </summary>
+        <div class="api-body">
+            <ul class="api-method-list">
+                <li><code>cd site &amp;&amp; ../bin/harbor-test</code> Run all site tests from <code>phpunit.xml</code>.</li>
+                <li><code>-- --filter Name</code> Pass PHPUnit options through unchanged.</li>
+                <li><code>phpunit.xml</code> Included in scaffolded sites by <code>harbor init</code>.</li>
             </ul>
         </div>
     </details>

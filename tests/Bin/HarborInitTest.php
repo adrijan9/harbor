@@ -40,6 +40,7 @@ final class HarborInitTest extends TestCase
         $template_path = dirname(__DIR__, 2).'/bin/stubs/site';
         self::assertFileExists($site_path.'/global.php');
         self::assertFileExists($site_path.'/.router');
+        self::assertFileExists($site_path.'/phpunit.xml');
         self::assertFileExists($site_path.'/public/.htaccess');
         self::assertFileExists($site_path.'/public/index.php');
         self::assertFileExists($site_path.'/public/routes.php');
@@ -53,6 +54,9 @@ final class HarborInitTest extends TestCase
         self::assertFileExists($site_path.'/config/.gitkeep');
         self::assertFileExists($site_path.'/src/.gitkeep');
         self::assertFileExists($site_path.'/database/.gitkeep');
+        self::assertFileExists($site_path.'/tests/TestCase.php');
+        self::assertFileExists($site_path.'/tests/Feature/HomePageTest.php');
+        self::assertFileExists($site_path.'/tests/Unit/ExampleTest.php');
 
         $config = require $site_path.'/global.php';
         self::assertIsArray($config);
@@ -90,6 +94,22 @@ final class HarborInitTest extends TestCase
         self::assertSame(
             file_get_contents($template_path.'/public/pages/index.php'),
             file_get_contents($site_path.'/public/pages/index.php'),
+        );
+        self::assertSame(
+            file_get_contents($template_path.'/phpunit.xml'),
+            file_get_contents($site_path.'/phpunit.xml'),
+        );
+        self::assertSame(
+            file_get_contents($template_path.'/tests/TestCase.php'),
+            file_get_contents($site_path.'/tests/TestCase.php'),
+        );
+        self::assertSame(
+            file_get_contents($template_path.'/tests/Feature/HomePageTest.php'),
+            file_get_contents($site_path.'/tests/Feature/HomePageTest.php'),
+        );
+        self::assertSame(
+            file_get_contents($template_path.'/tests/Unit/ExampleTest.php'),
+            file_get_contents($site_path.'/tests/Unit/ExampleTest.php'),
         );
     }
 

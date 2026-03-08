@@ -133,7 +133,7 @@ require __DIR__.'/../shared/header.php';
             </tr>
             <tr>
                 <td><code>bin/</code></td>
-                <td>CLI commands (<code>harbor</code>, <code>harbor-config</code>, <code>harbor-fixer</code>, <code>harbor-migration</code>, <code>harbor-seed</code>, <code>harbor-docs</code>).</td>
+                <td>CLI commands (<code>harbor</code>, <code>harbor-test</code>, <code>harbor-config</code>, <code>harbor-fixer</code>, <code>harbor-migration</code>, <code>harbor-seed</code>, <code>harbor-docs</code>).</td>
             </tr>
             </tbody>
         </table>

@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 $page_title = 'Harbor Docs - CLI';
-$page_description = 'CLI commands for scaffolding, route compile, migrations, seeders, and local docs.';
+$page_description = 'CLI commands for scaffolding, route compile, tests, migrations, seeders, and local docs.';
 $page_id = 'cli';
 
 require __DIR__.'/../shared/header.php';
@@ -12,7 +12,7 @@ require __DIR__.'/../shared/header.php';
 <section class="hero">
     <span class="hero-eyebrow">Tooling</span>
     <h1>CLI</h1>
-    <p>Scaffold sites, compile routes, run migrations/seeders, and run docs.</p>
+    <p>Scaffold sites, compile routes, run tests/migrations/seeders, and run docs.</p>
 </section>
 
 <section class="docs-section">
@@ -40,6 +40,35 @@ require __DIR__.'/../shared/header.php';
                 <li><code>Nested includes</code> Recursively processed; circular include chains fail compile.</li>
                 <li><code>./bin/harbor init [site-name]</code> Create site scaffold.</li>
                 <li><code>./bin/harbor -h</code> Show CLI help.</li>
+            </ul>
+        </div>
+    </details>
+</section>
+
+<section class="docs-section">
+    <h2><code>bin/harbor-test</code></h2>
+    <h3>Example</h3>
+    <pre><code class="language-bash">cd my-site
+../bin/harbor-test
+../bin/harbor-test -- --filter HomePageTest
+cd ..
+./bin/harbor-test my-site -- --testsuite Feature</code></pre>
+    <h3>What it does</h3>
+    <p>Runs a site's PHPUnit tests using <code>phpunit.xml</code> from that site root. Additional PHPUnit arguments are forwarded.</p>
+    <h3>API</h3>
+    <details class="api-details">
+        <summary class="api-summary">
+            <span>Test Runner CLI API</span>
+            <span class="api-state"><span class="api-state-closed">Hidden - click to open</span><span class="api-state-open">Open</span></span>
+        </summary>
+        <div class="api-body">
+            <ul class="api-method-list">
+                <li><code>cd my-site &amp;&amp; ../bin/harbor-test</code> Run tests in current selected site.</li>
+                <li><code>./bin/harbor-test my-site</code> Run tests for a site path from parent workspace.</li>
+                <li><code>--</code> Optional separator before forwarded PHPUnit options.</li>
+                <li><code>--filter Name</code>, <code>--testsuite Feature</code> Forwarded to PHPUnit unchanged.</li>
+                <li><code>phpunit.xml</code> Required in the site root.</li>
+                <li><code>-h</code> Show command usage.</li>
             </ul>
         </div>
     </details>
@@ -203,6 +232,7 @@ require __DIR__.'/../shared/header.php';
 ./bin/harbor documentation/.router
 ./bin/harbor-docs-index
 cd my-site && ../bin/harbor-config
+cd my-site && ../bin/harbor-test
 cd my-site && ../bin/harbor-fixer
 cd my-site && ../bin/harbor-migration
 cd my-site && ../bin/harbor-seed
@@ -222,6 +252,7 @@ cd my-site && ../bin/harbor-seed
                 <li><code>./bin/harbor documentation/.router</code> Compile docs route file.</li>
                 <li><code>./bin/harbor-docs-index</code> Rebuild docs search index JSON after docs updates.</li>
                 <li><code>cd my-site &amp;&amp; ../bin/harbor-config</code> Publish selected runtime config templates into that site <code>config/</code>.</li>
+                <li><code>cd my-site &amp;&amp; ../bin/harbor-test</code> Run site PHPUnit suite using that site's <code>phpunit.xml</code>.</li>
                 <li><code>cd my-site &amp;&amp; ../bin/harbor-fixer</code> Publish Harbor <code>.php-cs-fixer.dist.php</code> preset into that site root.</li>
                 <li><code>cd my-site &amp;&amp; ../bin/harbor-migration</code> Run pending migrations.</li>
                 <li><code>cd my-site &amp;&amp; ../bin/harbor-seed</code> Run pending seeders.</li>

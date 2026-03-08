@@ -1,0 +1,216 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+require_once __DIR__.'/../src/Support/value.php';
+
+require_once __DIR__.'/harbor_site.php';
+
+use function Harbor\Support\harbor_is_blank;
+
+/**
+ * @param array<int, string> $arguments
+ */
+function harbor_test_run(array $arguments): int
+{
+    $parsed_arguments = harbor_test_parse_arguments($arguments);
+
+    if ($parsed_arguments['show_help']) {
+        harbor_test_print_usage();
+
+        return 0;
+    }
+
+    $site_path = harbor_test_resolve_site_path($parsed_arguments['site_path']);
+    if (! is_dir($site_path)) {
+        fwrite(STDERR, sprintf('Site directory not found: %s%s', $site_path, PHP_EOL));
+
+        return 1;
+    }
+
+    try {
+        harbor_site_assert_selected($site_path);
+    } catch (Throwable $throwable) {
+        fwrite(STDERR, $throwable->getMessage().PHP_EOL);
+
+        return 1;
+    }
+
+    $phpunit_configuration_path = $site_path.'/phpunit.xml';
+
+    if (! is_file($phpunit_configuration_path)) {
+        fwrite(STDERR, sprintf('phpunit.xml not found in site: %s%s', $phpunit_configuration_path, PHP_EOL));
+
+        return 1;
+    }
+
+    $phpunit_binary_path = harbor_test_resolve_phpunit_binary_path($site_path);
+
+    if (null === $phpunit_binary_path) {
+        fwrite(STDERR, 'Unable to locate PHPUnit binary. Install phpunit/phpunit in your workspace.'.PHP_EOL);
+
+        return 1;
+    }
+
+    $command = array_merge(
+        [PHP_BINARY, $phpunit_binary_path, '--configuration', $phpunit_configuration_path],
+        $parsed_arguments['phpunit_arguments'],
+    );
+
+    return harbor_test_execute($command, $site_path);
+}
+
+/**
+ * @param array<int, string> $arguments
+ *
+ * @return array{
+ *     show_help: bool,
+ *     site_path: ?string,
+ *     phpunit_arguments: array<int, string>
+ * }
+ */
+function harbor_test_parse_arguments(array $arguments): array
+{
+    $input_arguments = array_values(array_slice($arguments, 1));
+    $first_argument = $input_arguments[0] ?? null;
+
+    if (is_string($first_argument) && in_array($first_argument, ['-h', '--help'], true)) {
+        return [
+            'show_help' => true,
+            'site_path' => null,
+            'phpunit_arguments' => [],
+        ];
+    }
+
+    $site_path = null;
+
+    if (is_string($first_argument) && ! harbor_is_blank($first_argument) && ! str_starts_with($first_argument, '-')) {
+        $site_path = $first_argument;
+        array_shift($input_arguments);
+    }
+
+    if ('--' === ($input_arguments[0] ?? null)) {
+        array_shift($input_arguments);
+    }
+
+    $phpunit_arguments = [];
+
+    foreach ($input_arguments as $input_argument) {
+        if (! is_string($input_argument)) {
+            continue;
+        }
+
+        $phpunit_arguments[] = $input_argument;
+    }
+
+    return [
+        'show_help' => false,
+        'site_path' => $site_path,
+        'phpunit_arguments' => $phpunit_arguments,
+    ];
+}
+
+function harbor_test_resolve_site_path(?string $site_path_argument = null): string
+{
+    $working_directory = harbor_site_resolve_working_directory();
+
+    if (! is_string($site_path_argument) || harbor_is_blank($site_path_argument)) {
+        return $working_directory;
+    }
+
+    $normalized_site_path_argument = rtrim($site_path_argument, '/\\');
+
+    if ('' === $normalized_site_path_argument) {
+        return $working_directory;
+    }
+
+    if (str_starts_with($normalized_site_path_argument, '/') || preg_match('/^[A-Za-z]:[\/\\\\]/', $normalized_site_path_argument)) {
+        return $normalized_site_path_argument;
+    }
+
+    return $working_directory.'/'.$normalized_site_path_argument;
+}
+
+function harbor_test_resolve_phpunit_binary_path(string $site_path): ?string
+{
+    $override_binary_path = getenv('HARBOR_TEST_PHPUNIT_BINARY');
+
+    if (is_string($override_binary_path) && ! harbor_is_blank($override_binary_path) && is_file($override_binary_path)) {
+        return $override_binary_path;
+    }
+
+    $candidate_binary_paths = [
+        $site_path.'/vendor/bin/phpunit',
+        __DIR__.'/../vendor/bin/phpunit',
+        dirname(__DIR__, 3).'/bin/phpunit',
+    ];
+
+    $search_path = $site_path;
+
+    for ($level = 0; $level < 8; $level++) {
+        $candidate_binary_paths[] = $search_path.'/vendor/bin/phpunit';
+
+        $parent_search_path = dirname($search_path);
+        if ($parent_search_path === $search_path) {
+            break;
+        }
+
+        $search_path = $parent_search_path;
+    }
+
+    foreach (array_unique($candidate_binary_paths) as $candidate_binary_path) {
+        if (! is_string($candidate_binary_path) || harbor_is_blank($candidate_binary_path)) {
+            continue;
+        }
+
+        if (! is_file($candidate_binary_path)) {
+            continue;
+        }
+
+        return $candidate_binary_path;
+    }
+
+    return null;
+}
+
+/**
+ * @param array<int, string> $command
+ */
+function harbor_test_execute(array $command, string $working_directory): int
+{
+    $descriptors = [
+        0 => ['file', 'php://stdin', 'r'],
+        1 => ['file', 'php://stdout', 'w'],
+        2 => ['file', 'php://stderr', 'w'],
+    ];
+
+    $process = proc_open($command, $descriptors, $pipes, $working_directory);
+
+    if (! is_resource($process)) {
+        fwrite(STDERR, 'Failed to execute PHPUnit process.'.PHP_EOL);
+
+        return 1;
+    }
+
+    return (int) proc_close($process);
+}
+
+function harbor_test_print_usage(): void
+{
+    fwrite(STDOUT, 'Usage: harbor-test [site-path] [-- <phpunit-args...>]'.PHP_EOL);
+    fwrite(STDOUT, PHP_EOL);
+    fwrite(STDOUT, 'Examples:'.PHP_EOL);
+    fwrite(STDOUT, '  cd my-site && ../bin/harbor-test'.PHP_EOL);
+    fwrite(STDOUT, '  ./bin/harbor-test my-site'.PHP_EOL);
+    fwrite(STDOUT, '  ./bin/harbor-test my-site -- --filter HomePageTest'.PHP_EOL);
+}
+
+if ('cli' === PHP_SAPI) {
+    $script_file = $_SERVER['SCRIPT_FILENAME'] ?? null;
+    $resolved_script_file = is_string($script_file) ? realpath($script_file) : false;
+
+    if (is_string($resolved_script_file) && __FILE__ === $resolved_script_file) {
+        exit(harbor_test_run($_SERVER['argv'] ?? []));
+    }
+}
