@@ -78,7 +78,7 @@ Run this after every documentation content change so search results stay in sync
   - `log` for structured logging helpers and levels
 - CLI:
   - `bin/harbor` compiles `.router` files into `public/routes.php` when `public/` exists, otherwise `routes.php`
-  - `bin/harbor init` scaffolds a site structure
+  - `bin/harbor-init` scaffolds a site structure
   - `bin/harbor-test` runs a site's PHPUnit suite using `phpunit.xml`
   - `bin/harbor-config` interactively publishes runtime config templates (`cache`, `database`, `migration`, `session`) into `config/`
   - `bin/harbor-fixer` publishes Harbor's `.php-cs-fixer.dist.php` into the current site root (overwrites without prompt)
@@ -93,6 +93,7 @@ Run this after every documentation content change so search results stay in sync
 harbor/
   bin/
     harbor
+    harbor-init
     harbor-test
     harbor-config
     harbor-fixer
@@ -176,7 +177,7 @@ Include example:
 composer install
 
 # Scaffold a site directory
-./bin/harbor init my-site
+./bin/harbor-init my-site
 
 # Compile my-site/.router -> my-site/public/routes.php (when my-site/public exists)
 ./bin/harbor my-site/.router
@@ -206,7 +207,7 @@ Harbor uses strict front-controller routing by default:
 - Only paths declared in `.router` (compiled to `public/routes.php` when `public/` exists) are reachable
 - Static files are not directly accessible unless you expose them through routes/entries
 
-The `init` command copies files from `bin/stubs/site/`, so you can customize future scaffolds by editing that directory.
+The `harbor-init` command copies files from `bin/stubs/site/`, so you can customize future scaffolds by editing that directory.
 
 To expose static files explicitly, declare assets at the top of `.router`:
 

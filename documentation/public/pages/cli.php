@@ -19,10 +19,9 @@ require __DIR__.'/../shared/header.php';
     <h2><code>bin/harbor</code></h2>
     <h3>Example</h3>
     <pre><code class="language-bash">./bin/harbor .
-./bin/harbor documentation/.router
-./bin/harbor init my-site</code></pre>
+./bin/harbor documentation/.router</code></pre>
     <h3>What it does</h3>
-    <p>Compiles routes by default (with <code>#include</code> preprocessing) and scaffolds sites with <code>init</code>.</p>
+    <p>Compiles routes (with <code>#include</code> preprocessing).</p>
     <h3>API</h3>
     <details class="api-details">
         <summary class="api-summary">
@@ -38,8 +37,30 @@ require __DIR__.'/../shared/header.php';
                 <li><code>routes.php</code> Output target when no sibling <code>public/</code> directory exists.</li>
                 <li><code>#include "./path/to/file.router"</code> Include files are expanded before parsing routes.</li>
                 <li><code>Nested includes</code> Recursively processed; circular include chains fail compile.</li>
-                <li><code>./bin/harbor init [site-name]</code> Create site scaffold.</li>
                 <li><code>./bin/harbor -h</code> Show CLI help.</li>
+            </ul>
+        </div>
+    </details>
+</section>
+
+<section class="docs-section">
+    <h2><code>bin/harbor-init</code></h2>
+    <h3>Example</h3>
+    <pre><code class="language-bash">./bin/harbor-init
+./bin/harbor-init my-site</code></pre>
+    <h3>What it does</h3>
+    <p>Creates a new site scaffold from <code>bin/stubs/site</code>.</p>
+    <h3>API</h3>
+    <details class="api-details">
+        <summary class="api-summary">
+            <span>Site Scaffold CLI API</span>
+            <span class="api-state"><span class="api-state-closed">Hidden - click to open</span><span class="api-state-open">Open</span></span>
+        </summary>
+        <div class="api-body">
+            <ul class="api-method-list">
+                <li><code>./bin/harbor-init [site-name]</code> Create site scaffold.</li>
+                <li><code>site-name</code> Optional site directory name (default: <code>example.site</code>).</li>
+                <li><code>./bin/harbor-init -h</code> Show command usage.</li>
             </ul>
         </div>
     </details>

@@ -4,7 +4,6 @@
 declare(strict_types=1);
 
 require_once __DIR__.'/harbor_compile.php';
-require_once __DIR__.'/harbor_init.php';
 require_once __DIR__.'/harbor_site.php';
 
 $argv = $_SERVER['argv'] ?? [];
@@ -17,9 +16,9 @@ if (null === $first_argument || in_array($first_argument, ['-h', '--help'], true
 }
 
 if (in_array($first_argument, ['init', '/init'], true)) {
-    harbor_run_init($argv[2] ?? null);
+    fwrite(STDERR, 'The site scaffold command moved to "./bin/harbor-init [site-name]".'.PHP_EOL);
 
-    exit(0);
+    exit(1);
 }
 
 try {
@@ -35,12 +34,9 @@ exit(0);
 
 function harbor_print_usage(): void
 {
-    fwrite(STDOUT, 'Usage: harbor <path-to-.router|directory> | harbor init [site-name]'.PHP_EOL);
+    fwrite(STDOUT, 'Usage: harbor <path-to-.router|directory>'.PHP_EOL);
     fwrite(STDOUT, PHP_EOL);
     fwrite(STDOUT, 'Default mode (route compile):'.PHP_EOL);
     fwrite(STDOUT, '  harbor .                 Compile ./.router into ./public/routes.php when ./public exists, otherwise ./routes.php'.PHP_EOL);
     fwrite(STDOUT, '  harbor my-site/.router   Compile into my-site/public/routes.php when my-site/public exists'.PHP_EOL);
-    fwrite(STDOUT, PHP_EOL);
-    fwrite(STDOUT, 'Commands:'.PHP_EOL);
-    fwrite(STDOUT, '  init [site-name]         Initialize a new site scaffold.'.PHP_EOL);
 }

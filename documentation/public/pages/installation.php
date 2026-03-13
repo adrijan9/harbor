@@ -28,7 +28,7 @@ require __DIR__.'/../shared/header.php';
     <h2>Install Core</h2>
     <h3>Example</h3>
     <pre><code class="language-bash">composer install
-./bin/harbor init documentation</code></pre>
+./bin/harbor-init documentation</code></pre>
     <h3>What it does</h3>
     <p>Installs dependencies and creates a runnable site scaffold.</p>
     <h3>API</h3>
@@ -40,7 +40,7 @@ require __DIR__.'/../shared/header.php';
         <div class="api-body">
             <ul class="api-method-list">
                 <li><code>composer install</code> Install PHP dependencies.</li>
-                <li><code>./bin/harbor init [site-name]</code> Generate new site scaffold.</li>
+                <li><code>./bin/harbor-init [site-name]</code> Generate new site scaffold.</li>
                 <li><code>site-name</code> Optional site directory name (default: <code>example.site</code>).</li>
             </ul>
         </div>
@@ -89,7 +89,7 @@ require __DIR__.'/../shared/header.php';
             <ul class="api-method-list">
                 <li><code>cd site &amp;&amp; ../bin/harbor-test</code> Run all site tests from <code>phpunit.xml</code>.</li>
                 <li><code>-- --filter Name</code> Pass PHPUnit options through unchanged.</li>
-                <li><code>phpunit.xml</code> Included in scaffolded sites by <code>harbor init</code>.</li>
+                <li><code>phpunit.xml</code> Included in scaffolded sites by <code>harbor-init</code>.</li>
             </ul>
         </div>
     </details>
