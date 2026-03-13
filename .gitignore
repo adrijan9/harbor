@@ -3,3 +3,4 @@
 /.idea/
 /.vscode/
 .php-cs-fixer.cache
+.DS_Store
