@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-require_once __DIR__.'/../src/Support/value.php';
+require_once __DIR__.'/../../../src/Support/value.php';
 
 use function Harbor\Support\harbor_is_blank;
 use function Harbor\Support\harbor_is_null;
@@ -194,7 +194,7 @@ function harbor_resolve_php_cs_fixer_config_path(): ?string
 
 function harbor_resolve_project_root_path(): ?string
 {
-    $project_root_path = realpath(__DIR__.'/..');
+    $project_root_path = realpath(__DIR__.'/../../..');
 
     return false === $project_root_path ? null : $project_root_path;
 }

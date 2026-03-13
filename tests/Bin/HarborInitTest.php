@@ -8,7 +8,7 @@ use Harbor\Environment;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\TestCase;
 
-require_once dirname(__DIR__, 2).'/bin/harbor_init.php';
+require_once dirname(__DIR__, 2).'/bin/commands/harbor-init/harbor_init.php';
 
 require_once dirname(__DIR__, 2).'/src/Support/value.php';
 

@@ -7,7 +7,7 @@ namespace Harbor\Tests\Bin;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\TestCase;
 
-require_once dirname(__DIR__, 2).'/bin/harbor_compile.php';
+require_once dirname(__DIR__, 2).'/bin/commands/harbor/harbor_compile.php';
 
 /**
  * Class HarborCompileTest.
