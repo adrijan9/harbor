@@ -145,6 +145,7 @@ my-site/
   .router
   global.php
   phpunit.xml
+  serve.sh
   config/
   lang/
   tests/
@@ -194,9 +195,11 @@ cd my-site
 ../bin/harbor-seed
 cd ..
 
-# Serve a site root or public directory (optional: start port, default 8000)
-./serve.sh my-site
-./serve.sh my-site/public 8080
+# Serve the current site/public (optional start port, default 8000)
+cd my-site
+./serve.sh
+./serve.sh 8080
+cd ..
 ```
 
 If the requested port is already in use, `serve.sh` automatically increments (`+1`) until it finds an available port.
@@ -247,7 +250,7 @@ This makes Harbor a practical microservice-style runtime/framework for teams tha
 Current model:
 
 - Each site has its own `.router`, compiled `routes.php`, and entry files
-- You run one site root at a time via your server target (`./serve.sh <site-dir>`)
+- Each scaffolded site includes its own `serve.sh` that always serves that site's `public/` directory
 - There is no built-in host-based multi-site dispatcher in the runtime layer
 
 ## Current Gaps (Code vs Idea)

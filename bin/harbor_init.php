@@ -49,7 +49,7 @@ function harbor_run_init(?string $site_name_from_argument = null): void
 
     $template_directory_path = harbor_resolve_site_template_directory_path();
     harbor_copy_directory($template_directory_path, $site_path);
-    harbor_ensure_parent_serve_script($working_directory);
+    harbor_ensure_site_serve_script($site_path);
 
     fwrite(STDOUT, sprintf('Site initialized: %s%s', $site_path, PHP_EOL));
     fwrite(STDOUT, sprintf('Next step: run "./bin/harbor %s" after editing .router.%s', $site_name, PHP_EOL));
@@ -131,20 +131,18 @@ function harbor_copy_template_file(string $source_path, string $destination_path
     }
 }
 
-function harbor_ensure_parent_serve_script(string $working_directory): void
+function harbor_ensure_site_serve_script(string $site_path): void
 {
-    $serve_script_path = $working_directory.'/serve.sh';
-    if (file_exists($serve_script_path)) {
-        return;
-    }
+    $serve_script_path = $site_path.'/serve.sh';
+    if (! is_file($serve_script_path)) {
+        fwrite(STDERR, sprintf('Site serve script not found: %s%s', $serve_script_path, PHP_EOL));
 
-    harbor_copy_template_file(__DIR__.'/../serve.sh', $serve_script_path);
+        exit(1);
+    }
 
     if (! chmod($serve_script_path, 0o755)) {
         fwrite(STDERR, sprintf('Warning: Failed to set executable permissions for: %s%s', $serve_script_path, PHP_EOL));
     }
-
-    fwrite(STDOUT, sprintf('Serve script created: %s%s', $serve_script_path, PHP_EOL));
 }
 
 function harbor_is_directory_empty(string $directory): bool
