@@ -65,6 +65,10 @@ require __DIR__.'/../shared/header.php';
             <h3>Database Helpers</h3>
             <p>Lightweight wrappers for SQLite, MySQL PDO, MySQLi, and resolver helpers.</p>
         </a>
+        <a class="card" href="/model">
+            <h3>Model Pattern</h3>
+            <p>Optional plain-PHP model classes without ORM complexity.</p>
+        </a>
         <a class="card" href="/migrations">
             <h3>Migrations &amp; Seeders</h3>
             <p>Create, run, and roll back tracked migration and seeder batches.</p>

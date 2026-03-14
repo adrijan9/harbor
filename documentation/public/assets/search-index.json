@@ -1,5 +1,5 @@
 {
-    "generated_at": "2026-03-14T19:49:16+00:00",
+    "generated_at": "2026-03-14T20:00:46+00:00",
     "source": "documentation/.router",
     "items": [
         {
@@ -18,6 +18,7 @@
                 "Auth Helpers",
                 "Config Helpers",
                 "Database Helpers",
+                "Model Pattern",
                 "Migrations & Seeders",
                 "Lang & Translation",
                 "Support Helpers",
@@ -30,7 +31,7 @@
                 "Logging",
                 "Project Layout"
             ],
-            "content": "Documentation Harbor Documentation Routing, helpers, and CLI guides in one place. Start Installation View Routing Guide Stable Core What You Get Core features are packaged as focused helpers. You can load only what you need in runtime pages. Load Helpers One place to see all helper module keys and how to load them. CLI Tooling Scaffold sites and compile `.router` files. Routing Route files with segment and query support. Request Helpers Typed access to method, URL, headers, body, files, and cookies. Cookie Helpers Set, read, and forget cookies with one helper module. Session Helpers Simplified sessions with cookie, array, and file drivers. Password Helpers Password hashing and verification wrappers around PHP password APIs. Auth Helpers Use explicit auth_web_* and auth_api_* helpers for session and bearer auth flows. Config Helpers Load one or many config files and read typed values from env. Database Helpers Lightweight wrappers for SQLite, MySQL PDO, MySQLi, and resolver helpers. Migrations & Seeders Create, run, and roll back tracked migration and seeder batches. Lang & Translation Locale helpers and Laravel-style translation keys. Support Helpers Shared value checks for blank and null behavior. Date Helpers Carbon wrapper helpers for creating and reading date-time instances. Pipeline Helpers Functional pipeline helpers for composing action chains. Middleware Helpers Run request middleware callbacks backed by the pipeline engine. Validation Fluent rule builders and result objects for request validation. Filesystem Safe file and directory operations. Cache Array and file cache helpers with shared API shape. Logging Levels, context, and reusable log entries. Project Layout Path Purpose src/ Framework source modules. documentation/ This docs site (router, pages, shared templates, assets). tests/ PHPUnit coverage for framework behavior. bin/ CLI commands (harbor, harbor-test, harbor-config, harbor-fixer, harbor-migration, harbor-seed, harbor-docs)."
+            "content": "Documentation Harbor Documentation Routing, helpers, and CLI guides in one place. Start Installation View Routing Guide Stable Core What You Get Core features are packaged as focused helpers. You can load only what you need in runtime pages. Load Helpers One place to see all helper module keys and how to load them. CLI Tooling Scaffold sites and compile `.router` files. Routing Route files with segment and query support. Request Helpers Typed access to method, URL, headers, body, files, and cookies. Cookie Helpers Set, read, and forget cookies with one helper module. Session Helpers Simplified sessions with cookie, array, and file drivers. Password Helpers Password hashing and verification wrappers around PHP password APIs. Auth Helpers Use explicit auth_web_* and auth_api_* helpers for session and bearer auth flows. Config Helpers Load one or many config files and read typed values from env. Database Helpers Lightweight wrappers for SQLite, MySQL PDO, MySQLi, and resolver helpers. Model Pattern Optional plain-PHP model classes without ORM complexity. Migrations & Seeders Create, run, and roll back tracked migration and seeder batches. Lang & Translation Locale helpers and Laravel-style translation keys. Support Helpers Shared value checks for blank and null behavior. Date Helpers Carbon wrapper helpers for creating and reading date-time instances. Pipeline Helpers Functional pipeline helpers for composing action chains. Middleware Helpers Run request middleware callbacks backed by the pipeline engine. Validation Fluent rule builders and result objects for request validation. Filesystem Safe file and directory operations. Cache Array and file cache helpers with shared API shape. Logging Levels, context, and reusable log entries. Project Layout Path Purpose src/ Framework source modules. documentation/ This docs site (router, pages, shared templates, assets). tests/ PHPUnit coverage for framework behavior. bin/ CLI commands (harbor, harbor-test, harbor-config, harbor-fixer, harbor-migration, harbor-seed, harbor-docs)."
         },
         {
             "path": "/auth",
@@ -260,6 +261,20 @@
                 "Run And Rollback"
             ],
             "content": "Tooling Migrations & Seeders Use file-based up/down scripts with batch tracking for both schema and repeatable data changes. Setup Example cd my-site ../bin/harbor-config # choose: migration.php What it does Publishes config/migration.php which defines one tracker connection and both directories/tables. API Config API Hidden - click to openOpen return [ 'driver' => 'sqlite'|'mysql'|'mysqli', 'sqlite' => [...], 'mysql' => [...], 'migrations' => [ 'directory' => __DIR__.'/../database/migrations', 'table' => 'migrations', ], 'seeders' => [ 'directory' => __DIR__.'/../database/seeders', 'table' => 'seeders', ], ]; Create Files Example cd my-site ../bin/harbor-migration new \"create_users_table\" ../bin/harbor-seed new \"seed_permissions\" What it does Creates timestamped files in database/migrations and database/seeders. API Create API Hidden - click to openOpen ../bin/harbor-migration new \"name\" Creates YYYY-mm-dd-HH-ii-ss_name.php under database/migrations. ../bin/harbor-seed new \"name\" Creates YYYY-mm-dd-HH-ii-ss_name.php under database/seeders. File Template Example"
+        },
+        {
+            "path": "/model",
+            "title": "Model",
+            "description": "Harbor does not ship an ORM. Use small, explicit PHP classes when you want model-like structure.",
+            "headings": [
+                "Why No ORM",
+                "Simple Model Class",
+                "Example",
+                "What it does",
+                "Optional Abstract Base",
+                "Guidelines"
+            ],
+            "content": "Pattern Model Harbor does not ship an ORM. Use small, explicit PHP classes when you want model-like structure. Why No ORM Harbor is designed for simplicity, readability, and an open, non-gatekeeping environment. A full ORM usually combines connection handling, query building, state tracking, relations, events, and more inside one abstraction layer. Harbor keeps those concerns explicit instead of forcing a heavy model base class. Simple Model Class Example"
         },
         {
             "path": "/password",

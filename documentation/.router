@@ -43,6 +43,13 @@
 </route>
 
 <route>
+  path: /model
+  method: GET
+  name: docs.model
+  entry: pages/model.php
+</route>
+
+<route>
   path: /migrations
   method: GET
   name: docs.migrations

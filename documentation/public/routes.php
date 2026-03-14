@@ -42,6 +42,12 @@ return [
             'entry' => 'pages/database.php',
         ],
         [
+            'path' => '/model',
+            'method' => 'GET',
+            'name' => 'docs.model',
+            'entry' => 'pages/model.php',
+        ],
+        [
             'path' => '/migrations',
             'method' => 'GET',
             'name' => 'docs.migrations',
