@@ -97,6 +97,122 @@ function db_close(PDO|mysqli $connection): bool</code></pre>
 </section>
 
 <section class="docs-section">
+    <h2>Schema Builder</h2>
+    <h3>Example</h3>
+    <pre><code class="language-php">use Harbor\Database\Schema\Column;
+use Harbor\Database\Schema\ForeignKey;
+use function Harbor\Database\db_connect;
+use function Harbor\Database\schema_add_column;
+use function Harbor\Database\schema_add_foreign;
+use function Harbor\Database\schema_builder_alter;
+use function Harbor\Database\schema_builder_create;
+use function Harbor\Database\schema_execute;
+
+$connection = db_connect();
+
+$builder = schema_builder_create('users', true);
+$builder = schema_add_column($builder, 'id', Column::int()->primary()->auto_increment());
+$builder = schema_add_column($builder, 'email', Column::varchar(190));
+$builder = schema_add_column($builder, 'status', Column::varchar(30)->default('active'));
+
+schema_execute($connection, $builder);
+
+$foreign_builder = schema_builder_alter('posts');
+$foreign_builder = schema_add_foreign(
+    $foreign_builder,
+    ForeignKey::from('user_id')
+        ->references('id')
+        ->on('users')
+        ->on_delete('cascade')
+);
+
+schema_execute($connection, $foreign_builder);</code></pre>
+    <h3>What it does</h3>
+    <p>Provides a class-driven schema DSL for table creation and migration-like alter operations while keeping execution inside the Database module.</p>
+    <h3>API</h3>
+    <details class="api-details">
+        <summary class="api-summary">
+            <span>Schema API</span>
+            <span class="api-state"><span class="api-state-closed">Hidden - click to open</span><span class="api-state-open">Open</span></span>
+        </summary>
+        <div class="api-body">
+            <pre><code class="language-php">use Harbor\Database\Schema\Column;
+use Harbor\Database\Schema\ForeignKey;
+
+function schema_builder_alter(string $table): array
+function schema_builder_create(string $table, bool $if_not_exists = false): array
+function schema_builder_drop(string $table, bool $if_exists = true): array
+function schema_builder_rename(string $from, string $to): array
+
+function schema_add_column(array $builder, string $name, Column $column): array
+function schema_change_column(array $builder, string $name, Column $column): array
+function schema_drop_column(array $builder, string $name): array
+function schema_rename_column(array $builder, string $from, string $to): array
+
+function schema_add_primary(array $builder, array $columns, ?string $name = null): array
+function schema_drop_primary(array $builder, ?string $name = null): array
+function schema_add_unique(array $builder, string $name, array $columns): array
+function schema_drop_unique(array $builder, string $name): array
+function schema_add_index(
+    array $builder,
+    string $name,
+    array $columns,
+    bool $unique = false,
+    bool $if_not_exists = false
+): array
+function schema_drop_index(array $builder, string $name, bool $if_exists = false): array
+
+function schema_add_foreign(array $builder, ForeignKey $foreign_key): array
+function schema_drop_foreign(array $builder, string $name): array
+
+function schema_statements(array $builder, ?string $driver = null): array
+function schema_execute(PDO|mysqli $connection, array $builder, ?string $driver = null): bool</code></pre>
+        </div>
+    </details>
+    <details class="api-details">
+        <summary class="api-summary">
+            <span>Column &amp; ForeignKey DSL</span>
+            <span class="api-state"><span class="api-state-closed">Hidden - click to open</span><span class="api-state-open">Open</span></span>
+        </summary>
+        <div class="api-body">
+            <pre><code class="language-php">final class Column
+{
+    public static function int(): self
+    public static function big_int(): self
+    public static function varchar(int $length = 255): self
+    public static function text(): self
+    public static function json(): self
+    public static function datetime(): self
+    public static function enum(array $allowed_values): self
+    public static function set(array $allowed_values): self
+
+    public function nullable(bool $value = true): self
+    public function default(mixed $value): self
+    public function default_expression(string $expression): self
+    public function after(string $column_name): self
+    public function first(): self
+    public function unsigned(): self
+    public function auto_increment(): self
+    public function primary(): self
+    public function unique(?string $index_name = null): self
+    public function index(?string $index_name = null): self
+}
+
+final class ForeignKey
+{
+    public static function from(string|array $columns): self
+    public function references(string|array $columns): self
+    public function on(string $table): self
+    public function name(string $constraint_name): self
+    public function on_delete(string $action): self
+    public function on_update(string $action): self
+}</code></pre>
+        </div>
+    </details>
+    <p>Important: modifiers like <code>after()</code>, <code>first()</code>, generated columns, and some idempotent index clauses are driver/version dependent and may throw explicit exceptions when unsupported.</p>
+</section>
+
+<section class="docs-section">
     <h2>DTO Connection Setup</h2>
     <h3>Example</h3>
     <pre><code class="language-php">use Harbor\Database\MysqlDto;

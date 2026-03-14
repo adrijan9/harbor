@@ -18,6 +18,14 @@ require_once __DIR__.'/db_mysql_pdo.php';
 
 require_once __DIR__.'/db_mysqli.php';
 
+require_once __DIR__.'/Schema/Column.php';
+
+require_once __DIR__.'/Schema/ForeignKey.php';
+
+require_once __DIR__.'/Schema/schema_compile.php';
+
+require_once __DIR__.'/Schema/schema.php';
+
 use function Harbor\Config\config_array_get;
 use function Harbor\Config\config_resolve;
 use function Harbor\Support\array_first;
