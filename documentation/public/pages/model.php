@@ -30,8 +30,8 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Harbor\Database\QueryBuilder\QueryBuilder;
 use function Harbor\Database\db_first;
-use function Harbor\Database\query_select;
 
 final class User
 {
@@ -42,7 +42,8 @@ final class User
 
     public function find(int $id): array
     {
-        $query = query_select('users')
+        $query = QueryBuilder::select()
+            ->from('users')
             ->columns('id', 'email', 'status')
             ->where('id', '=', $id)
             ->limit(1);
@@ -56,7 +57,8 @@ final class User
 
     public function find_by_email(string $email): array
     {
-        $query = query_select('users')
+        $query = QueryBuilder::select()
+            ->from('users')
             ->columns('id', 'email', 'status')
             ->where('email', '=', $email)
             ->limit(1);
@@ -84,7 +86,7 @@ namespace App\Models;
 use Harbor\Database\QueryBuilder\QueryBuilder;
 use function Harbor\Database\db_array;
 use function Harbor\Database\db_first;
-use function Harbor\Database\query_select;
+use function Harbor\Database\query;
 
 abstract class BaseModel
 {
@@ -97,7 +99,9 @@ abstract class BaseModel
 
     protected function query(): QueryBuilder
     {
-        return query_select($this->table());
+        return query()
+            ->select()
+            ->from($this->table());
     }
 
     protected function one(QueryBuilder $query): array

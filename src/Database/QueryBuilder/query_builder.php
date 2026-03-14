@@ -8,11 +8,19 @@ require_once __DIR__.'/QueryExpression.php';
 
 require_once __DIR__.'/QueryBuilder.php';
 
+require_once __DIR__.'/QueryFactory.php';
+
 require_once __DIR__.'/query_compile.php';
 
 use Harbor\Database\QueryBuilder\QueryBuilder;
+use Harbor\Database\QueryBuilder\QueryFactory;
 
 /** Public */
+function query(): QueryFactory
+{
+    return query_builder_factory();
+}
+
 function query_select(?string $table = null): QueryBuilder
 {
     return query_builder_new('select', $table);
@@ -34,6 +42,11 @@ function query_delete(?string $table = null): QueryBuilder
 }
 
 /** Private */
+function query_builder_factory(): QueryFactory
+{
+    return new QueryFactory();
+}
+
 function query_builder_new(string $type, ?string $table = null): QueryBuilder
 {
     return match ($type) {

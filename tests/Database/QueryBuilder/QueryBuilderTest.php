@@ -13,6 +13,7 @@ use PHPUnit\Framework\TestCase;
 use function Harbor\Database\db_array;
 use function Harbor\Database\db_execute;
 use function Harbor\Database\db_sqlite_connect;
+use function Harbor\Database\query;
 use function Harbor\Database\query_builder_interpolate_bindings;
 use function Harbor\Database\query_delete;
 use function Harbor\Database\query_insert;
@@ -57,6 +58,23 @@ final class QueryBuilderTest extends TestCase
             query_builder_interpolate_bindings($sql, $bindings),
             $builder->build('sqlite')
         );
+    }
+
+    public function test_query_helper_supports_query_select_from_flow(): void
+    {
+        $builder = query()
+            ->select()
+            ->from('users')
+            ->columns('id')
+            ->where('status', '=', 'active')
+            ->limit(1)
+        ;
+
+        self::assertSame(
+            'SELECT `id` FROM `users` WHERE `status` = ? LIMIT 1',
+            $builder->get_sql('sqlite')
+        );
+        self::assertSame(['active'], $builder->get_bindings());
     }
 
     public function test_subquery_helpers_compile_expected_sql(): void

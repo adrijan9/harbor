@@ -219,17 +219,21 @@ final class ForeignKey
 use function Harbor\Database\db_array;
 use function Harbor\Database\db_driver;
 use function Harbor\Database\db_execute;
-use function Harbor\Database\query_insert;
-use function Harbor\Database\query_select;
+use function Harbor\Database\query;
 
-$insert = query_insert('users')->values([
+$insert = query()
+    ->insert()
+    ->into('users')
+    ->values([
     'email' => 'ada@example.com',
     'status' => 'active',
 ]);
 
 db_execute($connection, $insert->get_sql(db_driver()), $insert->get_bindings());
 
-$select = query_select('users')
+$select = query()
+    ->select()
+    ->from('users')
     ->columns('id', 'email')
     ->where('status', '=', 'active')
     ->order_by('id', 'desc')
@@ -259,11 +263,18 @@ db_execute($connection, $sql_string_mode);</code></pre>
         </summary>
         <div class="api-body">
             <pre><code class="language-php">use Harbor\Database\QueryBuilder\QueryBuilder;
+use Harbor\Database\QueryBuilder\QueryFactory;
 
+function query(): QueryFactory
 function query_select(?string $table = null): QueryBuilder
 function query_insert(?string $table = null): QueryBuilder
 function query_update(?string $table = null): QueryBuilder
 function query_delete(?string $table = null): QueryBuilder
+
+query()->select(?string $table = null)
+query()->insert(?string $table = null)
+query()->update(?string $table = null)
+query()->delete(?string $table = null)
 
 QueryBuilder::select(?string $table = null)
 QueryBuilder::insert(?string $table = null)

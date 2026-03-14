@@ -30,6 +30,8 @@ require_once __DIR__.'/QueryBuilder/QueryExpression.php';
 
 require_once __DIR__.'/QueryBuilder/QueryBuilder.php';
 
+require_once __DIR__.'/QueryBuilder/QueryFactory.php';
+
 require_once __DIR__.'/QueryBuilder/query_compile.php';
 
 require_once __DIR__.'/QueryBuilder/query_builder.php';
