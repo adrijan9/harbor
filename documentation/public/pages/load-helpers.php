@@ -106,6 +106,11 @@ HelperLoader::load('cache');</code></pre>
                 <td>Database resolver and concrete wrappers for SQLite/MySQL connections and queries.</td>
             </tr>
             <tr>
+                <td><code>pagination</code></td>
+                <td><code>Harbor\Pagination</code></td>
+                <td>Standalone pagination module with reusable abstract class and helper mode (<code>pagination_paginate()</code>).</td>
+            </tr>
+            <tr>
                 <td><code>validation</code></td>
                 <td><code>Harbor\Validation</code></td>
                 <td>Fluent validation rules and results.</td>

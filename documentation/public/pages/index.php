@@ -69,6 +69,10 @@ require __DIR__.'/../shared/header.php';
             <h3>Model Pattern</h3>
             <p>Optional plain-PHP model classes without ORM complexity.</p>
         </a>
+        <a class="card" href="/model/pagination">
+            <h3>Model Pagination</h3>
+            <p>Standalone pagination module with class mode and helper mode.</p>
+        </a>
         <a class="card" href="/migrations">
             <h3>Migrations &amp; Seeders</h3>
             <p>Create, run, and roll back tracked migration and seeder batches.</p>

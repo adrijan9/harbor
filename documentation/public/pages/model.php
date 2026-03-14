@@ -155,6 +155,12 @@ final class UserModel extends BaseModel
 </section>
 
 <section class="docs-section">
+    <h2>Model Pagination</h2>
+    <p>Need reusable pagination without ORM behavior? See the dedicated pagination module page.</p>
+    <p><a href="/model/pagination">Open Model Pagination docs</a></p>
+</section>
+
+<section class="docs-section">
     <h2>Guidelines</h2>
     <ul>
         <li>Keep models focused on one table or aggregate boundary.</li>

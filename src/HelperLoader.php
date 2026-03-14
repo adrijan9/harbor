@@ -103,6 +103,8 @@ final class HelperLoader
             'db_sqlite' => __DIR__.'/Database/db_sqlite.php',
             'db_mysql_pdo' => __DIR__.'/Database/db_mysql_pdo.php',
             'db_mysqli' => __DIR__.'/Database/db_mysqli.php',
+            // Pagination
+            'pagination' => __DIR__.'/Pagination/pagination_helpers.php',
             // Validation
             'validation' => __DIR__.'/Validation/validation.php',
             // Performance

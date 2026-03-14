@@ -50,6 +50,13 @@
 </route>
 
 <route>
+  path: /model/pagination
+  method: GET
+  name: docs.model_pagination
+  entry: pages/model-pagination.php
+</route>
+
+<route>
   path: /migrations
   method: GET
   name: docs.migrations

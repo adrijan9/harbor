@@ -48,6 +48,12 @@ return [
             'entry' => 'pages/model.php',
         ],
         [
+            'path' => '/model/pagination',
+            'method' => 'GET',
+            'name' => 'docs.model_pagination',
+            'entry' => 'pages/model-pagination.php',
+        ],
+        [
             'path' => '/migrations',
             'method' => 'GET',
             'name' => 'docs.migrations',

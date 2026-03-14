@@ -15,6 +15,7 @@ $docs_navigation = [
     ['id' => 'config', 'label' => 'Config', 'href' => '/config'],
     ['id' => 'database', 'label' => 'Database', 'href' => '/database'],
     ['id' => 'model', 'label' => 'Model', 'href' => '/model'],
+    ['id' => 'model_pagination', 'label' => 'Model Pagination', 'href' => '/model/pagination'],
     ['id' => 'migrations', 'label' => 'Migrations', 'href' => '/migrations'],
     ['id' => 'lang', 'label' => 'Lang', 'href' => '/lang'],
     ['id' => 'support', 'label' => 'Support', 'href' => '/support'],
