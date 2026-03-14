@@ -30,6 +30,8 @@
     ],
     "require": {
         "php": "^8.5",
+        "ext-mysqli": "*",
+        "ext-pdo": "*",
         "nesbot/carbon": "^3.8",
         "lcobucci/jwt": "^5.6"
     },
