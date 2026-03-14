@@ -213,6 +213,177 @@ final class ForeignKey
 </section>
 
 <section class="docs-section">
+    <h2>Query Builder</h2>
+    <h3>Example</h3>
+    <pre><code class="language-php">use Harbor\Database\QueryBuilder\QueryBuilder;
+use function Harbor\Database\db_array;
+use function Harbor\Database\db_driver;
+use function Harbor\Database\db_execute;
+use function Harbor\Database\query_insert;
+use function Harbor\Database\query_select;
+
+$insert = query_insert('users')->values([
+    'email' => 'ada@example.com',
+    'status' => 'active',
+]);
+
+db_execute($connection, $insert->get_sql(db_driver()), $insert->get_bindings());
+
+$select = query_select('users')
+    ->columns('id', 'email')
+    ->where('status', '=', 'active')
+    ->order_by('id', 'desc')
+    ->limit(20);
+
+$rows = db_array($connection, $select->get_sql(db_driver()), $select->get_bindings());
+
+$sql_string_mode = QueryBuilder::update('users')
+    ->set('status', 'inactive')
+    ->where('id', '=', 10)
+    ->build(db_driver());
+
+db_execute($connection, $sql_string_mode);</code></pre>
+    <h3>What it does</h3>
+    <p>Provides a fluent SQL builder for <code>SELECT</code>, <code>INSERT</code>, <code>UPDATE</code>, and <code>DELETE</code> with one-statement output per build and optional binding-aware execution.</p>
+    <h3>Outputs</h3>
+    <ul>
+        <li><code>get_sql(?string $driver = null): string</code> returns SQL with <code>?</code> placeholders.</li>
+        <li><code>get_bindings(): array</code> returns ordered bindings for that SQL.</li>
+        <li><code>build(?string $driver = null): string</code> returns a fully interpolated SQL string.</li>
+    </ul>
+    <h3>API</h3>
+    <details class="api-details">
+        <summary class="api-summary">
+            <span>Query Entry Points</span>
+            <span class="api-state"><span class="api-state-closed">Hidden - click to open</span><span class="api-state-open">Open</span></span>
+        </summary>
+        <div class="api-body">
+            <pre><code class="language-php">use Harbor\Database\QueryBuilder\QueryBuilder;
+
+function query_select(?string $table = null): QueryBuilder
+function query_insert(?string $table = null): QueryBuilder
+function query_update(?string $table = null): QueryBuilder
+function query_delete(?string $table = null): QueryBuilder
+
+QueryBuilder::select(?string $table = null)
+QueryBuilder::insert(?string $table = null)
+QueryBuilder::update(?string $table = null)
+QueryBuilder::delete(?string $table = null)</code></pre>
+        </div>
+    </details>
+    <details class="api-details">
+        <summary class="api-summary">
+            <span>Core Fluent API</span>
+            <span class="api-state"><span class="api-state-closed">Hidden - click to open</span><span class="api-state-open">Open</span></span>
+        </summary>
+        <div class="api-body">
+            <pre><code class="language-php">// shared
+->from(string $table)
+->into(string $table)
+->table(string $table)
+->as(string $alias)
+->when(bool|callable $condition, callable $then, ?callable $else = null)
+
+->where(string $column, string $operator, mixed $value)
+->or_where(string $column, string $operator, mixed $value)
+->where_column(string $left, string $operator, string $right)
+->or_where_column(string $left, string $operator, string $right)
+->where_like(string $column, string $pattern, bool $case_sensitive = false)
+->or_where_like(string $column, string $pattern, bool $case_sensitive = false)
+->where_group(callable $callback)
+->or_where_group(callable $callback)
+->where_in(string $column, array $values)
+->where_not_in(string $column, array $values)
+->where_null(string $column)
+->where_not_null(string $column)
+->where_between(string $column, mixed $from, mixed $to)
+->where_raw(QueryExpression|string $sql, array $bindings = [])
+->where_exists(QueryBuilder $sub)
+->where_in_sub(string $column, QueryBuilder $sub)
+
+// date-part predicates
+->where_date(string $column, string $operator, string $date_ymd)
+->where_year(string $column, string $operator, int $year)
+->where_month(string $column, string $operator, int $month)
+->where_day(string $column, string $operator, int $day)
+
+// select
+->columns(string ...$columns)
+->select_raw(QueryExpression|string $sql, array $bindings = [])
+->select_sub(QueryBuilder $sub, string $alias)
+->from_sub(QueryBuilder $sub, string $alias)
+->join(string $table, string $left, string $operator, string $right)
+->left_join(string $table, string $left, string $operator, string $right)
+->right_join(string $table, string $left, string $operator, string $right)
+->cross_join(string $table)
+->join_sub(QueryBuilder $sub, string $alias, string $left, string $operator, string $right)
+->left_join_sub(QueryBuilder $sub, string $alias, string $left, string $operator, string $right)
+->right_join_sub(QueryBuilder $sub, string $alias, string $left, string $operator, string $right)
+->group_by(string ...$columns)
+->having(string $column, string $operator, mixed $value)
+->having_raw(QueryExpression|string $sql, array $bindings = [])
+->order_by(string $column, string $direction = 'asc')
+->order_by_raw(QueryExpression|string $sql)
+->distinct(bool $value = true)
+->count(string $column = '*', string $alias = 'count')
+->sum(string $column, string $alias = 'sum')
+->avg(string $column, string $alias = 'avg')
+->min(string $column, string $alias = 'min')
+->max(string $column, string $alias = 'max')
+->union(QueryBuilder $query)
+->union_all(QueryBuilder $query)
+->limit(int $limit)
+->offset(int $offset)
+->for_page(int $page, int $per_page)
+
+// locks
+->lock_for_update()
+->lock_for_share()
+->lock_prefix(QueryExpression|string $fragment)
+->lock_suffix(QueryExpression|string $fragment)
+->clear_lock()
+
+// insert
+->values(array $row)
+->rows(array $rows)
+->ignore(bool $value = true)
+->upsert(array $rows, array $unique_by, array $update_columns = [])
+->on_conflict(array $columns)
+->do_nothing()
+->do_update(array $columns)
+->on_duplicate_key_update(array $columns)
+
+// update
+->set(string $column, mixed $value)
+->set_many(array $values)
+->increment(string $column, int|float $by = 1)
+->decrement(string $column, int|float $by = 1)
+
+// delete safety
+->allow_full_table(bool $allow = true)
+
+// output
+->get_sql(?string $driver = null): string
+->get_bindings(): array
+->build(?string $driver = null): string</code></pre>
+        </div>
+    </details>
+    <details class="api-details">
+        <summary class="api-summary">
+            <span>QueryExpression</span>
+            <span class="api-state"><span class="api-state-closed">Hidden - click to open</span><span class="api-state-open">Open</span></span>
+        </summary>
+        <div class="api-body">
+            <pre><code class="language-php">use Harbor\Database\QueryBuilder\QueryExpression;
+
+QueryExpression::raw(string $sql, array $bindings = []): QueryExpression</code></pre>
+        </div>
+    </details>
+    <p>Important: <code>QueryExpression::raw()</code> is trusted SQL only and rejects unsafe tokens such as statement delimiters/comments. Prefer placeholders + bindings for user input.</p>
+    <p>Important: <code>RETURNING</code> is supported for SQLite and rejected for MySQL/MySQLi. Row lock clauses are rejected for SQLite.</p>
+</section>
+
+<section class="docs-section">
     <h2>DTO Connection Setup</h2>
     <h3>Example</h3>
     <pre><code class="language-php">use Harbor\Database\MysqlDto;

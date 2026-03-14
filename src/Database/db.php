@@ -26,6 +26,14 @@ require_once __DIR__.'/Schema/schema_compile.php';
 
 require_once __DIR__.'/Schema/schema.php';
 
+require_once __DIR__.'/QueryBuilder/QueryExpression.php';
+
+require_once __DIR__.'/QueryBuilder/QueryBuilder.php';
+
+require_once __DIR__.'/QueryBuilder/query_compile.php';
+
+require_once __DIR__.'/QueryBuilder/query_builder.php';
+
 use function Harbor\Config\config_array_get;
 use function Harbor\Config\config_resolve;
 use function Harbor\Support\array_first;

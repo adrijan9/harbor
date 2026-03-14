@@ -1,5 +1,5 @@
 {
-    "generated_at": "2026-03-14T18:49:39+00:00",
+    "generated_at": "2026-03-14T19:49:16+00:00",
     "source": "documentation/.router",
     "items": [
         {
@@ -132,6 +132,8 @@
                 "Example",
                 "API",
                 "Schema Builder",
+                "Query Builder",
+                "Outputs",
                 "DTO Connection Setup",
                 "SQLite (PDO)",
                 "MySQL (PDO)",

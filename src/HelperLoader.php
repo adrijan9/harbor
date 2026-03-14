@@ -98,6 +98,8 @@ final class HelperLoader
             'database' => __DIR__.'/Database/db.php',
             'schema' => __DIR__.'/Database/db.php',
             'database_schema' => __DIR__.'/Database/db.php',
+            'query_builder' => __DIR__.'/Database/db.php',
+            'database_query_builder' => __DIR__.'/Database/db.php',
             'db_sqlite' => __DIR__.'/Database/db_sqlite.php',
             'db_mysql_pdo' => __DIR__.'/Database/db_mysql_pdo.php',
             'db_mysqli' => __DIR__.'/Database/db_mysqli.php',
