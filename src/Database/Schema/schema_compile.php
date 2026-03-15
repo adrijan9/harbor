@@ -678,11 +678,11 @@ function schema_compile_foreign_key_payload(mixed $foreign_key): array
         'references' => $references,
         'table' => $table,
         'name' => $name,
-        'on_delete' => is_string($foreign_key['on_delete'] ?? null) ? (string) $foreign_key['on_delete'] : null,
-        'on_update' => is_string($foreign_key['on_update'] ?? null) ? (string) $foreign_key['on_update'] : null,
-        'deferrable' => is_bool($foreign_key['deferrable'] ?? null) ? (bool) $foreign_key['deferrable'] : null,
+        'on_delete' => is_string($foreign_key['on_delete'] ?? null) ? $foreign_key['on_delete'] : null,
+        'on_update' => is_string($foreign_key['on_update'] ?? null) ? $foreign_key['on_update'] : null,
+        'deferrable' => is_bool($foreign_key['deferrable'] ?? null) ? $foreign_key['deferrable'] : null,
         'initially_deferred' => is_bool($foreign_key['initially_deferred'] ?? null)
-            ? (bool) $foreign_key['initially_deferred']
+            ? $foreign_key['initially_deferred']
             : null,
     ];
 }
@@ -779,7 +779,7 @@ function schema_compile_column_definition(
                 throw new \InvalidArgumentException('SQLite driver does not support column comments.');
             }
 
-            $definition_parts[] = sprintf("COMMENT '%s'", str_replace("'", "''", trim((string) $modifiers['comment'])));
+            $definition_parts[] = sprintf("COMMENT '%s'", str_replace("'", "''", trim($modifiers['comment'])));
         }
 
         if (is_string($modifiers['charset'] ?? null) && ! harbor_is_blank($modifiers['charset'])) {
@@ -788,7 +788,7 @@ function schema_compile_column_definition(
             }
 
             $definition_parts[] = 'CHARACTER SET '.schema_compile_validate_identifier(
-                (string) $modifiers['charset'],
+                $modifiers['charset'],
                 'column charset'
             );
         }
@@ -799,13 +799,13 @@ function schema_compile_column_definition(
             }
 
             $definition_parts[] = 'COLLATE '.schema_compile_validate_identifier(
-                (string) $modifiers['collation'],
+                $modifiers['collation'],
                 'column collation'
             );
         }
 
         if (is_string($modifiers['check'] ?? null) && ! harbor_is_blank($modifiers['check'])) {
-            $definition_parts[] = 'CHECK ('.trim((string) $modifiers['check']).')';
+            $definition_parts[] = 'CHECK ('.trim($modifiers['check']).')';
         }
 
         $virtual_as = $modifiers['virtual_as'] ?? null;
@@ -845,7 +845,7 @@ function schema_compile_column_definition(
             }
 
             $definition_parts[] = 'AFTER '.schema_compile_quote_identifier(
-                schema_compile_validate_identifier((string) $modifiers['after'], 'column after target')
+                schema_compile_validate_identifier($modifiers['after'], 'column after target')
             );
         }
     }
@@ -1320,11 +1320,11 @@ function schema_compile_foreign_constraint_sql(array $foreign_key, string $owner
     ];
 
     if (is_string($foreign_key['on_delete']) && ! harbor_is_blank(trim($foreign_key['on_delete']))) {
-        $parts[] = 'ON DELETE '.trim((string) $foreign_key['on_delete']);
+        $parts[] = 'ON DELETE '.trim($foreign_key['on_delete']);
     }
 
     if (is_string($foreign_key['on_update']) && ! harbor_is_blank(trim($foreign_key['on_update']))) {
-        $parts[] = 'ON UPDATE '.trim((string) $foreign_key['on_update']);
+        $parts[] = 'ON UPDATE '.trim($foreign_key['on_update']);
     }
 
     $deferrable = $foreign_key['deferrable'];

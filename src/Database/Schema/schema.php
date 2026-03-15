@@ -335,11 +335,11 @@ function schema_builder_push_operation(array $builder, array $operation): array
  */
 function schema_assert_builder(array $builder): array
 {
-    if (! is_string($builder['action'] ?? null) || harbor_is_blank(trim((string) $builder['action']))) {
+    if (! is_string($builder['action'] ?? null) || harbor_is_blank(trim($builder['action']))) {
         throw new \InvalidArgumentException('Invalid schema builder: missing action.');
     }
 
-    if (! is_string($builder['table'] ?? null) || harbor_is_blank(trim((string) $builder['table']))) {
+    if (! is_string($builder['table'] ?? null) || harbor_is_blank(trim($builder['table']))) {
         throw new \InvalidArgumentException('Invalid schema builder: missing table.');
     }
 

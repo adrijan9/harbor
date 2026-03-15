@@ -85,7 +85,7 @@ function docs_index_output_path(array $arguments, string $default_output_path): 
             continue;
         }
 
-        $requested_output_path = trim((string) substr($argument, strlen('--output=')));
+        $requested_output_path = trim(substr($argument, strlen('--output=')));
         if ('' === $requested_output_path) {
             throw new InvalidArgumentException('Output path cannot be empty.');
         }
@@ -189,7 +189,7 @@ function docs_index_route_field(string $raw_route_block, string $field): string
         return '';
     }
 
-    $field_value = trim((string) ($field_match[1] ?? ''));
+    $field_value = trim($field_match[1] ?? '');
 
     return docs_index_normalize_text($field_value);
 }
@@ -199,7 +199,7 @@ function docs_index_page_title(string $page_content, string $fallback_path): str
     $html_content = docs_index_strip_php($page_content);
 
     if (1 === preg_match('/<h1[^>]*>(.*?)<\/h1>/is', $html_content, $h1_match)) {
-        $h1_title = docs_index_html_to_text((string) ($h1_match[1] ?? ''));
+        $h1_title = docs_index_html_to_text($h1_match[1] ?? '');
 
         if ('' !== $h1_title) {
             return $h1_title;
@@ -207,7 +207,7 @@ function docs_index_page_title(string $page_content, string $fallback_path): str
     }
 
     if (1 === preg_match('/\$page_title\s*=\s*\'([^\']+)\'\s*;/i', $page_content, $page_title_match)) {
-        $page_title = docs_index_normalize_text((string) ($page_title_match[1] ?? ''));
+        $page_title = docs_index_normalize_text($page_title_match[1] ?? '');
 
         if ('' !== $page_title) {
             return $page_title;
@@ -222,11 +222,11 @@ function docs_index_page_description(string $page_content): string
     $html_content = docs_index_strip_php($page_content);
 
     if (1 === preg_match('/<section[^>]*class="[^"]*hero[^"]*"[^>]*>.*?<p[^>]*>(.*?)<\/p>/is', $html_content, $hero_paragraph_match)) {
-        return docs_index_html_to_text((string) ($hero_paragraph_match[1] ?? ''));
+        return docs_index_html_to_text($hero_paragraph_match[1] ?? '');
     }
 
     if (1 === preg_match('/<p[^>]*>(.*?)<\/p>/is', $html_content, $paragraph_match)) {
-        return docs_index_html_to_text((string) ($paragraph_match[1] ?? ''));
+        return docs_index_html_to_text($paragraph_match[1] ?? '');
     }
 
     return '';

@@ -193,7 +193,7 @@ function harbor_test_execute(array $command, string $working_directory): int
         return 1;
     }
 
-    return (int) proc_close($process);
+    return proc_close($process);
 }
 
 function harbor_test_print_usage(): void

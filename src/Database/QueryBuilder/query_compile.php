@@ -962,7 +962,7 @@ function query_builder_compile_lock(mixed $lock, string $driver): array
 
     $prefix_expression = $lock['prefix'] ?? null;
     $suffix_expression = $lock['suffix'] ?? null;
-    $mode = is_string($lock['mode'] ?? null) ? strtolower((string) $lock['mode']) : null;
+    $mode = is_string($lock['mode'] ?? null) ? strtolower($lock['mode']) : null;
 
     $prefix = '';
     if ($prefix_expression instanceof QueryExpression) {

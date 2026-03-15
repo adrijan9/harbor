@@ -29,7 +29,7 @@ function rate_limiter_hit(string $key, int $decay_seconds = 60, int $amount = 1)
         ];
     }
 
-    $bucket['attempts'] = $bucket['attempts'] + $normalized_amount;
+    $bucket['attempts'] += $normalized_amount;
     rate_limiter_store_bucket($bucket_key, $bucket);
 
     return $bucket['attempts'];
