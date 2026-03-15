@@ -30,6 +30,12 @@ return [
             'entry' => 'pages/cli.php',
         ],
         [
+            'path' => '/commands',
+            'method' => 'GET',
+            'name' => 'docs.commands',
+            'entry' => 'pages/commands.php',
+        ],
+        [
             'path' => '/test',
             'method' => 'POST',
             'name' => 'docs.cli',

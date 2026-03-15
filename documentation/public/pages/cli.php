@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 $page_title = 'Harbor Docs - CLI';
-$page_description = 'CLI commands for scaffolding, route compile, tests, migrations, seeders, and local docs.';
+$page_description = 'CLI commands for route compile, custom commands, scaffolding, tests, migrations, seeders, and local docs.';
 $page_id = 'cli';
 
 require __DIR__.'/../shared/header.php';
@@ -12,7 +12,38 @@ require __DIR__.'/../shared/header.php';
 <section class="hero">
     <span class="hero-eyebrow">Tooling</span>
     <h1>CLI</h1>
-    <p>Scaffold sites, compile routes, run tests/migrations/seeders, and run docs.</p>
+    <p>Compile routes, create and run custom commands, scaffold sites, run tests/migrations/seeders, and run docs.</p>
+    <div class="button-row">
+        <a class="button button-ghost" href="/commands">Open Full Commands Guide</a>
+    </div>
+</section>
+
+<section class="docs-section">
+    <h2><code>bin/harbor-command</code></h2>
+    <h3>Example</h3>
+    <pre><code class="language-bash">cd my-site
+../bin/harbor-command create users:sync
+../bin/harbor-command run users:sync -- --force
+../bin/harbor-command compile</code></pre>
+    <h3>What it does</h3>
+    <p>Manages custom site commands using <code>.commands</code> source files and compiled <code>commands/commands.php</code> registry files.</p>
+    <h3>API</h3>
+    <details class="api-details">
+        <summary class="api-summary">
+            <span>Command System CLI API</span>
+            <span class="api-state"><span class="api-state-closed">Hidden - click to open</span><span class="api-state-open">Open</span></span>
+        </summary>
+        <div class="api-body">
+            <ul class="api-method-list">
+                <li><code>../bin/harbor-command create &lt;key&gt;</code> Append command definition and create entry stub file.</li>
+                <li><code>../bin/harbor-command create &lt;key&gt; --entry=commands/custom.php</code> Set custom entry path.</li>
+                <li><code>../bin/harbor-command run &lt;key&gt; [-- &lt;args...&gt;]</code> Execute one command key and forward arguments.</li>
+                <li><code>../bin/harbor-command compile [path-to-.commands|directory]</code> Compile source definitions into registry.</li>
+                <li><code>--debug</code> or <code>-v</code> Enables debug output.</li>
+                <li><code><a href="/commands">/commands</a></code> Full guide for creating, running, and manually compiling command definitions.</li>
+            </ul>
+        </div>
+    </details>
 </section>
 
 <section class="docs-section">

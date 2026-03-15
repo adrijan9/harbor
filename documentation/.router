@@ -29,6 +29,13 @@
 </route>
 
 <route>
+  path: /commands
+  method: GET
+  name: docs.commands
+  entry: pages/commands.php
+</route>
+
+<route>
   path: /test
   method: POST
   name: docs.cli

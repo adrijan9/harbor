@@ -14,6 +14,7 @@ $docs_navigation_groups = [
             ['id' => 'installation', 'label' => 'Installation', 'href' => '/installation'],
             ['id' => 'creating_new_site', 'label' => 'Creating New Site', 'href' => '/creating-new-site'],
             ['id' => 'cli', 'label' => 'CLI', 'href' => '/cli'],
+            ['id' => 'commands', 'label' => 'Commands', 'href' => '/commands'],
         ],
     ],
     [
