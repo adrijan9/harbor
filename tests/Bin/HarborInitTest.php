@@ -58,6 +58,8 @@ final class HarborInitTest extends TestCase
         self::assertFileExists($site_path.'/tests/TestCase.php');
         self::assertFileExists($site_path.'/tests/Feature/HomePageTest.php');
         self::assertFileExists($site_path.'/tests/Unit/ExampleTest.php');
+        self::assertDirectoryDoesNotExist($site_path.'/commands');
+        self::assertFileDoesNotExist($site_path.'/.commands');
 
         $config = require $site_path.'/global.php';
         self::assertIsArray($config);
@@ -73,7 +75,7 @@ final class HarborInitTest extends TestCase
 
         $page_index_content = file_get_contents($site_path.'/public/pages/index.php');
         self::assertIsString($page_index_content);
-        self::assertStringContainsString("Helper::Translations->load();", $page_index_content);
+        self::assertStringContainsString('Helper::Translations->load();', $page_index_content);
         self::assertStringContainsString('translation_init([', $page_index_content);
         self::assertStringContainsString("__DIR__.'/../../lang/en.php'", $page_index_content);
 

@@ -3,6 +3,7 @@
     "name": "harbor/harbor",
     "bin": [
         "bin/harbor",
+        "bin/harbor-command",
         "bin/harbor-init",
         "bin/harbor-test",
         "bin/harbor-docs",

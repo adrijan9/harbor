@@ -26,6 +26,8 @@ final class HarborInitCommandTest extends TestCase
         self::assertFileExists($this->workspace_path.'/demo-site/.router');
         self::assertFileExists($this->workspace_path.'/demo-site/serve.sh');
         self::assertFileExists($this->workspace_path.'/demo-site/public/index.php');
+        self::assertDirectoryDoesNotExist($this->workspace_path.'/demo-site/commands');
+        self::assertFileDoesNotExist($this->workspace_path.'/demo-site/.commands');
         self::assertTrue(is_executable($this->workspace_path.'/demo-site/serve.sh'));
     }
 
