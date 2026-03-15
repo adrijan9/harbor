@@ -73,7 +73,7 @@ final class HarborInitTest extends TestCase
 
         $page_index_content = file_get_contents($site_path.'/public/pages/index.php');
         self::assertIsString($page_index_content);
-        self::assertStringContainsString("Helper::load_many('translation');", $page_index_content);
+        self::assertStringContainsString("Helper::Translations->load();", $page_index_content);
         self::assertStringContainsString('translation_init([', $page_index_content);
         self::assertStringContainsString("__DIR__.'/../../lang/en.php'", $page_index_content);
 
