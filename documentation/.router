@@ -8,17 +8,31 @@
 </route>
 
 <route>
-  path: /load-helpers
-  method: GET
-  name: docs.load_helpers
-  entry: pages/load-helpers.php
-</route>
-
-<route>
   path: /installation
   method: GET
   name: docs.installation
   entry: pages/installation.php
+</route>
+
+<route>
+  path: /creating-new-site
+  method: GET
+  name: docs.creating_new_site
+  entry: pages/creating-new-site.php
+</route>
+
+<route>
+  path: /cli
+  method: GET
+  name: docs.cli
+  entry: pages/cli.php
+</route>
+
+<route>
+  path: /test
+  method: POST
+  name: docs.cli
+  entry: pages/cli.php
 </route>
 
 <route>
@@ -29,10 +43,94 @@
 </route>
 
 <route>
+  path: /load-helpers
+  method: GET
+  name: docs.load_helpers
+  entry: pages/load-helpers.php
+</route>
+
+<route>
   path: /config
   method: GET
   name: docs.config
   entry: pages/config.php
+</route>
+
+<route>
+  path: /request
+  method: GET
+  name: docs.request
+  entry: pages/request.php
+</route>
+
+<route>
+  path: /response
+  method: GET
+  name: docs.response
+  entry: pages/response.php
+</route>
+
+<route>
+  path: /validation
+  method: GET
+  name: docs.validation
+  entry: pages/validation.php
+</route>
+
+<route>
+  path: /middleware
+  method: GET
+  name: docs.middleware
+  entry: pages/middleware.php
+</route>
+
+<route>
+  path: /support
+  method: GET
+  name: docs.support
+  entry: pages/support.php
+</route>
+
+<route>
+  path: /cookie
+  method: GET
+  name: docs.cookie
+  entry: pages/cookie.php
+</route>
+
+<route>
+  path: /session
+  method: GET
+  name: docs.session
+  entry: pages/session.php
+</route>
+
+<route>
+  path: /auth
+  method: GET
+  name: docs.auth
+  entry: pages/auth.php
+</route>
+
+<route>
+  path: /password
+  method: GET
+  name: docs.password
+  entry: pages/password.php
+</route>
+
+<route>
+  path: /cache
+  method: GET
+  name: docs.cache
+  entry: pages/cache.php
+</route>
+
+<route>
+  path: /migrations
+  method: GET
+  name: docs.migrations
+  entry: pages/migrations.php
 </route>
 
 <route>
@@ -57,122 +155,10 @@
 </route>
 
 <route>
-  path: /migrations
-  method: GET
-  name: docs.migrations
-  entry: pages/migrations.php
-</route>
-
-<route>
-  path: /lang
-  method: GET
-  name: docs.lang
-  entry: pages/lang.php
-</route>
-
-<route>
-  path: /support
-  method: GET
-  name: docs.support
-  entry: pages/support.php
-</route>
-
-<route>
-  path: /date
-  method: GET
-  name: docs.date
-  entry: pages/date.php
-</route>
-
-<route>
-  path: /pipeline
-  method: GET
-  name: docs.pipeline
-  entry: pages/pipeline.php
-</route>
-
-<route>
-  path: /middleware
-  method: GET
-  name: docs.middleware
-  entry: pages/middleware.php
-</route>
-
-<route>
-  path: /validation
-  method: GET
-  name: docs.validation
-  entry: pages/validation.php
-</route>
-
-<route>
-  path: /request
-  method: GET
-  name: docs.request
-  entry: pages/request.php
-</route>
-
-<route>
-  path: /cookie
-  method: GET
-  name: docs.cookie
-  entry: pages/cookie.php
-</route>
-
-<route>
-  path: /session
-  method: GET
-  name: docs.session
-  entry: pages/session.php
-</route>
-
-<route>
-  path: /password
-  method: GET
-  name: docs.password
-  entry: pages/password.php
-</route>
-
-<route>
-  path: /auth
-  method: GET
-  name: docs.auth
-  entry: pages/auth.php
-</route>
-
-<route>
-  path: /response
-  method: GET
-  name: docs.response
-  entry: pages/response.php
-</route>
-
-<route>
-  path: /performance
-  method: GET
-  name: docs.performance
-  entry: pages/performance.php
-</route>
-
-<route>
-  path: /units
-  method: GET
-  name: docs.units
-  entry: pages/units.php
-</route>
-
-<route>
   path: /filesystem
   method: GET
   name: docs.filesystem
   entry: pages/filesystem.php
-</route>
-
-<route>
-  path: /cache
-  method: GET
-  name: docs.cache
-  entry: pages/cache.php
 </route>
 
 <route>
@@ -183,15 +169,36 @@
 </route>
 
 <route>
-  path: /cli
+  path: /lang
   method: GET
-  name: docs.cli
-  entry: pages/cli.php
+  name: docs.lang
+  entry: pages/lang.php
 </route>
 
 <route>
-  path: /test
-  method: POST
-  name: docs.cli
-  entry: pages/cli.php
+  path: /date
+  method: GET
+  name: docs.date
+  entry: pages/date.php
+</route>
+
+<route>
+  path: /units
+  method: GET
+  name: docs.units
+  entry: pages/units.php
+</route>
+
+<route>
+  path: /performance
+  method: GET
+  name: docs.performance
+  entry: pages/performance.php
+</route>
+
+<route>
+  path: /pipeline
+  method: GET
+  name: docs.pipeline
+  entry: pages/pipeline.php
 </route>

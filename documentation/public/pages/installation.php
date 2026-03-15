@@ -13,6 +13,9 @@ require __DIR__.'/../shared/header.php';
     <span class="hero-eyebrow">Getting Started</span>
     <h1>Install and Run</h1>
     <p>Install dependencies, scaffold a site, compile routes, run tests, and run docs.</p>
+    <div class="button-row">
+        <a class="button button-primary" href="/creating-new-site">Continue To Creating New Site</a>
+    </div>
 </section>
 
 <section class="docs-section">
@@ -20,7 +23,7 @@ require __DIR__.'/../shared/header.php';
     <ul>
         <li>PHP 8.5+</li>
         <li>Composer 2.x</li>
-        <li>Web server support for rewriting to <code>index.php</code> (Apache or PHP built-in server)</li>
+        <li>Web server support for rewriting to <code>index.php</code> (Apache, Nginx, or PHP built-in server)</li>
     </ul>
 </section>
 

@@ -6,35 +6,68 @@ $page_title ??= 'Harbor Documentation';
 $page_description ??= 'Documentation for the lightweight Harbor toolkit.';
 $page_id ??= 'home';
 
-$docs_navigation = [
-    ['id' => 'home', 'label' => 'Overview', 'href' => '/'],
-    ['id' => 'cli', 'label' => 'CLI', 'href' => '/cli'],
-    ['id' => 'load_helpers', 'label' => 'Load Helpers', 'href' => '/load-helpers'],
-    ['id' => 'installation', 'label' => 'Installation', 'href' => '/installation'],
-    ['id' => 'routing', 'label' => 'Routing', 'href' => '/routing'],
-    ['id' => 'config', 'label' => 'Config', 'href' => '/config'],
-    ['id' => 'database', 'label' => 'Database', 'href' => '/database'],
-    ['id' => 'model', 'label' => 'Model', 'href' => '/model'],
-    ['id' => 'model_pagination', 'label' => 'Model Pagination', 'href' => '/model/pagination'],
-    ['id' => 'migrations', 'label' => 'Migrations', 'href' => '/migrations'],
-    ['id' => 'lang', 'label' => 'Lang', 'href' => '/lang'],
-    ['id' => 'support', 'label' => 'Support', 'href' => '/support'],
-    ['id' => 'date', 'label' => 'Date', 'href' => '/date'],
-    ['id' => 'pipeline', 'label' => 'Pipeline', 'href' => '/pipeline'],
-    ['id' => 'middleware', 'label' => 'Middleware', 'href' => '/middleware'],
-    ['id' => 'validation', 'label' => 'Validation', 'href' => '/validation'],
-    ['id' => 'request', 'label' => 'Request', 'href' => '/request'],
-    ['id' => 'cookie', 'label' => 'Cookie', 'href' => '/cookie'],
-    ['id' => 'session', 'label' => 'Session', 'href' => '/session'],
-    ['id' => 'password', 'label' => 'Password', 'href' => '/password'],
-    ['id' => 'auth', 'label' => 'Auth', 'href' => '/auth'],
-    ['id' => 'response', 'label' => 'Response', 'href' => '/response'],
-    ['id' => 'performance', 'label' => 'Performance', 'href' => '/performance'],
-    ['id' => 'units', 'label' => 'Units', 'href' => '/units'],
-    ['id' => 'filesystem', 'label' => 'Filesystem', 'href' => '/filesystem'],
-    ['id' => 'cache', 'label' => 'Cache', 'href' => '/cache'],
-    ['id' => 'logging', 'label' => 'Logging', 'href' => '/logging'],
+$docs_navigation_groups = [
+    [
+        'label' => 'Getting Started',
+        'items' => [
+            ['id' => 'home', 'label' => 'Overview', 'href' => '/'],
+            ['id' => 'installation', 'label' => 'Installation', 'href' => '/installation'],
+            ['id' => 'creating_new_site', 'label' => 'Creating New Site', 'href' => '/creating-new-site'],
+            ['id' => 'cli', 'label' => 'CLI', 'href' => '/cli'],
+        ],
+    ],
+    [
+        'label' => 'Core Basics',
+        'items' => [
+            ['id' => 'routing', 'label' => 'Routing', 'href' => '/routing'],
+            ['id' => 'load_helpers', 'label' => 'Load Helpers', 'href' => '/load-helpers'],
+            ['id' => 'config', 'label' => 'Config', 'href' => '/config'],
+            ['id' => 'request', 'label' => 'Request', 'href' => '/request'],
+            ['id' => 'response', 'label' => 'Response', 'href' => '/response'],
+            ['id' => 'validation', 'label' => 'Validation', 'href' => '/validation'],
+            ['id' => 'middleware', 'label' => 'Middleware', 'href' => '/middleware'],
+            ['id' => 'support', 'label' => 'Support', 'href' => '/support'],
+        ],
+    ],
+    [
+        'label' => 'State & Security',
+        'items' => [
+            ['id' => 'cookie', 'label' => 'Cookie', 'href' => '/cookie'],
+            ['id' => 'session', 'label' => 'Session', 'href' => '/session'],
+            ['id' => 'auth', 'label' => 'Auth', 'href' => '/auth'],
+            ['id' => 'password', 'label' => 'Password', 'href' => '/password'],
+            ['id' => 'cache', 'label' => 'Cache', 'href' => '/cache'],
+        ],
+    ],
+    [
+        'label' => 'Data & Infrastructure',
+        'items' => [
+            ['id' => 'migrations', 'label' => 'Migrations', 'href' => '/migrations'],
+            ['id' => 'database', 'label' => 'Database', 'href' => '/database'],
+            ['id' => 'model', 'label' => 'Model', 'href' => '/model'],
+            ['id' => 'model_pagination', 'label' => 'Model Pagination', 'href' => '/model/pagination'],
+            ['id' => 'filesystem', 'label' => 'Filesystem', 'href' => '/filesystem'],
+            ['id' => 'logging', 'label' => 'Logging', 'href' => '/logging'],
+        ],
+    ],
+    [
+        'label' => 'Utilities',
+        'items' => [
+            ['id' => 'lang', 'label' => 'Lang', 'href' => '/lang'],
+            ['id' => 'date', 'label' => 'Date', 'href' => '/date'],
+            ['id' => 'units', 'label' => 'Units', 'href' => '/units'],
+            ['id' => 'performance', 'label' => 'Performance', 'href' => '/performance'],
+            ['id' => 'pipeline', 'label' => 'Pipeline', 'href' => '/pipeline'],
+        ],
+    ],
 ];
+
+$docs_lifecycle = [];
+foreach ($docs_navigation_groups as $navigation_group) {
+    foreach ($navigation_group['items'] as $navigation_item) {
+        $docs_lifecycle[] = $navigation_item;
+    }
+}
 ?>
 <!doctype html>
 <html lang="en" data-theme="dark" data-theme-mode="system">
@@ -179,20 +212,43 @@ $docs_navigation = [
         </div>
 
         <nav class="sidebar-nav" aria-label="Documentation Navigation">
-            <?php foreach ($docs_navigation as $navigation_item) { ?>
-                <?php $is_active = $page_id === $navigation_item['id']; ?>
-                <a
-                    class="sidebar-link<?php echo $is_active ? ' is-active' : ''; ?>"
-                    href="<?php echo htmlspecialchars($navigation_item['href'], ENT_QUOTES, 'UTF-8'); ?>"
-                >
-                    <?php echo htmlspecialchars($navigation_item['label'], ENT_QUOTES, 'UTF-8'); ?>
-                </a>
+            <?php foreach ($docs_navigation_groups as $navigation_group) { ?>
+                <section class="sidebar-group">
+                    <p class="sidebar-group-label"><?php echo htmlspecialchars((string) $navigation_group['label'], ENT_QUOTES, 'UTF-8'); ?></p>
+                    <div class="sidebar-group-links">
+                        <?php foreach ($navigation_group['items'] as $navigation_item) { ?>
+                            <?php $is_active = $page_id === $navigation_item['id']; ?>
+                            <a
+                                class="sidebar-link<?php echo $is_active ? ' is-active' : ''; ?>"
+                                href="<?php echo htmlspecialchars((string) $navigation_item['href'], ENT_QUOTES, 'UTF-8'); ?>"
+                            >
+                                <?php echo htmlspecialchars((string) $navigation_item['label'], ENT_QUOTES, 'UTF-8'); ?>
+                            </a>
+                        <?php } ?>
+                    </div>
+                </section>
             <?php } ?>
         </nav>
 
-        <div class="sidebar-block sidebar-note">
-            <p class="sidebar-note-label">Quick Command</p>
-            <code>./bin/harbor-docs</code>
+        <div class="sidebar-block sidebar-quick-commands">
+            <section class="sidebar-group">
+                <p class="sidebar-group-label">Quick Commands</p>
+                <p class="sidebar-command-hint">Run from <code>./vendor/bin</code></p>
+                <div class="sidebar-command-cards">
+                    <div class="sidebar-command-card">
+                        <p class="sidebar-command-title">Compile Router</p>
+                        <code>harbor .</code>
+                    </div>
+                    <div class="sidebar-command-card">
+                        <p class="sidebar-command-title">Publish Config</p>
+                        <code>harbor-config</code>
+                    </div>
+                    <div class="sidebar-command-card">
+                        <p class="sidebar-command-title">Run Migrations</p>
+                        <code>harbor-migration</code>
+                    </div>
+                </div>
+            </section>
         </div>
     </aside>
 

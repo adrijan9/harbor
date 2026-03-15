@@ -2,8 +2,47 @@
 
 declare(strict_types=1);
 
+$next_navigation_item = null;
+
+if (isset($page_id, $docs_lifecycle) && is_string($page_id) && is_array($docs_lifecycle)) {
+    $lifecycle_count = count($docs_lifecycle);
+
+    for ($index = 0; $index < $lifecycle_count; ++$index) {
+        $navigation_item = $docs_lifecycle[$index] ?? null;
+        if (! is_array($navigation_item)) {
+            continue;
+        }
+
+        $navigation_item_id = $navigation_item['id'] ?? null;
+        if (! is_string($navigation_item_id) || $navigation_item_id !== $page_id) {
+            continue;
+        }
+
+        $next_navigation_item = $docs_lifecycle[$index + 1] ?? null;
+        if (! is_array($next_navigation_item)) {
+            $next_navigation_item = null;
+        }
+
+        break;
+    }
+}
+
 $current_year = (int) date('Y');
 ?>
+
+<?php if (is_array($next_navigation_item)) { ?>
+        <section class="docs-section">
+            <div class="docs-section-line">
+                <p class="docs-section-line-text">Next:</p>
+                <a
+                    class="button button-primary"
+                    href="<?php echo htmlspecialchars((string) ($next_navigation_item['href'] ?? '#'), ENT_QUOTES, 'UTF-8'); ?>"
+                >
+                    <?php echo htmlspecialchars((string) ($next_navigation_item['label'] ?? 'Next'), ENT_QUOTES, 'UTF-8'); ?>
+                </a>
+            </div>
+        </section>
+<?php } ?>
 
         <footer class="site-footer">
             <div class="site-footer-inner">

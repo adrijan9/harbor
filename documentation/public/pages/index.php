@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 $page_title = 'Harbor Docs - Overview';
-$page_description = 'Core Harbor docs for routing, helpers, and CLI.';
+$page_description = 'Start here, then continue to Installation or jump to Creating New Site.';
 $page_id = 'home';
 
 require __DIR__.'/../shared/header.php';
@@ -12,11 +12,17 @@ require __DIR__.'/../shared/header.php';
 <section class="hero">
     <span class="hero-eyebrow">Documentation</span>
     <h1>Harbor Documentation</h1>
-    <p>Routing, helpers, and CLI guides in one place.</p>
+    <p>If you are reading docs, you probably already created a project and installed Harbor.</p>
     <div class="button-row">
-        <a class="button button-primary" href="/installation">Start Installation</a>
-        <a class="button button-ghost" href="/routing">View Routing Guide</a>
+        <a class="button button-primary" href="/installation">Read Installation</a>
+        <a class="button button-ghost" href="/creating-new-site">Go To Creating New Site</a>
     </div>
+</section>
+
+<section class="docs-section">
+    <h2>Overview Flow</h2>
+    <p>If you want full context, continue to the next page in docs: <a href="/installation"><code>Installation</code></a>.</p>
+    <p>If you want to jump straight into scaffolding, open <a href="/creating-new-site"><code>Creating New Site</code></a>.</p>
 </section>
 
 <section class="docs-section">
@@ -113,38 +119,6 @@ require __DIR__.'/../shared/header.php';
             <h3>Logging</h3>
             <p>Levels, context, and reusable log entries.</p>
         </a>
-    </div>
-</section>
-
-<section class="docs-section">
-    <h2>Project Layout</h2>
-    <div class="table-wrapper">
-        <table>
-            <thead>
-            <tr>
-                <th>Path</th>
-                <th>Purpose</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-                <td><code>src/</code></td>
-                <td>Framework source modules.</td>
-            </tr>
-            <tr>
-                <td><code>documentation/</code></td>
-                <td>This docs site (router, pages, shared templates, assets).</td>
-            </tr>
-            <tr>
-                <td><code>tests/</code></td>
-                <td>PHPUnit coverage for framework behavior.</td>
-            </tr>
-            <tr>
-                <td><code>bin/</code></td>
-                <td>CLI commands (<code>harbor</code>, <code>harbor-test</code>, <code>harbor-config</code>, <code>harbor-fixer</code>, <code>harbor-migration</code>, <code>harbor-seed</code>, <code>harbor-docs</code>).</td>
-            </tr>
-            </tbody>
-        </table>
     </div>
 </section>
 
