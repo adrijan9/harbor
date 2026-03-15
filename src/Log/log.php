@@ -19,7 +19,7 @@ use function Harbor\Support\harbor_is_blank;
 use function Harbor\Support\harbor_is_null;
 
 // Ensure log state always exists in true global scope, even when this file is
-// required from inside a method (for example via HelperLoader::load()).
+// required from inside a method (for example via Helper::load_many()).
 if (! array_key_exists('log_file_path', $GLOBALS)) {
     $GLOBALS['log_file_path'] = null;
 }

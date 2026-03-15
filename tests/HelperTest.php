@@ -5,15 +5,15 @@ declare(strict_types=1);
 namespace Harbor\Tests;
 
 use Carbon\Carbon;
-use Harbor\HelperLoader;
+use Harbor\Helper;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Class HelperLoaderTest.
+ * Class HelperTest.
  */
-final class HelperLoaderTest extends TestCase
+final class HelperTest extends TestCase
 {
     private array $original_server = [];
     private bool $had_request = false;
@@ -21,7 +21,7 @@ final class HelperLoaderTest extends TestCase
 
     public function test_available_contains_registered_helpers(): void
     {
-        $helpers = HelperLoader::available();
+        $helpers = Helper::available();
 
         self::assertContains('route', $helpers);
         self::assertContains('route_segments', $helpers);
@@ -66,12 +66,64 @@ final class HelperLoaderTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Helper "unknown_helper" is not registered.');
 
-        HelperLoader::load('unknown_helper');
+        Helper::load_many('unknown_helper');
+    }
+
+    public function test_helper_enum_resolve_throws_for_unknown_helper(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Helper "unknown_helper" is not registered.');
+
+        Helper::resolve('unknown_helper');
+    }
+
+    public function test_helper_enum_load_route_registers_namespaced_functions(): void
+    {
+        Helper::Route->load();
+
+        self::assertTrue(function_exists('Harbor\Router\route_segment'));
+        self::assertTrue(function_exists('Harbor\Router\route_query'));
+        self::assertTrue(function_exists('Harbor\Router\route_exists'));
+        self::assertTrue(function_exists('Harbor\Router\route_name_is'));
+        self::assertTrue(function_exists('Harbor\Router\route'));
+    }
+
+    public function test_helper_enum_resolve_supports_aliases(): void
+    {
+        self::assertSame(Helper::Database, Helper::resolve('db'));
+        self::assertSame(Helper::Database, Helper::resolve('schema'));
+        self::assertSame(Helper::Language, Helper::resolve('lang'));
+        self::assertSame(Helper::Translations, Helper::resolve('translation'));
+    }
+
+    public function test_helper_enum_database_load_registers_namespaced_functions(): void
+    {
+        Helper::Database->load();
+
+        self::assertTrue(function_exists('Harbor\Database\db_connect'));
+        self::assertTrue(function_exists('Harbor\Database\db_driver'));
+        self::assertTrue(function_exists('Harbor\Database\db_execute'));
+        self::assertTrue(function_exists('Harbor\Database\db_array'));
+        self::assertTrue(function_exists('Harbor\Database\db_first'));
+        self::assertTrue(function_exists('Harbor\Database\db_last'));
+        self::assertTrue(function_exists('Harbor\Database\db_objects'));
+        self::assertTrue(function_exists('Harbor\Database\db_begin'));
+        self::assertTrue(function_exists('Harbor\Database\db_commit'));
+        self::assertTrue(function_exists('Harbor\Database\db_rollback'));
+        self::assertTrue(function_exists('Harbor\Database\db_transaction'));
+    }
+
+    public function test_load_accepts_helper_enum_instances(): void
+    {
+        Helper::load_many(Helper::Request, Helper::Response);
+
+        self::assertTrue(function_exists('Harbor\Request\request'));
+        self::assertTrue(function_exists('Harbor\Response\response_status'));
     }
 
     public function test_load_route_helper_registers_namespaced_functions(): void
     {
-        HelperLoader::load('route');
+        Helper::load_many('route');
 
         self::assertTrue(function_exists('Harbor\Router\route_segment'));
         self::assertTrue(function_exists('Harbor\Router\route_query'));
@@ -82,7 +134,7 @@ final class HelperLoaderTest extends TestCase
 
     public function test_load_request_helper_registers_namespaced_functions(): void
     {
-        HelperLoader::load('request');
+        Helper::load_many('request');
 
         self::assertTrue(function_exists('Harbor\Request\request'));
         self::assertTrue(function_exists('Harbor\Request\request_method'));
@@ -90,7 +142,7 @@ final class HelperLoaderTest extends TestCase
 
     public function test_load_cookie_helper_registers_namespaced_functions(): void
     {
-        HelperLoader::load('cookie');
+        Helper::load_many('cookie');
 
         self::assertTrue(function_exists('Harbor\Cookie\cookie_set'));
         self::assertTrue(function_exists('Harbor\Cookie\cookie_get'));
@@ -99,7 +151,7 @@ final class HelperLoaderTest extends TestCase
 
     public function test_load_session_helper_registers_namespaced_functions(): void
     {
-        HelperLoader::load('session');
+        Helper::load_many('session');
 
         self::assertTrue(function_exists('Harbor\Session\session_set'));
         self::assertTrue(function_exists('Harbor\Session\session_get'));
@@ -111,7 +163,7 @@ final class HelperLoaderTest extends TestCase
 
     public function test_load_password_helper_registers_namespaced_functions(): void
     {
-        HelperLoader::load('password');
+        Helper::load_many('password');
 
         self::assertTrue(function_exists('Harbor\Password\password_hash'));
         self::assertTrue(function_exists('Harbor\Password\password_verify'));
@@ -124,7 +176,7 @@ final class HelperLoaderTest extends TestCase
 
     public function test_load_auth_helper_registers_namespaced_functions(): void
     {
-        HelperLoader::load('auth');
+        Helper::load_many('auth');
 
         self::assertFalse(function_exists('Harbor\Auth\auth_init'));
         self::assertTrue(function_exists('Harbor\Auth\auth_attempt'));
@@ -143,7 +195,7 @@ final class HelperLoaderTest extends TestCase
 
     public function test_load_auth_web_helper_registers_web_auth_functions(): void
     {
-        HelperLoader::load('auth_web');
+        Helper::load_many('auth_web');
 
         self::assertTrue(function_exists('Harbor\Auth\auth_web_exists'));
         self::assertTrue(function_exists('Harbor\Auth\auth_web_get'));
@@ -153,7 +205,7 @@ final class HelperLoaderTest extends TestCase
 
     public function test_load_auth_api_helper_registers_api_auth_functions(): void
     {
-        HelperLoader::load('auth_api');
+        Helper::load_many('auth_api');
 
         self::assertTrue(function_exists('Harbor\Auth\auth_api_token'));
         self::assertTrue(function_exists('Harbor\Auth\auth_api_exists'));
@@ -164,7 +216,7 @@ final class HelperLoaderTest extends TestCase
 
     public function test_load_response_helper_registers_namespaced_functions(): void
     {
-        HelperLoader::load('response');
+        Helper::load_many('response');
 
         self::assertTrue(function_exists('Harbor\Response\response_status'));
         self::assertTrue(function_exists('Harbor\Response\response_json'));
@@ -177,7 +229,7 @@ final class HelperLoaderTest extends TestCase
 
     public function test_load_validation_helper_registers_namespaced_functions(): void
     {
-        HelperLoader::load('validation');
+        Helper::load_many('validation');
 
         self::assertTrue(function_exists('Harbor\Validation\validation_rule'));
         self::assertTrue(function_exists('Harbor\Validation\validation_validate'));
@@ -188,7 +240,7 @@ final class HelperLoaderTest extends TestCase
 
     public function test_load_db_helper_registers_namespaced_functions(): void
     {
-        HelperLoader::load('db');
+        Helper::load_many('db');
 
         self::assertTrue(function_exists('Harbor\Database\db_connect'));
         self::assertTrue(function_exists('Harbor\Database\db_driver'));
@@ -223,7 +275,7 @@ final class HelperLoaderTest extends TestCase
 
     public function test_load_performance_helper_registers_namespaced_functions(): void
     {
-        HelperLoader::load('performance');
+        Helper::load_many('performance');
 
         self::assertTrue(function_exists('Harbor\Performance\performance_begin'));
         self::assertTrue(function_exists('Harbor\Performance\performance_end'));
@@ -236,7 +288,7 @@ final class HelperLoaderTest extends TestCase
 
     public function test_load_units_helper_registers_namespaced_functions(): void
     {
-        HelperLoader::load('units');
+        Helper::load_many('units');
 
         self::assertTrue(function_exists('Harbor\Units\unit_kb_from_mb'));
         self::assertTrue(function_exists('Harbor\Units\unit_mb_from_kb'));
@@ -247,7 +299,7 @@ final class HelperLoaderTest extends TestCase
 
     public function test_load_config_helper_registers_namespaced_functions(): void
     {
-        HelperLoader::load('config');
+        Helper::load_many('config');
 
         self::assertTrue(function_exists('Harbor\Config\config'));
         self::assertTrue(function_exists('Harbor\Config\config_init'));
@@ -256,7 +308,7 @@ final class HelperLoaderTest extends TestCase
 
     public function test_load_value_helper_registers_namespaced_functions(): void
     {
-        HelperLoader::load('value');
+        Helper::load_many('value');
 
         self::assertTrue(function_exists('Harbor\Support\harbor_is_blank'));
         self::assertTrue(function_exists('Harbor\Support\harbor_is_null'));
@@ -264,7 +316,7 @@ final class HelperLoaderTest extends TestCase
 
     public function test_load_array_helper_registers_namespaced_functions(): void
     {
-        HelperLoader::load('array');
+        Helper::load_many('array');
 
         self::assertTrue(function_exists('Harbor\Support\array_forget'));
         self::assertTrue(function_exists('Harbor\Support\array_first'));
@@ -277,7 +329,7 @@ final class HelperLoaderTest extends TestCase
             self::markTestSkipped('nesbot/carbon is not installed in this environment.');
         }
 
-        HelperLoader::load('carbon');
+        Helper::load_many('carbon');
 
         self::assertTrue(function_exists('Harbor\Date\carbon'));
         self::assertTrue(function_exists('Harbor\Date\date_now'));
@@ -286,7 +338,7 @@ final class HelperLoaderTest extends TestCase
 
     public function test_load_pipeline_helper_registers_namespaced_functions(): void
     {
-        HelperLoader::load('pipeline');
+        Helper::load_many('pipeline');
 
         self::assertTrue(function_exists('Harbor\Pipeline\pipeline_new'));
         self::assertTrue(function_exists('Harbor\Pipeline\pipeline_send'));
@@ -297,7 +349,7 @@ final class HelperLoaderTest extends TestCase
 
     public function test_load_middleware_helper_registers_namespaced_functions(): void
     {
-        HelperLoader::load('middleware');
+        Helper::load_many('middleware');
 
         self::assertTrue(function_exists('Harbor\Middleware\middleware'));
         self::assertTrue(function_exists('Harbor\Middleware\csrf_token'));
@@ -312,7 +364,7 @@ final class HelperLoaderTest extends TestCase
 
     public function test_load_filesystem_helper_registers_namespaced_functions(): void
     {
-        HelperLoader::load('filesystem');
+        Helper::load_many('filesystem');
 
         self::assertTrue(function_exists('Harbor\Filesystem\fs_read'));
         self::assertTrue(function_exists('Harbor\Filesystem\fs_dir_create'));
@@ -320,7 +372,7 @@ final class HelperLoaderTest extends TestCase
 
     public function test_load_cache_array_helper_registers_namespaced_functions(): void
     {
-        HelperLoader::load('cache_array');
+        Helper::load_many('cache_array');
 
         self::assertTrue(function_exists('Harbor\Cache\cache_array_set'));
         self::assertTrue(function_exists('Harbor\Cache\cache_array_get'));
@@ -328,7 +380,7 @@ final class HelperLoaderTest extends TestCase
 
     public function test_load_cache_file_helper_registers_namespaced_functions(): void
     {
-        HelperLoader::load('cache_file');
+        Helper::load_many('cache_file');
 
         self::assertTrue(function_exists('Harbor\Cache\cache_file_set'));
         self::assertTrue(function_exists('Harbor\Cache\cache_file_get'));
@@ -338,7 +390,7 @@ final class HelperLoaderTest extends TestCase
 
     public function test_load_cache_apc_helper_registers_namespaced_functions(): void
     {
-        HelperLoader::load('cache_apc');
+        Helper::load_many('cache_apc');
 
         self::assertTrue(function_exists('Harbor\Cache\cache_apc_available'));
         self::assertTrue(function_exists('Harbor\Cache\cache_apc_set'));
@@ -347,7 +399,7 @@ final class HelperLoaderTest extends TestCase
 
     public function test_load_cache_helper_registers_namespaced_functions(): void
     {
-        HelperLoader::load('cache');
+        Helper::load_many('cache');
 
         self::assertTrue(function_exists('Harbor\Cache\cache_driver'));
         self::assertTrue(function_exists('Harbor\Cache\cache_is_array'));
@@ -359,7 +411,7 @@ final class HelperLoaderTest extends TestCase
 
     public function test_load_log_helper_registers_namespaced_functions(): void
     {
-        HelperLoader::load('log');
+        Helper::load_many('log');
 
         self::assertTrue(function_exists('Harbor\Log\log_init'));
         self::assertTrue(function_exists('Harbor\Log\log_error'));
@@ -367,7 +419,7 @@ final class HelperLoaderTest extends TestCase
 
     public function test_load_lang_helper_registers_namespaced_functions(): void
     {
-        HelperLoader::load('lang');
+        Helper::load_many('lang');
 
         self::assertTrue(function_exists('Harbor\Lang\lang_get'));
         self::assertTrue(function_exists('Harbor\Lang\lang_set'));
@@ -375,7 +427,7 @@ final class HelperLoaderTest extends TestCase
 
     public function test_load_translation_helper_registers_namespaced_functions(): void
     {
-        HelperLoader::load('translation');
+        Helper::load_many('translation');
 
         self::assertTrue(function_exists('Harbor\Lang\translation_init'));
         self::assertTrue(function_exists('Harbor\Lang\t'));

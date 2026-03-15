@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Harbor\Tests\Response;
 
-use Harbor\HelperLoader;
+use Harbor\Helper;
 use Harbor\Response\ResponseStatus;
 use Harbor\Validation\ValidationResult;
 use PHPUnit\Framework\Attributes\After;
@@ -30,7 +30,7 @@ final class ResponseHelpersTest extends TestCase
     #[BeforeClass]
     public static function load_response_helpers(): void
     {
-        HelperLoader::load('response');
+        Helper::load_many('response');
     }
 
     public function test_response_status_sets_http_status_code(): void
@@ -215,7 +215,7 @@ final class ResponseHelpersTest extends TestCase
 
             require %s;
 
-            \Harbor\HelperLoader::load('response');
+            \Harbor\Helper::load_many('response');
 
             echo 'before|';
             \Harbor\Response\abort(\Harbor\Response\ResponseStatus::NOT_FOUND, 'Not Found');

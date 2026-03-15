@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Harbor\Tests\Session;
 
-use Harbor\HelperLoader;
+use Harbor\Helper;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
@@ -301,7 +301,7 @@ final class SessionHelpersTest extends TestCase
         ];
         $GLOBALS['_ENV'] = $_ENV;
 
-        HelperLoader::load('session');
+        Helper::load_many('session');
     }
 
     #[After]

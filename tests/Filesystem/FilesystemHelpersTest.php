@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Harbor\Tests\Filesystem;
 
-use Harbor\HelperLoader;
+use Harbor\Helper;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\Attributes\BeforeClass;
@@ -34,7 +34,7 @@ final class FilesystemHelpersTest extends TestCase
     #[BeforeClass]
     public static function load_filesystem_helpers(): void
     {
-        HelperLoader::load('filesystem');
+        Helper::load_many('filesystem');
     }
 
     public function test_file_helpers_manage_file_lifecycle(): void

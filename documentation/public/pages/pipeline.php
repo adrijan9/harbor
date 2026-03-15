@@ -70,7 +70,7 @@ function pipeline_get(): mixed</code></pre>
 <section class="docs-section">
     <h2>Notes</h2>
     <ul class="api-method-list">
-        <li>Load with <code>HelperLoader::load('pipeline')</code>.</li>
+        <li>Load with <code>Helper::load_many('pipeline')</code>.</li>
         <li>Each action receives passable arguments plus <code>callable $next</code> as the last parameter.</li>
         <li>You can pass closures or invokable class instances.</li>
         <li>Invokable class factories are supported: <code>__invoke(): callable</code>.</li>

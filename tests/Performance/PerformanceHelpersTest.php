@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Harbor\Tests\Performance;
 
-use Harbor\HelperLoader;
+use Harbor\Helper;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\Attributes\BeforeClass;
@@ -27,8 +27,8 @@ final class PerformanceHelpersTest extends TestCase
     #[BeforeClass]
     public static function load_performance_helpers(): void
     {
-        HelperLoader::load('log');
-        HelperLoader::load('performance');
+        Helper::load_many('log');
+        Helper::load_many('performance');
     }
 
     public function test_performance_begin_and_end_return_metrics_array(): void

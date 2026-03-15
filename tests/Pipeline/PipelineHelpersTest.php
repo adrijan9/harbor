@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Harbor\Tests\Pipeline;
 
-use Harbor\HelperLoader;
+use Harbor\Helper;
 use PHPUnit\Framework\Attributes\BeforeClass;
 use PHPUnit\Framework\TestCase;
 
@@ -22,7 +22,7 @@ final class PipelineHelpersTest extends TestCase
     #[BeforeClass]
     public static function load_pipeline_helpers(): void
     {
-        HelperLoader::load('pipeline');
+        Helper::load_many('pipeline');
     }
 
     public function test_pipeline_returns_default_structure(): void

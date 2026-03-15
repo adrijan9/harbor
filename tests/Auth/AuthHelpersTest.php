@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Harbor\Tests\Auth;
 
-use Harbor\HelperLoader;
+use Harbor\Helper;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
@@ -235,7 +235,7 @@ final class AuthHelpersTest extends TestCase
             unlink($this->revoke_store_path);
         }
 
-        HelperLoader::load('auth');
+        Helper::load_many('auth');
         $this->set_auth_config();
     }
 

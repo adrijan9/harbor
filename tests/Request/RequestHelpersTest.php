@@ -6,7 +6,7 @@ namespace Harbor\Tests\Request;
 
 require_once dirname(__DIR__, 2).'/src/Support/value.php';
 
-use Harbor\HelperLoader;
+use Harbor\Helper;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use PHPUnit\Framework\TestCase;
@@ -265,6 +265,6 @@ final class RequestHelpersTest extends TestCase
         }
 
         unset($GLOBALS['request']);
-        HelperLoader::load('request');
+        Helper::load_many('request');
     }
 }

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Harbor\Tests\Pagination;
 
 use Harbor\Database\QueryBuilder\QueryBuilder;
-use Harbor\HelperLoader;
+use Harbor\Helper;
 use Harbor\Pagination\Pagination;
 use Harbor\Pagination\PaginationOptionsBag;
 use PHPUnit\Framework\Attributes\After;
@@ -64,7 +64,7 @@ final class PaginationTest extends TestCase
     #[BeforeClass]
     public static function load_helpers(): void
     {
-        HelperLoader::load('db', 'pagination');
+        Helper::load_many('db', 'pagination');
     }
 
     public function test_class_mode_with_set_connection_returns_payload(): void

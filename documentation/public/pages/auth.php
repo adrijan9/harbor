@@ -23,10 +23,10 @@ require __DIR__.'/../shared/header.php';
     <h3>What it does</h3>
     <p>Choose <code>auth.php</code> from the prompt to publish <code>./config/auth.php</code>. This file has two keys: <code>web</code> and <code>api</code>.</p>
     <pre><code class="language-php">// public/index.php
-use Harbor\HelperLoader;
+use Harbor\Helper;
 use function Harbor\Config\config_init;
 
-HelperLoader::load('config');
+Helper::load_many('config');
 config_init(__DIR__.'/../config/auth.php');</code></pre>
 </section>
 
@@ -57,7 +57,7 @@ use function Harbor\Response\response_header;
 use function Harbor\Response\response_status;
 
 // load only web helpers for this file
-HelperLoader::load('auth_web', 'middleware', 'response');
+Helper::load_many('auth_web', 'middleware', 'response');
 
 // login handler
 $user = auth_attempt([
@@ -121,7 +121,7 @@ use function Harbor\Middleware\middleware;
 use function Harbor\Response\response_json;
 
 // load only api helpers for this file
-HelperLoader::load('auth_api', 'middleware', 'response');
+Helper::load_many('auth_api', 'middleware', 'response');
 
 // login endpoint
 $user = auth_attempt([
@@ -192,7 +192,7 @@ function auth_token_revoked(string $token): bool</code></pre>
 <section class="docs-section">
     <h2>Notes</h2>
     <ul class="api-method-list">
-        <li>Load helpers by context: <code>HelperLoader::load('auth_web')</code> for web, <code>HelperLoader::load('auth_api')</code> for api, or <code>auth</code> for both.</li>
+        <li>Load helpers by context: <code>Helper::load_many('auth_web')</code> for web, <code>Helper::load_many('auth_api')</code> for api, or <code>auth</code> for both.</li>
         <li>Use <code>WebAuthMiddleware</code> for web routes and <code>ApiAuthMiddleware</code> for api routes.</li>
         <li><code>auth_api_login()</code> requires one of <code>id</code>, <code>sub</code>, <code>subject</code>, or <code>uuid</code> in user payload.</li>
     </ul>

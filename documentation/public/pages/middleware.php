@@ -182,7 +182,7 @@ new CsrfMiddleware(
 <section class="docs-section">
     <h2>Notes</h2>
     <ul class="api-method-list">
-        <li>Load with <code>HelperLoader::load('middleware')</code>.</li>
+        <li>Load with <code>Helper::load_many('middleware')</code>.</li>
         <li>Each middleware callback receives request payload and <code>$next</code>.</li>
         <li>You can pass closures or invokable class instances.</li>
         <li>Invokable class factories are supported: <code>__invoke(): callable</code>.</li>

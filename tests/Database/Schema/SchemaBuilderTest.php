@@ -6,7 +6,7 @@ namespace Harbor\Tests\Database\Schema;
 
 use Harbor\Database\Schema\Column;
 use Harbor\Database\Schema\ForeignKey;
-use Harbor\HelperLoader;
+use Harbor\Helper;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\Attributes\BeforeClass;
@@ -36,7 +36,7 @@ final class SchemaBuilderTest extends TestCase
     #[BeforeClass]
     public static function load_schema_helpers(): void
     {
-        HelperLoader::load('db');
+        Helper::load_many('db');
     }
 
     public function test_schema_builder_create_compiles_and_executes_for_sqlite(): void

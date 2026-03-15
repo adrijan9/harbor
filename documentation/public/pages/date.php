@@ -51,7 +51,7 @@ function date_now(DateTimeZone|string|null $timezone = null): Carbon</code></pre
     <h2>Notes</h2>
     <ul class="api-method-list">
         <li>Harbor requires <code>nesbot/carbon</code> in <code>composer.json</code>.</li>
-        <li>Load with <code>HelperLoader::load('carbon')</code>.</li>
+        <li>Load with <code>Helper::load_many('carbon')</code>.</li>
         <li><code>date_now()</code> is equivalent to <code>carbon('now')</code> with optional timezone.</li>
     </ul>
 </section>

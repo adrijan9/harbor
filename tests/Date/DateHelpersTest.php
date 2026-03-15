@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Harbor\Tests\Date;
 
 use Harbor\Date\Carbon;
-use Harbor\HelperLoader;
+use Harbor\Helper;
 use PHPUnit\Framework\Attributes\BeforeClass;
 use PHPUnit\Framework\TestCase;
 
@@ -24,7 +24,7 @@ final class DateHelpersTest extends TestCase
             self::markTestSkipped('nesbot/carbon is not installed in this environment.');
         }
 
-        HelperLoader::load('carbon');
+        Helper::load_many('carbon');
     }
 
     public function test_carbon_helper_returns_harbor_carbon_instance(): void

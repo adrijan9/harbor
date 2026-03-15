@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Harbor\Tests\Database\QueryBuilder;
 
-use Harbor\HelperLoader;
+use Harbor\Helper;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\Attributes\BeforeClass;
@@ -31,7 +31,7 @@ final class QueryBuilderTest extends TestCase
     #[BeforeClass]
     public static function load_db_helpers(): void
     {
-        HelperLoader::load('db');
+        Helper::load_many('db');
     }
 
     public function test_select_get_sql_get_bindings_and_build_are_consistent(): void

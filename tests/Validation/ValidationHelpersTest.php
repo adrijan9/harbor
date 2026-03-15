@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Harbor\Tests\Validation;
 
-use Harbor\HelperLoader;
+use Harbor\Helper;
 use PHPUnit\Framework\Attributes\BeforeClass;
 use PHPUnit\Framework\TestCase;
 
@@ -21,7 +21,7 @@ final class ValidationHelpersTest extends TestCase
     #[BeforeClass]
     public static function load_validation_helpers(): void
     {
-        HelperLoader::load('validation');
+        Helper::load_many('validation');
     }
 
     public function test_validation_validate_accepts_fluent_rules_and_returns_ok_result(): void

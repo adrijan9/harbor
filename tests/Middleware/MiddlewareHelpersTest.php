@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Harbor\Tests\Middleware;
 
-use Harbor\HelperLoader;
+use Harbor\Helper;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
@@ -35,7 +35,7 @@ final class MiddlewareHelpersTest extends TestCase
             'SERVER_PORT' => '80',
         ];
 
-        HelperLoader::load('middleware');
+        Helper::load_many('middleware');
 
         middleware(
             static function (array $request, callable $next): mixed {
@@ -67,7 +67,7 @@ final class MiddlewareHelpersTest extends TestCase
             'SERVER_PORT' => '80',
         ];
 
-        HelperLoader::load('middleware');
+        Helper::load_many('middleware');
 
         $factory_action = new class {
             public function __invoke(): callable
@@ -99,7 +99,7 @@ final class MiddlewareHelpersTest extends TestCase
         ];
         $_COOKIE = [];
 
-        HelperLoader::load('middleware');
+        Helper::load_many('middleware');
 
         $first_token = csrf_token();
         $second_token = csrf_token();
@@ -120,7 +120,7 @@ final class MiddlewareHelpersTest extends TestCase
         ];
         $_COOKIE = [];
 
-        HelperLoader::load('middleware');
+        Helper::load_many('middleware');
 
         $field = csrf_field();
         $token = $_COOKIE['XSRF-TOKEN'] ?? null;

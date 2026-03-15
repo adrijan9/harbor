@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Harbor\Tests\Middleware;
 
-use Harbor\HelperLoader;
+use Harbor\Helper;
 use Harbor\Middleware\ApiAuthMiddleware;
 use Harbor\Middleware\BasicAuthMiddleware;
 use Harbor\Middleware\CorsMiddleware;
@@ -40,14 +40,14 @@ final class FirstClassMiddlewaresTest extends TestCase
     #[BeforeClass]
     public static function load_helpers(): void
     {
-        HelperLoader::load('cache');
+        Helper::load_many('cache');
     }
 
     public function test_api_auth_middleware_allows_verified_bearer_token_request_by_default(): void
     {
         $_SERVER['REQUEST_METHOD'] = 'GET';
         $_SERVER['REQUEST_URI'] = '/protected';
-        HelperLoader::load('auth', 'middleware');
+        Helper::load_many('auth', 'middleware');
 
         $access_token = auth_token_issue('42');
         $_SERVER['HTTP_AUTHORIZATION'] = 'Bearer '.$access_token;
@@ -67,7 +67,7 @@ final class FirstClassMiddlewaresTest extends TestCase
         $_SERVER['REQUEST_URI'] = '/protected';
         $_SERVER['HTTP_AUTHORIZATION'] = 'Bearer invalid-token';
 
-        HelperLoader::load('auth', 'middleware');
+        Helper::load_many('auth', 'middleware');
 
         $middleware_action = new ApiAuthMiddleware(
             failure_handler: static fn (array $request, int|ResponseStatus $status): array => [
@@ -93,7 +93,7 @@ final class FirstClassMiddlewaresTest extends TestCase
     {
         $_SERVER['REQUEST_METHOD'] = 'GET';
         $_SERVER['REQUEST_URI'] = '/protected';
-        HelperLoader::load('auth', 'middleware');
+        Helper::load_many('auth', 'middleware');
 
         auth_web_login([
             'id' => 5,
@@ -113,7 +113,7 @@ final class FirstClassMiddlewaresTest extends TestCase
         $_SERVER['REQUEST_METHOD'] = 'GET';
         $_SERVER['REQUEST_URI'] = '/protected';
 
-        HelperLoader::load('auth', 'middleware');
+        Helper::load_many('auth', 'middleware');
 
         $middleware_action = new WebAuthMiddleware(
             login_path: '/signin',
@@ -145,7 +145,7 @@ final class FirstClassMiddlewaresTest extends TestCase
         $_SERVER['HTTP_X_CSRF_TOKEN'] = 'csrf-token';
         $_COOKIE['XSRF-TOKEN'] = 'csrf-token';
 
-        HelperLoader::load('middleware');
+        Helper::load_many('middleware');
 
         middleware(new CsrfMiddleware());
 
@@ -160,7 +160,7 @@ final class FirstClassMiddlewaresTest extends TestCase
         $_SERVER['REQUEST_METHOD'] = 'GET';
         $_SERVER['REQUEST_URI'] = '/forms';
 
-        HelperLoader::load('middleware');
+        Helper::load_many('middleware');
 
         middleware(new CsrfMiddleware());
 
@@ -179,7 +179,7 @@ final class FirstClassMiddlewaresTest extends TestCase
         $_COOKIE['XSRF-TOKEN'] = 'csrf-token';
         $_POST['_token'] = 'csrf-token';
 
-        HelperLoader::load('middleware');
+        Helper::load_many('middleware');
 
         middleware(new CsrfMiddleware());
 
@@ -196,7 +196,7 @@ final class FirstClassMiddlewaresTest extends TestCase
         $_SERVER['HTTP_X_CSRF_TOKEN'] = 'invalid';
         $_COOKIE['XSRF-TOKEN'] = 'expected';
 
-        HelperLoader::load('middleware');
+        Helper::load_many('middleware');
 
         $middleware_action = new CsrfMiddleware(
             failure_handler: static fn (array $request, int|ResponseStatus $status): array => [
@@ -224,7 +224,7 @@ final class FirstClassMiddlewaresTest extends TestCase
         $_SERVER['REQUEST_URI'] = '/api/private';
         $_SERVER['HTTP_AUTHORIZATION'] = 'Basic '.base64_encode('demo:secret');
 
-        HelperLoader::load('middleware');
+        Helper::load_many('middleware');
 
         middleware(new BasicAuthMiddleware());
 
@@ -240,7 +240,7 @@ final class FirstClassMiddlewaresTest extends TestCase
         $_SERVER['REQUEST_URI'] = '/api/private';
         $_SERVER['HTTP_AUTHORIZATION'] = 'Basic '.base64_encode('demo:wrong');
 
-        HelperLoader::load('middleware');
+        Helper::load_many('middleware');
 
         $middleware_action = new BasicAuthMiddleware(
             credentials_resolver: static fn (string $username, string $password): bool => 'demo' === $username && 'secret' === $password,
@@ -269,7 +269,7 @@ final class FirstClassMiddlewaresTest extends TestCase
         $_SERVER['REQUEST_URI'] = '/login';
         $_SERVER['REMOTE_ADDR'] = '198.51.100.20';
 
-        HelperLoader::load('middleware');
+        Helper::load_many('middleware');
 
         $middleware_action = new ThrottleMiddleware(
             max_attempts: 2,
@@ -306,7 +306,7 @@ final class FirstClassMiddlewaresTest extends TestCase
         $_SERVER['REQUEST_URI'] = '/api/users';
         $_SERVER['HTTP_ORIGIN'] = 'https://app.example.com';
 
-        HelperLoader::load('middleware');
+        Helper::load_many('middleware');
 
         middleware(new CorsMiddleware(
             allowed_origins: ['https://app.example.com'],
@@ -327,7 +327,7 @@ final class FirstClassMiddlewaresTest extends TestCase
         $_SERVER['REQUEST_URI'] = '/api/users';
         $_SERVER['HTTP_ORIGIN'] = 'https://evil.example.com';
 
-        HelperLoader::load('middleware');
+        Helper::load_many('middleware');
 
         $middleware_action = new CorsMiddleware(
             allowed_origins: ['https://app.example.com'],

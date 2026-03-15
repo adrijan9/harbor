@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Harbor\Tests\Cookie;
 
-use Harbor\HelperLoader;
+use Harbor\Helper;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
@@ -117,7 +117,7 @@ final class CookieHelpersTest extends TestCase
         $this->original_cookie = is_array($_COOKIE) ? $_COOKIE : [];
         $_COOKIE = [];
 
-        HelperLoader::load('cookie');
+        Helper::load_many('cookie');
     }
 
     #[After]

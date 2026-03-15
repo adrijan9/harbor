@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Harbor\Tests\Router;
 
-use Harbor\HelperLoader;
+use Harbor\Helper;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\Attributes\BeforeClass;
@@ -46,7 +46,7 @@ final class RouteHelpersTest extends TestCase
     #[BeforeClass]
     public static function load_route_helpers(): void
     {
-        HelperLoader::load('route');
+        Helper::load_many('route');
     }
 
     public function test_segment_helpers_read_and_cast_route_segments(): void

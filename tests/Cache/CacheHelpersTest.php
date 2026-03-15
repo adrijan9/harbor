@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Harbor\Tests\Cache;
 
 use Harbor\Cache\CacheDriver;
-use Harbor\HelperLoader;
+use Harbor\Helper;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\Attributes\BeforeClass;
@@ -40,7 +40,7 @@ final class CacheHelpersTest extends TestCase
     #[BeforeClass]
     public static function load_cache_helpers(): void
     {
-        HelperLoader::load('cache');
+        Helper::load_many('cache');
     }
 
     public function test_cache_helpers_use_array_driver_from_config(): void

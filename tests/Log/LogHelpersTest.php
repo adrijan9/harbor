@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Harbor\Tests\Log;
 
-use Harbor\HelperLoader;
+use Harbor\Helper;
 use Harbor\Log\LogLevel;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\Before;
@@ -34,7 +34,7 @@ final class LogHelpersTest extends TestCase
     #[BeforeClass]
     public static function load_log_helpers(): void
     {
-        HelperLoader::load('log');
+        Helper::load_many('log');
     }
 
     public function test_log_write_throws_when_log_is_not_initialized(): void

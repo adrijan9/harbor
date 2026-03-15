@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Harbor\Tests\Password;
 
-use Harbor\HelperLoader;
+use Harbor\Helper;
 use Harbor\Password\PasswordAlgorithm;
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
@@ -123,6 +123,6 @@ final class PasswordHelpersTest extends TestCase
     #[Before]
     protected function bootstrap_password_helpers(): void
     {
-        HelperLoader::load('password');
+        Helper::load_many('password');
     }
 }

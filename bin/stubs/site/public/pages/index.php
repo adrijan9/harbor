@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-use Harbor\HelperLoader;
+use Harbor\Helper;
 use function Harbor\Config\config;
 use function Harbor\Lang\t;
 use function Harbor\Lang\translation_init;
 
-HelperLoader::load('translation');
+Helper::load_many('translation');
 
 translation_init([
     'en' => [__DIR__.'/../../lang/en.php'],

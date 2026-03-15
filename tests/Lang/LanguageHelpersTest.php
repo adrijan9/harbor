@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Harbor\Tests\Lang;
 
-use Harbor\HelperLoader;
+use Harbor\Helper;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\TestCase;
@@ -27,7 +27,7 @@ final class LanguageHelpersTest extends TestCase
         $_ENV = $this->original_env;
         $GLOBALS['_ENV'] = $_ENV;
 
-        HelperLoader::load('lang');
+        Helper::load_many('lang');
     }
 
     public function test_lang_get_reads_lang_from_environment(): void

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Harbor\Tests\Units;
 
-use Harbor\HelperLoader;
+use Harbor\Helper;
 use PHPUnit\Framework\Attributes\BeforeClass;
 use PHPUnit\Framework\TestCase;
 
@@ -29,7 +29,7 @@ final class UnitsHelpersTest extends TestCase
     #[BeforeClass]
     public static function load_units_helper(): void
     {
-        HelperLoader::load('units');
+        Helper::load_many('units');
     }
 
     public function test_units_convert_between_kb_and_mb(): void

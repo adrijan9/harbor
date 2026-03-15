@@ -7,7 +7,7 @@ namespace Harbor\Tests\Database;
 use Harbor\Database\DbDriver;
 use Harbor\Database\MysqlDto;
 use Harbor\Database\SqliteDto;
-use Harbor\HelperLoader;
+use Harbor\Helper;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\Attributes\BeforeClass;
@@ -55,7 +55,7 @@ final class DatabaseHelpersTest extends TestCase
     #[BeforeClass]
     public static function load_db_helpers(): void
     {
-        HelperLoader::load('db');
+        Helper::load_many('db');
     }
 
     public function test_db_sqlite_helpers_execute_array_and_objects_queries(): void

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Harbor\Tests\Config;
 
-use Harbor\HelperLoader;
+use Harbor\Helper;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\TestCase;
@@ -42,7 +42,7 @@ final class ConfigHelpersTest extends TestCase
     protected function load_helper_and_capture_env(): void
     {
         $this->original_env = is_array($_ENV) ? $_ENV : [];
-        HelperLoader::load('config');
+        Helper::load_many('config');
     }
 
     public function test_config_init_registers_each_file_under_its_filename_key(): void

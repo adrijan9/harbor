@@ -24,9 +24,9 @@ require __DIR__.'/../shared/header.php';
 <section class="docs-section">
     <h2>Load Helpers</h2>
     <h3>Example</h3>
-    <pre><code class="language-php">use Harbor\HelperLoader;
+    <pre><code class="language-php">use Harbor\Helper;
 
-HelperLoader::load('db', 'pagination');</code></pre>
+Helper::load_many('db', 'pagination');</code></pre>
 </section>
 
 <section class="docs-section">

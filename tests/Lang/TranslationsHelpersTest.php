@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Harbor\Tests\Lang;
 
-use Harbor\HelperLoader;
+use Harbor\Helper;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\TestCase;
@@ -41,7 +41,7 @@ final class TranslationsHelpersTest extends TestCase
         $this->had_translations = array_key_exists('translations', $GLOBALS);
         $this->original_translations = $this->had_translations ? $GLOBALS['translations'] : null;
 
-        HelperLoader::load('translation');
+        Helper::load_many('translation');
     }
 
     public function test_translation_init_loads_and_merges_files_per_locale(): void

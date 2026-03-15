@@ -16,16 +16,32 @@ require __DIR__.'/../shared/header.php';
 </section>
 
 <section class="docs-section">
-    <h2>Basic Usage</h2>
+    <h2>Enum Usage (Recommended)</h2>
     <h3>Example</h3>
-    <pre><code class="language-php">use Harbor\HelperLoader;
+    <pre><code class="language-php">use Harbor\Helper;
 
-HelperLoader::load('request');
-HelperLoader::load('cookie', 'session');
-HelperLoader::load('validation', 'response');
-HelperLoader::load('cache');</code></pre>
+Helper::Request->load();
+Helper::Cookie->load();
+Helper::Session->load();
+Helper::Validation->load();
+Helper::Response->load();
+Helper::Database->load();</code></pre>
     <h3>What it does</h3>
-    <p>Registers helper functions from each module key so their namespaced functions are available in your runtime code.</p>
+    <p>Loads helper modules through typed enum cases, so keys are discoverable and typo-safe.</p>
+</section>
+
+<section class="docs-section">
+    <h2>String Loader (Backward Compatible)</h2>
+    <h3>Example</h3>
+    <pre><code class="language-php">use Harbor\Helper;
+
+Helper::load_many('request');
+Helper::load_many('cookie', 'session');
+Helper::load_many('validation', 'response');
+Helper::load_many('db'); // alias supported, resolves to Helper::Database
+Helper::load_many(Helper::Cache, Helper::Log);</code></pre>
+    <h3>What it does</h3>
+    <p>Keeps the previous string API working while also accepting enum cases directly.</p>
 </section>
 
 <section class="docs-section">
