@@ -6,14 +6,15 @@ namespace Harbor\Middleware;
 
 use Harbor\Response\ResponseStatus;
 
-require_once __DIR__.'/../Cache/cache.php';
+require_once __DIR__.'/../RateLimiter/rate_limiter.php';
 
 require_once __DIR__.'/../Response/response.php';
 
 require_once __DIR__.'/../Support/value.php';
 
-use function Harbor\Cache\cache_get;
-use function Harbor\Cache\cache_set;
+use function Harbor\RateLimiter\rate_limiter_available_in;
+use function Harbor\RateLimiter\rate_limiter_hit;
+use function Harbor\RateLimiter\rate_limiter_too_many_attempts;
 use function Harbor\Response\abort;
 use function Harbor\Response\response_header;
 use function Harbor\Support\harbor_is_blank;
@@ -44,31 +45,10 @@ final class ThrottleMiddleware
     public function __invoke(): callable
     {
         return function (array $request, callable $next): mixed {
-            $now = time();
-            $rate_limit_key = 'middleware:throttle:'.sha1($this->resolve_rate_limit_key($request));
-            $bucket = cache_get($rate_limit_key, null);
+            $rate_limit_key = $this->resolve_rate_limit_key($request);
 
-            if (! $this->is_valid_bucket($bucket)) {
-                $bucket = [
-                    'count' => 0,
-                    'started_at' => $now,
-                ];
-            }
-
-            $bucket_started_at = is_int($bucket['started_at']) ? $bucket['started_at'] : $now;
-            $elapsed_seconds = $now - $bucket_started_at;
-
-            if ($elapsed_seconds >= $this->decay_seconds) {
-                $bucket = [
-                    'count' => 0,
-                    'started_at' => $now,
-                ];
-                $elapsed_seconds = 0;
-            }
-
-            $bucket_count = is_int($bucket['count']) ? $bucket['count'] : 0;
-            if ($bucket_count >= $this->max_attempts) {
-                $retry_after_seconds = max(1, $this->decay_seconds - $elapsed_seconds);
+            if (rate_limiter_too_many_attempts($rate_limit_key, $this->max_attempts)) {
+                $retry_after_seconds = max(1, rate_limiter_available_in($rate_limit_key));
                 response_header('Retry-After', (string) $retry_after_seconds);
 
                 $failure_handler = $this->failure_handler;
@@ -76,8 +56,7 @@ final class ThrottleMiddleware
                 return $failure_handler($request, $this->failure_status, $retry_after_seconds);
             }
 
-            $bucket['count'] = $bucket_count + 1;
-            cache_set($rate_limit_key, $bucket, $this->decay_seconds);
+            rate_limiter_hit($rate_limit_key, $this->decay_seconds);
 
             return $next($request);
         };
@@ -105,18 +84,5 @@ final class ThrottleMiddleware
         }
 
         return sprintf('%s|%s|%s', $request_method, $request_path, $request_ip);
-    }
-
-    private function is_valid_bucket(mixed $bucket): bool
-    {
-        if (! is_array($bucket)) {
-            return false;
-        }
-
-        if (! array_key_exists('count', $bucket) || ! array_key_exists('started_at', $bucket)) {
-            return false;
-        }
-
-        return is_int($bucket['count']) && is_int($bucket['started_at']);
     }
 }

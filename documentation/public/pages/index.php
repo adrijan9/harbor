@@ -119,6 +119,10 @@ require __DIR__.'/../shared/header.php';
             <h3>Cache</h3>
             <p>Array and file cache helpers with shared API shape.</p>
         </a>
+        <a class="card" href="/rate-limiter">
+            <h3>Rate Limiter</h3>
+            <p>Track attempts and retry windows for throttle and lockout flows.</p>
+        </a>
         <a class="card" href="/logging">
             <h3>Logging</h3>
             <p>Levels, context, and reusable log entries.</p>

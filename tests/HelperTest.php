@@ -54,6 +54,7 @@ final class HelperTest extends TestCase
         self::assertContains('cache_file', $helpers);
         self::assertContains('cache_apc', $helpers);
         self::assertContains('cache', $helpers);
+        self::assertContains('rate_limiter', $helpers);
         self::assertContains('log', $helpers);
         self::assertContains('lang', $helpers);
         self::assertContains('language', $helpers);
@@ -407,6 +408,18 @@ final class HelperTest extends TestCase
         self::assertTrue(function_exists('Harbor\Cache\cache_is_apc'));
         self::assertTrue(function_exists('Harbor\Cache\cache_set'));
         self::assertTrue(function_exists('Harbor\Cache\cache_get'));
+    }
+
+    public function test_load_rate_limiter_helper_registers_namespaced_functions(): void
+    {
+        Helper::load_many('rate_limiter');
+
+        self::assertTrue(function_exists('Harbor\RateLimiter\rate_limiter_hit'));
+        self::assertTrue(function_exists('Harbor\RateLimiter\rate_limiter_attempts'));
+        self::assertTrue(function_exists('Harbor\RateLimiter\rate_limiter_too_many_attempts'));
+        self::assertTrue(function_exists('Harbor\RateLimiter\rate_limiter_remaining'));
+        self::assertTrue(function_exists('Harbor\RateLimiter\rate_limiter_available_in'));
+        self::assertTrue(function_exists('Harbor\RateLimiter\rate_limiter_clear'));
     }
 
     public function test_load_log_helper_registers_namespaced_functions(): void

@@ -152,6 +152,11 @@ Helper::load_many(Helper::Cache, Helper::Log);</code></pre>
                 <td>Resolver and explicit cache backends.</td>
             </tr>
             <tr>
+                <td><code>rate_limiter</code></td>
+                <td><code>Harbor\RateLimiter</code></td>
+                <td>Window-based request attempt tracking helpers for throttling and lockout flows.</td>
+            </tr>
+            <tr>
                 <td><code>log</code></td>
                 <td><code>Harbor\Log</code></td>
                 <td>Log init/write helpers and levels.</td>

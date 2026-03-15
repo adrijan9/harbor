@@ -120,6 +120,12 @@ return [
             'entry' => 'pages/cache.php',
         ],
         [
+            'path' => '/rate-limiter',
+            'method' => 'GET',
+            'name' => 'docs.rate_limiter',
+            'entry' => 'pages/rate-limiter.php',
+        ],
+        [
             'path' => '/migrations',
             'method' => 'GET',
             'name' => 'docs.migrations',

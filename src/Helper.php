@@ -40,6 +40,7 @@ enum Helper: string
     case CacheFile = 'cache_file';
     case CacheApc = 'cache_apc';
     case Cache = 'cache';
+    case RateLimiter = 'rate_limiter';
     case Log = 'log';
     case Language = 'language';
     case Translations = 'translations';
@@ -148,6 +149,7 @@ enum Helper: string
             self::CacheFile => [__DIR__.'/Cache/cache_file.php'],
             self::CacheApc => [__DIR__.'/Cache/cache_apc.php'],
             self::Cache => [__DIR__.'/Cache/cache.php'],
+            self::RateLimiter => [__DIR__.'/RateLimiter/rate_limiter.php'],
             self::Log => [__DIR__.'/Log/log.php'],
             self::Language => [__DIR__.'/Lang/language.php'],
             self::Translations => [__DIR__.'/Lang/translations.php'],

@@ -24,6 +24,7 @@ use function Harbor\Auth\auth_token_issue;
 use function Harbor\Auth\auth_web_login;
 use function Harbor\Middleware\middleware;
 use function Harbor\Pipeline\pipeline_get;
+use function Harbor\RateLimiter\rate_limiter_hit;
 
 /**
  * Class FirstClassMiddlewaresTest.
@@ -298,6 +299,37 @@ final class FirstClassMiddlewaresTest extends TestCase
         self::assertTrue($blocked_result['blocked']);
         self::assertSame(429, $blocked_result['status']);
         self::assertGreaterThanOrEqual(1, $blocked_result['retry_after']);
+    }
+
+    public function test_throttle_middleware_respects_prefilled_rate_limiter_state(): void
+    {
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+        $_SERVER['REQUEST_URI'] = '/login';
+        $_SERVER['REMOTE_ADDR'] = '198.51.100.21';
+
+        Helper::load_many('middleware', 'rate_limiter');
+
+        $shared_key = 'tests:throttle:prefilled';
+        rate_limiter_hit($shared_key, 60, 2);
+
+        $middleware_action = new ThrottleMiddleware(
+            max_attempts: 2,
+            decay_seconds: 60,
+            key_resolver: static fn (array $request): string => $shared_key,
+            failure_handler: static fn (array $request, int|ResponseStatus $status, int $retry_after): array => [
+                'blocked' => true,
+                'status' => $status instanceof ResponseStatus ? $status->value : $status,
+                'retry_after' => $retry_after,
+            ]
+        );
+
+        middleware($middleware_action);
+
+        $result = pipeline_get();
+
+        self::assertTrue($result['blocked']);
+        self::assertSame(429, $result['status']);
+        self::assertGreaterThanOrEqual(1, $result['retry_after']);
     }
 
     public function test_cors_middleware_sets_headers_for_allowed_origin(): void

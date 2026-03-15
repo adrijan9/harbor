@@ -38,6 +38,7 @@ $docs_navigation_groups = [
             ['id' => 'auth', 'label' => 'Auth', 'href' => '/auth'],
             ['id' => 'password', 'label' => 'Password', 'href' => '/password'],
             ['id' => 'cache', 'label' => 'Cache', 'href' => '/cache'],
+            ['id' => 'rate_limiter', 'label' => 'Rate Limiter', 'href' => '/rate-limiter'],
         ],
     ],
     [
