@@ -7,7 +7,7 @@ use function Harbor\Config\config;
 use function Harbor\Lang\t;
 use function Harbor\Lang\translation_init;
 
-Helper::load_many('translation');
+Helper::Translations->load();
 
 translation_init([
     'en' => [__DIR__.'/../../lang/en.php'],
