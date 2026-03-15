@@ -93,9 +93,12 @@ git checkout -b feat/short-description
 3. Make your changes, then run validation commands.
 
 ```bash
+composer rector:check
 composer test
 ./vendor/bin/php-cs-fixer fix
 ```
+
+To auto-apply safe refactors before formatting, run `composer rector`.
 
 4. If you changed documentation pages or docs routing, also regenerate docs artifacts.
 
