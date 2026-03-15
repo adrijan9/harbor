@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 require_once __DIR__.'/../../../src/Support/value.php';
 
-require_once __DIR__.'/../../../src/Database/db.php';
+require_once __DIR__.'/../../../src/Database/Connection/db.php';
 
 require_once __DIR__.'/../../../src/Database/DbDriver.php';
 

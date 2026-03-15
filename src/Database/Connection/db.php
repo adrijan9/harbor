@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Harbor\Database;
 
-require_once __DIR__.'/../Config/config.php';
+require_once __DIR__.'/../../Config/config.php';
 
-require_once __DIR__.'/../Support/array.php';
+require_once __DIR__.'/../../Support/array.php';
 
-require_once __DIR__.'/../Support/value.php';
+require_once __DIR__.'/../../Support/value.php';
 
-require_once __DIR__.'/DbDriver.php';
+require_once __DIR__.'/../DbDriver.php';
 
 require_once __DIR__.'/db_sqlite.php';
 
@@ -18,27 +18,27 @@ require_once __DIR__.'/db_mysql_pdo.php';
 
 require_once __DIR__.'/db_mysqli.php';
 
-require_once __DIR__.'/Transaction/Transaction.php';
+require_once __DIR__.'/../Transaction/Transaction.php';
 
-require_once __DIR__.'/Transaction/helpers.php';
+require_once __DIR__.'/../Transaction/helpers.php';
 
-require_once __DIR__.'/Schema/Column.php';
+require_once __DIR__.'/../Schema/Column.php';
 
-require_once __DIR__.'/Schema/ForeignKey.php';
+require_once __DIR__.'/../Schema/ForeignKey.php';
 
-require_once __DIR__.'/Schema/schema_compile.php';
+require_once __DIR__.'/../Schema/schema_compile.php';
 
-require_once __DIR__.'/Schema/schema.php';
+require_once __DIR__.'/../Schema/schema.php';
 
-require_once __DIR__.'/QueryBuilder/QueryExpression.php';
+require_once __DIR__.'/../QueryBuilder/QueryExpression.php';
 
-require_once __DIR__.'/QueryBuilder/QueryBuilder.php';
+require_once __DIR__.'/../QueryBuilder/QueryBuilder.php';
 
-require_once __DIR__.'/QueryBuilder/QueryFactory.php';
+require_once __DIR__.'/../QueryBuilder/QueryFactory.php';
 
-require_once __DIR__.'/QueryBuilder/query_compile.php';
+require_once __DIR__.'/../QueryBuilder/query_compile.php';
 
-require_once __DIR__.'/QueryBuilder/query_builder.php';
+require_once __DIR__.'/../QueryBuilder/query_builder.php';
 
 use function Harbor\Config\config_array_get;
 use function Harbor\Config\config_resolve;

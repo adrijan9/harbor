@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Harbor\Pagination;
 
-require_once __DIR__.'/../Database/db.php';
+require_once __DIR__.'/../Database/Connection/db.php';
 
 require_once __DIR__.'/../Database/QueryBuilder/QueryBuilder.php';
 

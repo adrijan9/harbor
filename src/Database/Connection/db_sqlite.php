@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Harbor\Database;
 
-require_once __DIR__.'/../Filesystem/filesystem.php';
+require_once __DIR__.'/../../Filesystem/filesystem.php';
 
-require_once __DIR__.'/../Support/array.php';
+require_once __DIR__.'/../../Support/array.php';
 
-require_once __DIR__.'/../Support/value.php';
+require_once __DIR__.'/../../Support/value.php';
 
 require_once __DIR__.'/SqliteDto.php';
 
