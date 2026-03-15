@@ -14,7 +14,9 @@ use PHPUnit\Framework\Attributes\BeforeClass;
 use PHPUnit\Framework\TestCase;
 
 use function Harbor\Database\db_array;
+use function Harbor\Database\db_begin;
 use function Harbor\Database\db_close;
+use function Harbor\Database\db_commit;
 use function Harbor\Database\db_connect;
 use function Harbor\Database\db_driver;
 use function Harbor\Database\db_execute;
@@ -30,6 +32,7 @@ use function Harbor\Database\db_mysql_connect_dto;
 use function Harbor\Database\db_mysql_execute;
 use function Harbor\Database\db_mysql_pdo_close;
 use function Harbor\Database\db_objects;
+use function Harbor\Database\db_rollback;
 use function Harbor\Database\db_sqlite_array;
 use function Harbor\Database\db_sqlite_connect;
 use function Harbor\Database\db_sqlite_connect_dto;
@@ -38,6 +41,7 @@ use function Harbor\Database\db_sqlite_execute;
 use function Harbor\Database\db_sqlite_first;
 use function Harbor\Database\db_sqlite_last;
 use function Harbor\Database\db_sqlite_objects;
+use function Harbor\Database\db_transaction;
 
 /**
  * Class DatabaseHelpersTest.
@@ -199,6 +203,96 @@ final class DatabaseHelpersTest extends TestCase
         $objects = db_objects($connection, 'SELECT title FROM tasks ORDER BY id ASC');
         self::assertCount(1, $objects);
         self::assertSame('Write tests', $objects[0]->title);
+    }
+
+    public function test_db_begin_and_db_commit_persist_changes_for_sqlite(): void
+    {
+        $connection = db_sqlite_connect($this->sqlite_database_path);
+        db_execute($connection, 'CREATE TABLE transaction_logs (id INTEGER PRIMARY KEY AUTOINCREMENT, note TEXT)');
+
+        self::assertTrue(db_begin($connection));
+        self::assertTrue(db_execute($connection, 'INSERT INTO transaction_logs (note) VALUES (:note)', [
+            'note' => 'committed',
+        ]));
+        self::assertTrue(db_commit($connection));
+
+        $rows = db_array($connection, 'SELECT note FROM transaction_logs ORDER BY id ASC');
+        self::assertSame([['note' => 'committed']], $rows);
+    }
+
+    public function test_db_begin_and_db_rollback_revert_changes_for_sqlite(): void
+    {
+        $connection = db_sqlite_connect($this->sqlite_database_path);
+        db_execute($connection, 'CREATE TABLE transaction_logs (id INTEGER PRIMARY KEY AUTOINCREMENT, note TEXT)');
+
+        self::assertTrue(db_begin($connection));
+        self::assertTrue(db_execute($connection, 'INSERT INTO transaction_logs (note) VALUES (:note)', [
+            'note' => 'rolled-back',
+        ]));
+        self::assertTrue(db_rollback($connection));
+
+        $rows = db_array($connection, 'SELECT note FROM transaction_logs ORDER BY id ASC');
+        self::assertSame([], $rows);
+    }
+
+    public function test_db_transaction_commits_on_success_and_returns_callback_value(): void
+    {
+        $connection = db_sqlite_connect($this->sqlite_database_path);
+        db_execute($connection, 'CREATE TABLE transaction_logs (id INTEGER PRIMARY KEY AUTOINCREMENT, note TEXT)');
+
+        $result = db_transaction($connection, function (\PDO $active_connection): string {
+            db_execute($active_connection, 'INSERT INTO transaction_logs (note) VALUES (:note)', [
+                'note' => 'inside-callback',
+            ]);
+
+            return 'done';
+        });
+
+        self::assertSame('done', $result);
+        $rows = db_array($connection, 'SELECT note FROM transaction_logs ORDER BY id ASC');
+        self::assertSame([['note' => 'inside-callback']], $rows);
+    }
+
+    public function test_db_transaction_rolls_back_when_callback_throws(): void
+    {
+        $connection = db_sqlite_connect($this->sqlite_database_path);
+        db_execute($connection, 'CREATE TABLE transaction_logs (id INTEGER PRIMARY KEY AUTOINCREMENT, note TEXT)');
+
+        try {
+            db_transaction($connection, function (\PDO $active_connection): void {
+                db_execute($active_connection, 'INSERT INTO transaction_logs (note) VALUES (:note)', [
+                    'note' => 'should-not-persist',
+                ]);
+
+                throw new \RuntimeException('callback failed');
+            });
+
+            self::fail('Expected db_transaction() to rethrow callback exception.');
+        } catch (\RuntimeException $exception) {
+            self::assertSame('callback failed', $exception->getMessage());
+        }
+
+        $rows = db_array($connection, 'SELECT note FROM transaction_logs ORDER BY id ASC');
+        self::assertSame([], $rows);
+    }
+
+    public function test_db_transaction_joins_existing_pdo_transaction_without_auto_commit(): void
+    {
+        $connection = db_sqlite_connect($this->sqlite_database_path);
+        db_execute($connection, 'CREATE TABLE transaction_logs (id INTEGER PRIMARY KEY AUTOINCREMENT, note TEXT)');
+
+        self::assertTrue(db_begin($connection));
+
+        db_transaction($connection, function (\PDO $active_connection): void {
+            db_execute($active_connection, 'INSERT INTO transaction_logs (note) VALUES (:note)', [
+                'note' => 'nested',
+            ]);
+        });
+
+        self::assertTrue(db_rollback($connection));
+
+        $rows = db_array($connection, 'SELECT note FROM transaction_logs ORDER BY id ASC');
+        self::assertSame([], $rows);
     }
 
     public function test_db_driver_falls_back_for_invalid_configured_driver(): void

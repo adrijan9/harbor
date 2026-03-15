@@ -1,5 +1,5 @@
 {
-    "generated_at": "2026-03-15T10:21:24+00:00",
+    "generated_at": "2026-03-15T10:50:38+00:00",
     "source": "documentation/.router",
     "items": [
         {
@@ -147,6 +147,8 @@
                 "Resolver Helpers",
                 "Example",
                 "API",
+                "Transactions",
+                "Class API",
                 "Schema Builder",
                 "Query Builder",
                 "Outputs",

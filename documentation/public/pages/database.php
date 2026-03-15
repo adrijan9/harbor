@@ -91,7 +91,61 @@ function db_array(PDO|mysqli $connection, string $sql, array $bindings = []): ar
 function db_first(PDO|mysqli $connection, string $sql, array $bindings = []): array
 function db_last(PDO|mysqli $connection, string $sql, array $bindings = []): array
 function db_objects(PDO|mysqli $connection, string $sql, array $bindings = []): array
-function db_close(PDO|mysqli $connection): bool</code></pre>
+function db_close(PDO|mysqli $connection): bool
+
+function db_begin(PDO|mysqli $connection): bool
+function db_commit(PDO|mysqli $connection): bool
+function db_rollback(PDO|mysqli $connection): bool
+function db_transaction(PDO|mysqli $connection, callable $callback): mixed</code></pre>
+        </div>
+    </details>
+</section>
+
+<section class="docs-section">
+    <h2>Transactions</h2>
+    <h3>Example</h3>
+    <pre><code class="language-php">use function Harbor\Database\db_array;
+use function Harbor\Database\db_begin;
+use function Harbor\Database\db_commit;
+use function Harbor\Database\db_execute;
+use function Harbor\Database\db_rollback;
+use function Harbor\Database\db_transaction;
+
+db_execute($connection, 'CREATE TABLE IF NOT EXISTS wallet (id INTEGER PRIMARY KEY, balance INTEGER)');
+db_execute($connection, 'INSERT INTO wallet (id, balance) VALUES (1, 1000)');
+
+db_transaction($connection, function (PDO|mysqli $active_connection): void {
+    db_execute($active_connection, 'UPDATE wallet SET balance = balance - 100 WHERE id = 1');
+});
+
+db_begin($connection);
+
+try {
+    db_execute($connection, 'UPDATE wallet SET balance = balance + 50 WHERE id = 1');
+    db_commit($connection);
+} catch (Throwable) {
+    db_rollback($connection);
+}
+
+$rows = db_array($connection, 'SELECT id, balance FROM wallet');</code></pre>
+    <h3>What it does</h3>
+    <p>Supports explicit begin/commit/rollback calls and a callback-style wrapper that commits on success and rolls back when the callback throws.</p>
+    <h3>Class API</h3>
+    <details class="api-details">
+        <summary class="api-summary">
+            <span>Transaction Class</span>
+            <span class="api-state"><span class="api-state-closed">Hidden - click to open</span><span class="api-state-open">Open</span></span>
+        </summary>
+        <div class="api-body">
+            <pre><code class="language-php">use Harbor\Database\Transaction\Transaction;
+
+final class Transaction
+{
+    public static function begin(PDO|mysqli $connection): bool
+    public static function commit(PDO|mysqli $connection): bool
+    public static function rollback(PDO|mysqli $connection): bool
+    public static function run(PDO|mysqli $connection, callable $callback): mixed
+}</code></pre>
         </div>
     </details>
 </section>

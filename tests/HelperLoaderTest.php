@@ -197,6 +197,10 @@ final class HelperLoaderTest extends TestCase
         self::assertTrue(function_exists('Harbor\Database\db_first'));
         self::assertTrue(function_exists('Harbor\Database\db_last'));
         self::assertTrue(function_exists('Harbor\Database\db_objects'));
+        self::assertTrue(function_exists('Harbor\Database\db_begin'));
+        self::assertTrue(function_exists('Harbor\Database\db_commit'));
+        self::assertTrue(function_exists('Harbor\Database\db_rollback'));
+        self::assertTrue(function_exists('Harbor\Database\db_transaction'));
         self::assertTrue(function_exists('Harbor\Database\db_sqlite_connect'));
         self::assertTrue(function_exists('Harbor\Database\db_sqlite_connect_dto'));
         self::assertTrue(function_exists('Harbor\Database\db_sqlite_close'));
@@ -212,6 +216,7 @@ final class HelperLoaderTest extends TestCase
         self::assertTrue(function_exists('Harbor\Database\db_mysqli_close'));
         self::assertTrue(function_exists('Harbor\Database\db_mysqli_first'));
         self::assertTrue(function_exists('Harbor\Database\db_mysqli_last'));
+        self::assertTrue(class_exists('Harbor\Database\Transaction\Transaction'));
         self::assertTrue(class_exists('Harbor\Database\SqliteDto'));
         self::assertTrue(class_exists('Harbor\Database\MysqlDto'));
     }

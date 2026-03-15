@@ -18,6 +18,10 @@ require_once __DIR__.'/db_mysql_pdo.php';
 
 require_once __DIR__.'/db_mysqli.php';
 
+require_once __DIR__.'/Transaction/Transaction.php';
+
+require_once __DIR__.'/Transaction/helpers.php';
+
 require_once __DIR__.'/Schema/Column.php';
 
 require_once __DIR__.'/Schema/ForeignKey.php';
