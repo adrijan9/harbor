@@ -61,6 +61,7 @@ Harbor documentation is intended to run locally:
 ./vendor/bin/harbor-docs
 ```
 
+Search index is build automatically, but if you like to rebuild it manually (for example, after changing docs content), run:
 Search index rebuild command (only when docs content changes):
 
 ```bash
