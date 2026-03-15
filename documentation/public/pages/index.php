@@ -67,6 +67,10 @@ require __DIR__.'/../shared/header.php';
             <h3>Config Helpers</h3>
             <p>Load one or many config files and read typed values from env.</p>
         </a>
+        <a class="card" href="/environment">
+            <h3>Environment</h3>
+            <p>Configure environment values and branch logic for local, development, stage, and production.</p>
+        </a>
         <a class="card" href="/database">
             <h3>Database Helpers</h3>
             <p>Lightweight wrappers for SQLite, MySQL PDO, MySQLi, and resolver helpers.</p>

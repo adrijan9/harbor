@@ -22,6 +22,7 @@ $docs_navigation_groups = [
             ['id' => 'routing', 'label' => 'Routing', 'href' => '/routing'],
             ['id' => 'load_helpers', 'label' => 'Load Helpers', 'href' => '/load-helpers'],
             ['id' => 'config', 'label' => 'Config', 'href' => '/config'],
+            ['id' => 'environment', 'label' => 'Environment', 'href' => '/environment'],
             ['id' => 'request', 'label' => 'Request', 'href' => '/request'],
             ['id' => 'response', 'label' => 'Response', 'href' => '/response'],
             ['id' => 'validation', 'label' => 'Validation', 'href' => '/validation'],

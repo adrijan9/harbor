@@ -11,5 +11,6 @@ enum Environment
 {
     case LOCAL;
     case DEVELOPMENT;
+    case STAGE;
     case PRODUCTION;
 }

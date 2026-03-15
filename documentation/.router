@@ -57,6 +57,13 @@
 </route>
 
 <route>
+  path: /environment
+  method: GET
+  name: docs.environment
+  entry: pages/environment.php
+</route>
+
+<route>
   path: /request
   method: GET
   name: docs.request

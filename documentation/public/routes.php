@@ -54,6 +54,12 @@ return [
             'entry' => 'pages/config.php',
         ],
         [
+            'path' => '/environment',
+            'method' => 'GET',
+            'name' => 'docs.environment',
+            'entry' => 'pages/environment.php',
+        ],
+        [
             'path' => '/request',
             'method' => 'GET',
             'name' => 'docs.request',

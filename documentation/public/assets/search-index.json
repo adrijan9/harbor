@@ -1,5 +1,5 @@
 {
-    "generated_at": "2026-03-15T11:06:53+00:00",
+    "generated_at": "2026-03-15T11:23:01+00:00",
     "source": "documentation/.router",
     "items": [
         {
@@ -18,6 +18,7 @@
                 "Password Helpers",
                 "Auth Helpers",
                 "Config Helpers",
+                "Environment",
                 "Database Helpers",
                 "Model Pattern",
                 "Model Pagination",
@@ -32,7 +33,7 @@
                 "Cache",
                 "Logging"
             ],
-            "content": "Documentation Harbor Documentation If you are reading docs, you probably already created a project and installed Harbor. Read Installation Go To Creating New Site Overview Flow If you want full context, continue to the next page in docs: Installation. If you want to jump straight into scaffolding, open Creating New Site. Stable Core What You Get Core features are packaged as focused helpers. You can load only what you need in runtime pages. Load Helpers One place to see all helper module keys and how to load them. CLI Tooling Scaffold sites and compile `.router` files. Routing Route files with segment and query support. Request Helpers Typed access to method, URL, headers, body, files, and cookies. Cookie Helpers Set, read, and forget cookies with one helper module. Session Helpers Simplified sessions with cookie, array, and file drivers. Password Helpers Password hashing and verification wrappers around PHP password APIs. Auth Helpers Use explicit auth_web_* and auth_api_* helpers for session and bearer auth flows. Config Helpers Load one or many config files and read typed values from env. Database Helpers Lightweight wrappers for SQLite, MySQL PDO, MySQLi, and resolver helpers. Model Pattern Optional plain-PHP model classes without ORM complexity. Model Pagination Standalone pagination module with class mode and helper mode. Migrations & Seeders Create, run, and roll back tracked migration and seeder batches. Lang & Translation Locale helpers and Laravel-style translation keys. Support Helpers Shared value checks for blank and null behavior. Date Helpers Carbon wrapper helpers for creating and reading date-time instances. Pipeline Helpers Functional pipeline helpers for composing action chains. Middleware Helpers Run request middleware callbacks backed by the pipeline engine. Validation Fluent rule builders and result objects for request validation. Filesystem Safe file and directory operations. Cache Array and file cache helpers with shared API shape. Logging Levels, context, and reusable log entries."
+            "content": "Documentation Harbor Documentation If you are reading docs, you probably already created a project and installed Harbor. Read Installation Go To Creating New Site Overview Flow If you want full context, continue to the next page in docs: Installation. If you want to jump straight into scaffolding, open Creating New Site. Stable Core What You Get Core features are packaged as focused helpers. You can load only what you need in runtime pages. Load Helpers One place to see all helper module keys and how to load them. CLI Tooling Scaffold sites and compile `.router` files. Routing Route files with segment and query support. Request Helpers Typed access to method, URL, headers, body, files, and cookies. Cookie Helpers Set, read, and forget cookies with one helper module. Session Helpers Simplified sessions with cookie, array, and file drivers. Password Helpers Password hashing and verification wrappers around PHP password APIs. Auth Helpers Use explicit auth_web_* and auth_api_* helpers for session and bearer auth flows. Config Helpers Load one or many config files and read typed values from env. Environment Configure environment values and branch logic for local, development, stage, and production. Database Helpers Lightweight wrappers for SQLite, MySQL PDO, MySQLi, and resolver helpers. Model Pattern Optional plain-PHP model classes without ORM complexity. Model Pagination Standalone pagination module with class mode and helper mode. Migrations & Seeders Create, run, and roll back tracked migration and seeder batches. Lang & Translation Locale helpers and Laravel-style translation keys. Support Helpers Shared value checks for blank and null behavior. Date Helpers Carbon wrapper helpers for creating and reading date-time instances. Pipeline Helpers Functional pipeline helpers for composing action chains. Middleware Helpers Run request middleware callbacks backed by the pipeline engine. Validation Fluent rule builders and result objects for request validation. Filesystem Safe file and directory operations. Cache Array and file cache helpers with shared API shape. Logging Levels, context, and reusable log entries."
         },
         {
             "path": "/auth",
@@ -171,6 +172,20 @@
                 "Notes"
             ],
             "content": "namespace: date Date Helpers Create Harbor Carbon instances with carbon() and date_now(). Basic Usage Example use function Harbor\\Date\\carbon; use function Harbor\\Date\\date_now; $created_at = carbon('2026-03-08 10:00:00', 'UTC') ->addDays(2) ->startOfDay(); $current = date_now('UTC'); What it does Returns Harbor\\Date\\Carbon instances so you can chain Carbon-style date operations. API Date API Hidden - click to openOpen final class Carbon extends \\Carbon\\Carbon { // Harbor wrapper class. } function carbon(DateTimeInterface|string|null $time = null, DateTimeZone|string|null $timezone = null): Carbon function date_now(DateTimeZone|string|null $timezone = null): Carbon Notes Harbor requires nesbot/carbon in composer.json. Load with Helper::load_many('carbon'). date_now() is equivalent to carbon('now') with optional timezone."
+        },
+        {
+            "path": "/environment",
+            "title": "Environment",
+            "description": "Define your runtime environment once and branch behavior with explicit checks.",
+            "headings": [
+                "Set Environment In Global Config",
+                "Example",
+                "What it does",
+                "Read Current Environment",
+                "Built-in Helpers",
+                "Project-Level Helper API"
+            ],
+            "content": "namespace: environment Environment Define your runtime environment once and branch behavior with explicit checks. Set Environment In Global Config Example use Harbor\\Environment; return [ 'app_name' => 'Harbor Site', 'environment' => Environment::LOCAL, ]; What it does Stores the environment value under $_ENV['environment'] when your global config is loaded. Read Current Environment Example use Harbor\\Environment; use function Harbor\\Config\\config_get; $current_environment = config_get('environment', Environment::LOCAL); $is_production = Environment::PRODUCTION === $current_environment; $is_stage = Environment::STAGE === $current_environment; $is_development = Environment::DEVELOPMENT === $current_environment; $is_local = Environment::LOCAL === $current_environment; What it does Reads the current environment from config and compares against the canonical Environment enum cases. Built-in Helpers Harbor does not currently provide public helpers named is_production(), is_development(), is_stage(), or is_environment(). Use config_get('environment') with Harbor\\Environment comparisons, or define project-level helper wrappers. Project-Level Helper API Environment Helper Functions Hidden - click to openOpen function is_environment(Environment|string $target): bool function is_production(): bool function is_development(): bool function is_stage(): bool function is_local(): bool"
         },
         {
             "path": "/filesystem",
