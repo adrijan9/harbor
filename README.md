@@ -68,6 +68,6 @@ Search index rebuild command (only when docs content changes):
 ```
 
 ## Contributing
-Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on how to contribute to Harbor.
+Contributions are welcome! Please see [CONTRIBUTION.md](CONTRIBUTION.md) for guidelines on how to contribute to Harbor.
 
 This README is intentionally kept short. Detailed usage and updates continue in the documentation site.
