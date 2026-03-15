@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 $page_title = 'Harbor Docs - Logging';
-$page_description = 'Logging helpers with levels, context, and reusable entries.';
+$page_description = 'Logging helpers with levels, context, and structured channels.';
 $page_id = 'logging';
 
 require __DIR__.'/../shared/header.php';
@@ -22,7 +22,7 @@ require __DIR__.'/../shared/header.php';
 
 log_init(__DIR__.'/storage/app.log', 'app');</code></pre>
     <h3>What it does</h3>
-    <p>Initializes the logger file path and default channel for log output.</p>
+    <p>Initializes legacy single-file logger mode with a file path and default output channel label.</p>
     <h3>API</h3>
     <details class="api-details">
         <summary class="api-summary">
@@ -59,14 +59,42 @@ log_set_channel('infra');</code></pre>
 </section>
 
 <section class="docs-section">
+    <h2>Structured Channels</h2>
+    <h3>Example</h3>
+    <pre><code class="language-php">// config/logging.php
+return [
+    'default' => 'stack',
+    'channels' => [
+        'single' => [
+            'driver' => 'single',
+            'path' => __DIR__.'/../logs/app.log',
+            'channel' => 'app',
+        ],
+        'daily' => [
+            'driver' => 'daily',
+            'path' => __DIR__.'/../logs/app.log',
+            'days' => 14,
+            'channel' => 'app',
+        ],
+        'stack' => [
+            'driver' => 'stack',
+            'channels' => ['single', 'daily'],
+        ],
+    ],
+];</code></pre>
+    <h3>What it does</h3>
+    <p>Routes logs through named channels. <code>single</code> writes one file, <code>daily</code> rotates by date, and <code>stack</code> writes to many channels.</p>
+</section>
+
+<section class="docs-section">
     <h2>Write Logs</h2>
     <h3>Example</h3>
     <pre><code class="language-php">use Harbor\Log\LogLevel;
 use function Harbor\Log\log_info;
 use function Harbor\Log\log_write;
 
-log_info('User {user} signed in', ['user' => 'ada']);
-log_write(LogLevel::WARNING, 'Disk usage high', ['usage' => 88], 'infra');</code></pre>
+log_info('User {user} signed in', ['user' => 'ada']); // default logging channel
+log_write(LogLevel::WARNING, 'Disk usage high', ['usage' => 88], 'daily'); // explicit configured channel</code></pre>
     <h3>What it does</h3>
     <p>Writes level-based log lines with context data.</p>
     <h3>API</h3>
@@ -79,7 +107,8 @@ log_write(LogLevel::WARNING, 'Disk usage high', ['usage' => 88], 'infra');</code
             <pre><code class="language-php">function log_write(LogLevel|string $level, string $message, array $context = [], ?string $channel = null): void
 // Writes one formatted log entry to file.
 // Supports enum or string level and optional channel override.
-log_write(LogLevel::WARNING, 'Disk usage high', ['usage' => 88], 'infra');
+// When logging.channels is configured, $channel resolves that channel definition.
+log_write(LogLevel::WARNING, 'Disk usage high', ['usage' => 88], 'daily');
 
 function log_debug(string $message, array $context = [], ?string $channel = null): void
 // Shortcut for debug level logs.

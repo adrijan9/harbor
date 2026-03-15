@@ -30,6 +30,7 @@ final class LogHelpersTest extends TestCase
 {
     private string $workspace_path;
     private string $log_file_path;
+    private array $original_env = [];
 
     #[BeforeClass]
     public static function load_log_helpers(): void
@@ -122,6 +123,102 @@ final class LogHelpersTest extends TestCase
         self::assertStringContainsString('[DEBUG] [http] Cache miss for profile:1', $content);
     }
 
+    public function test_log_helpers_write_to_configured_single_channel_without_log_init(): void
+    {
+        $single_log_path = $this->workspace_path.'/single.log';
+        $_ENV['logging'] = [
+            'default' => 'single',
+            'channels' => [
+                'single' => [
+                    'driver' => 'single',
+                    'path' => $single_log_path,
+                    'channel' => 'app',
+                ],
+            ],
+        ];
+        $GLOBALS['_ENV'] = $_ENV;
+
+        log_info('Single channel {status}', [
+            'status' => 'works',
+        ]);
+
+        self::assertFileExists($single_log_path);
+
+        $content = file_get_contents($single_log_path);
+        self::assertIsString($content);
+        self::assertStringContainsString('[INFO] [app] Single channel works', $content);
+    }
+
+    public function test_log_helpers_write_to_configured_daily_channel_file(): void
+    {
+        $daily_base_path = $this->workspace_path.'/daily.log';
+        $_ENV['logging'] = [
+            'default' => 'daily',
+            'channels' => [
+                'daily' => [
+                    'driver' => 'daily',
+                    'path' => $daily_base_path,
+                    'days' => 7,
+                    'channel' => 'daily',
+                ],
+            ],
+        ];
+        $GLOBALS['_ENV'] = $_ENV;
+
+        log_warning('Daily channel entry');
+
+        $daily_file_path = $this->workspace_path.'/daily-'.date('Y-m-d').'.log';
+        self::assertFileExists($daily_file_path);
+
+        $content = file_get_contents($daily_file_path);
+        self::assertIsString($content);
+        self::assertStringContainsString('[WARNING] [daily] Daily channel entry', $content);
+    }
+
+    public function test_log_helpers_write_to_stack_channel_and_fan_out_to_each_target(): void
+    {
+        $single_log_path = $this->workspace_path.'/stack-single.log';
+        $daily_base_path = $this->workspace_path.'/stack-daily.log';
+        $_ENV['logging'] = [
+            'default' => 'stack',
+            'channels' => [
+                'single' => [
+                    'driver' => 'single',
+                    'path' => $single_log_path,
+                    'channel' => 'single',
+                ],
+                'daily' => [
+                    'driver' => 'daily',
+                    'path' => $daily_base_path,
+                    'days' => 3,
+                    'channel' => 'daily',
+                ],
+                'stack' => [
+                    'driver' => 'stack',
+                    'channels' => ['single', 'daily'],
+                ],
+            ],
+        ];
+        $GLOBALS['_ENV'] = $_ENV;
+
+        log_write(LogLevel::ERROR, 'Stacked {id}', [
+            'id' => 77,
+        ], 'stack');
+
+        $daily_file_path = $this->workspace_path.'/stack-daily-'.date('Y-m-d').'.log';
+
+        self::assertFileExists($single_log_path);
+        self::assertFileExists($daily_file_path);
+
+        $single_content = file_get_contents($single_log_path);
+        self::assertIsString($single_content);
+        self::assertStringContainsString('[ERROR] [single] Stacked 77', $single_content);
+
+        $daily_content = file_get_contents($daily_file_path);
+        self::assertIsString($daily_content);
+        self::assertStringContainsString('[ERROR] [daily] Stacked 77', $daily_content);
+    }
+
     public function test_log_exception_writes_exception_payload(): void
     {
         log_init($this->log_file_path);
@@ -173,12 +270,17 @@ final class LogHelpersTest extends TestCase
     #[Before]
     protected function create_workspace(): void
     {
+        $this->original_env = is_array($_ENV) ? $_ENV : [];
         $this->workspace_path = sys_get_temp_dir().'/php_framework_log_'.bin2hex(random_bytes(8));
         $this->log_file_path = $this->workspace_path.'/app.log';
 
         if (! mkdir($this->workspace_path, 0o777, true) && ! is_dir($this->workspace_path)) {
             throw new \RuntimeException(sprintf('Failed to create test workspace "%s".', $this->workspace_path));
         }
+
+        $_ENV = $this->original_env;
+        unset($_ENV['logging']);
+        $GLOBALS['_ENV'] = $_ENV;
 
         log_reset();
     }
@@ -187,6 +289,8 @@ final class LogHelpersTest extends TestCase
     protected function cleanup_workspace(): void
     {
         log_reset();
+        $_ENV = $this->original_env;
+        $GLOBALS['_ENV'] = $_ENV;
 
         if (! is_dir($this->workspace_path)) {
             return;

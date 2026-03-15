@@ -148,6 +148,10 @@ function harbor_config_publishable_configs(): array
             'file_name' => 'database.php',
             'template_path' => __DIR__.'/../../stubs/config/database.php',
         ],
+        'logging' => [
+            'file_name' => 'logging.php',
+            'template_path' => __DIR__.'/../../stubs/config/logging.php',
+        ],
         'migration' => [
             'file_name' => 'migration.php',
             'template_path' => __DIR__.'/../../stubs/config/migration.php',

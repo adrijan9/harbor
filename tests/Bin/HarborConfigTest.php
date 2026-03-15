@@ -111,6 +111,27 @@ final class HarborConfigTest extends TestCase
         self::assertStringContainsString("'id_cookie' => 'harbor-session-id'", $content);
     }
 
+    public function test_publish_logging_config_creates_file_in_current_site_config_directory(): void
+    {
+        $this->prepare_workspace();
+
+        $published_path = \harbor_publish_config('logging');
+
+        self::assertSame($this->workspace_path.'/config/logging.php', $published_path);
+        self::assertFileExists($published_path);
+
+        $content = file_get_contents($published_path);
+        self::assertIsString($content);
+        self::assertStringContainsString("'default' => 'stack'", $content);
+        self::assertStringContainsString("'single' => [", $content);
+        self::assertStringContainsString("'driver' => 'single'", $content);
+        self::assertStringContainsString("'daily' => [", $content);
+        self::assertStringContainsString("'driver' => 'daily'", $content);
+        self::assertStringContainsString("'stack' => [", $content);
+        self::assertStringContainsString("'driver' => 'stack'", $content);
+        self::assertStringContainsString("'channels' => ['single', 'daily']", $content);
+    }
+
     public function test_publish_cache_config_does_not_overwrite_existing_file_by_default(): void
     {
         $this->prepare_workspace();
