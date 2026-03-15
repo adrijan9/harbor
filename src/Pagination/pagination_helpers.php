@@ -11,26 +11,29 @@ require_once __DIR__.'/../Database/QueryBuilder/QueryBuilder.php';
 require_once __DIR__.'/PaginationOptionsBag.php';
 
 require_once __DIR__.'/../Support/value.php';
+require_once __DIR__.'/../Router/helpers/route_query.php';
 
 use Harbor\Database\QueryBuilder\QueryBuilder;
 
 use function Harbor\Database\db_array;
 use function Harbor\Database\db_connect;
 use function Harbor\Database\db_first;
+use function Harbor\Router\route_query_int;
 use function Harbor\Support\harbor_is_blank;
 
 /** Public */
 function pagination_paginate(
     QueryBuilder $base_query,
-    int $page = 1,
-    int $per_page = 15,
+    ?int $page = null,
+    int $per_page = 25,
     \mysqli|\PDO|null $connection = null,
     ?PaginationOptionsBag $options = null
 ): array {
     $resolved_options = pagination_resolve_options($options);
+    $resolved_page = pagination_resolve_page($page);
 
     [$normalized_page, $normalized_per_page] = pagination_normalize_input(
-        $page,
+        $resolved_page,
         $per_page,
         pagination_max_per_page($resolved_options)
     );
@@ -63,6 +66,15 @@ function pagination_resolve_options(?PaginationOptionsBag $options): PaginationO
     }
 
     return PaginationOptionsBag::make();
+}
+
+function pagination_resolve_page(?int $page): int
+{
+    if (is_int($page)) {
+        return $page;
+    }
+
+    return route_query_int('page', 1);
 }
 
 /**

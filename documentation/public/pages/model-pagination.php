@@ -67,6 +67,7 @@ $result = (new UsersPagination())
     ->paginate(page: 2, per_page: 20);</code></pre>
     <h3>What it does</h3>
     <p>Lets you keep reusable filtering/state in a small paginator class, control connection with <code>set_connection()</code>, and configure links/per-page caps with <code>set_options()</code>.</p>
+    <p>If <code>page</code> is omitted, pagination resolves it from <code>route_query_int('page', 1)</code>. The default <code>per_page</code> is <code>25</code>.</p>
 </section>
 
 <section class="docs-section">
@@ -94,6 +95,7 @@ $result = pagination_paginate(
 );</code></pre>
     <h3>What it does</h3>
     <p>Gives the same internal pagination flow without creating a class, useful for one-off routes or scripts.</p>
+    <p>If <code>page</code> is omitted, pagination resolves it from <code>route_query_int('page', 1)</code>. The default <code>per_page</code> is <code>25</code>.</p>
 </section>
 
 <section class="docs-section">
@@ -141,8 +143,8 @@ $result = pagination_paginate(
     public function set_connection(PDO|mysqli $connection): static
     public function set_options(PaginationOptionsBag $options): static
     public function paginate(
-        int $page = 1,
-        int $per_page = 15
+        ?int $page = null,
+        int $per_page = 25
     ): array
 
     abstract protected function base_query(): QueryBuilder
@@ -150,8 +152,8 @@ $result = pagination_paginate(
 
 function pagination_paginate(
     QueryBuilder $base_query,
-    int $page = 1,
-    int $per_page = 15,
+    ?int $page = null,
+    int $per_page = 25,
     PDO|mysqli|null $connection = null,
     ?PaginationOptionsBag $options = null
 ): array</code></pre>

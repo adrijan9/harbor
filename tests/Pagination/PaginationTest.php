@@ -94,6 +94,30 @@ final class PaginationTest extends TestCase
         self::assertSame('?page=2', $result['links']['next']);
     }
 
+    public function test_class_mode_uses_default_per_page_of_twenty_five(): void
+    {
+        $connection = db_sqlite_connect($this->primary_sqlite_database_path);
+        $rows = [];
+
+        for ($index = 1; $index <= 30; ++$index) {
+            $rows[] = [
+                'email' => 'user'.$index.'@example.com',
+                'status' => 'active',
+            ];
+        }
+
+        $this->seed_users($connection, $rows);
+
+        $result = new UsersPaginationStub()
+            ->set_connection($connection)
+            ->paginate(page: 1)
+        ;
+
+        self::assertSame(25, $result['meta']['per_page']);
+        self::assertCount(25, $result['data']);
+        self::assertSame(2, $result['meta']['last_page']);
+    }
+
     public function test_set_connection_changes_dataset(): void
     {
         $primary_connection = db_sqlite_connect($this->primary_sqlite_database_path);
@@ -148,6 +172,33 @@ final class PaginationTest extends TestCase
         self::assertSame('/users?status=active&page=3', $result['links']['last']);
     }
 
+    public function test_class_mode_resolves_page_from_route_query_when_page_argument_is_omitted(): void
+    {
+        $connection = db_sqlite_connect($this->primary_sqlite_database_path);
+        $this->seed_users($connection, [
+            ['email' => 'a@example.com', 'status' => 'active'],
+            ['email' => 'b@example.com', 'status' => 'inactive'],
+            ['email' => 'c@example.com', 'status' => 'active'],
+            ['email' => 'd@example.com', 'status' => 'active'],
+        ]);
+
+        $route_snapshot = $this->snapshot_route_global();
+        $GLOBALS['route'] = ['query' => ['page' => '2']];
+
+        try {
+            $result = new UsersPaginationStub()
+                ->set_connection($connection)
+                ->paginate(per_page: 1)
+            ;
+        } finally {
+            $this->restore_route_global($route_snapshot);
+        }
+
+        self::assertSame(2, $result['meta']['current_page']);
+        self::assertSame(2, $result['meta']['from']);
+        self::assertSame(2, $result['meta']['to']);
+    }
+
     public function test_helper_mode_matches_class_mode_and_applies_link_options(): void
     {
         $connection = db_sqlite_connect($this->primary_sqlite_database_path);
@@ -187,6 +238,100 @@ final class PaginationTest extends TestCase
         self::assertSame('/model/pagination?status=active&page=1', $helper_result['links']['prev']);
         self::assertSame('/model/pagination?status=active&page=2', $helper_result['links']['next']);
         self::assertSame('/model/pagination?status=active&page=2', $helper_result['links']['last']);
+    }
+
+    public function test_helper_mode_resolves_page_from_route_query_when_page_argument_is_omitted(): void
+    {
+        $connection = db_sqlite_connect($this->primary_sqlite_database_path);
+        $this->seed_users($connection, [
+            ['email' => 'a@example.com', 'status' => 'active'],
+            ['email' => 'b@example.com', 'status' => 'inactive'],
+            ['email' => 'c@example.com', 'status' => 'active'],
+            ['email' => 'd@example.com', 'status' => 'active'],
+        ]);
+
+        $base_query = QueryBuilder::select()
+            ->from('users')
+            ->columns('id', 'email', 'status')
+            ->where('status', '=', 'active')
+            ->order_by('id', 'asc')
+        ;
+
+        $route_snapshot = $this->snapshot_route_global();
+        $GLOBALS['route'] = ['query' => ['page' => '3']];
+
+        try {
+            $result = pagination_paginate(
+                base_query: $base_query,
+                per_page: 1,
+                connection: $connection
+            );
+        } finally {
+            $this->restore_route_global($route_snapshot);
+        }
+
+        self::assertSame(3, $result['meta']['current_page']);
+        self::assertSame(3, $result['meta']['from']);
+        self::assertSame(3, $result['meta']['to']);
+    }
+
+    public function test_helper_mode_uses_default_per_page_of_twenty_five(): void
+    {
+        $connection = db_sqlite_connect($this->primary_sqlite_database_path);
+        $rows = [];
+
+        for ($index = 1; $index <= 30; ++$index) {
+            $rows[] = [
+                'email' => 'user'.$index.'@example.com',
+                'status' => 'active',
+            ];
+        }
+
+        $this->seed_users($connection, $rows);
+
+        $base_query = QueryBuilder::select()
+            ->from('users')
+            ->columns('id', 'email')
+            ->where('status', '=', 'active')
+            ->order_by('id', 'asc')
+        ;
+
+        $result = pagination_paginate(
+            base_query: $base_query,
+            page: 1,
+            connection: $connection
+        );
+
+        self::assertSame(25, $result['meta']['per_page']);
+        self::assertCount(25, $result['data']);
+        self::assertSame(2, $result['meta']['last_page']);
+    }
+
+    public function test_explicit_page_argument_overrides_route_query_page(): void
+    {
+        $connection = db_sqlite_connect($this->primary_sqlite_database_path);
+        $this->seed_users($connection, [
+            ['email' => 'a@example.com', 'status' => 'active'],
+            ['email' => 'b@example.com', 'status' => 'inactive'],
+            ['email' => 'c@example.com', 'status' => 'active'],
+            ['email' => 'd@example.com', 'status' => 'active'],
+        ]);
+
+        $route_snapshot = $this->snapshot_route_global();
+        $GLOBALS['route'] = ['query' => ['page' => '3']];
+
+        try {
+            $result = new UsersPaginationStub()
+                ->set_connection($connection)
+                ->paginate(page: 1, per_page: 1)
+            ;
+        } finally {
+            $this->restore_route_global($route_snapshot);
+        }
+
+        self::assertSame(1, $result['meta']['current_page']);
+        self::assertSame(1, $result['meta']['from']);
+        self::assertSame(1, $result['meta']['to']);
     }
 
     public function test_paginate_throws_when_base_query_contains_limit(): void
@@ -334,5 +479,30 @@ final class PaginationTest extends TestCase
         }
 
         rmdir($directory_path);
+    }
+
+    /**
+     * @return array{exists: bool, value: mixed}
+     */
+    private function snapshot_route_global(): array
+    {
+        return [
+            'exists' => array_key_exists('route', $GLOBALS),
+            'value' => $GLOBALS['route'] ?? null,
+        ];
+    }
+
+    /**
+     * @param array{exists: bool, value: mixed} $snapshot
+     */
+    private function restore_route_global(array $snapshot): void
+    {
+        if ($snapshot['exists']) {
+            $GLOBALS['route'] = $snapshot['value'];
+
+            return;
+        }
+
+        unset($GLOBALS['route']);
     }
 }

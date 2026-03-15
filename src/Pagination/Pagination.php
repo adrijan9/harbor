@@ -11,12 +11,14 @@ require_once __DIR__.'/../Database/QueryBuilder/QueryBuilder.php';
 require_once __DIR__.'/PaginationOptionsBag.php';
 
 require_once __DIR__.'/../Support/value.php';
+require_once __DIR__.'/../Router/helpers/route_query.php';
 
 use Harbor\Database\QueryBuilder\QueryBuilder;
 
 use function Harbor\Database\db_array;
 use function Harbor\Database\db_connect;
 use function Harbor\Database\db_first;
+use function Harbor\Router\route_query_int;
 use function Harbor\Support\harbor_is_blank;
 
 /**
@@ -42,10 +44,12 @@ abstract class Pagination
     }
 
     final public function paginate(
-        int $page = 1,
-        int $per_page = 15
+        ?int $page = null,
+        int $per_page = 25
     ): array {
-        [$normalized_page, $normalized_per_page] = $this->normalize_pagination_input($page, $per_page);
+        $resolved_page = $this->resolve_page($page);
+
+        [$normalized_page, $normalized_per_page] = $this->normalize_pagination_input($resolved_page, $per_page);
 
         $active_connection = $this->resolve_active_connection();
         $base_query = $this->base_query();
@@ -122,6 +126,15 @@ abstract class Pagination
         $normalized_per_page = min($per_page, $max_per_page);
 
         return [$page, $normalized_per_page];
+    }
+
+    private function resolve_page(?int $page): int
+    {
+        if (is_int($page)) {
+            return $page;
+        }
+
+        return route_query_int('page', 1);
     }
 
     private function resolve_active_connection(): \mysqli|\PDO
