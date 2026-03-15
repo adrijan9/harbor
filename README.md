@@ -17,6 +17,8 @@ Harbor is a lightweight PHP runtime/framework toolkit for page-first projects wi
 
 ## Getting Started
 
+Requirement: PHP 8.5 or higher.
+
 1. Create an empty project directory.
 
 ```bash
