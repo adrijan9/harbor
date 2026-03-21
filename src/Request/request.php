@@ -54,47 +54,47 @@ function request_method(): string
 
 function request_is_get(): bool
 {
-    return request_matches_method('GET');
+    return request_internal_matches_method('GET');
 }
 
 function request_is_post(): bool
 {
-    return request_matches_method('POST');
+    return request_internal_matches_method('POST');
 }
 
 function request_is_put(): bool
 {
-    return request_matches_method('PUT');
+    return request_internal_matches_method('PUT');
 }
 
 function request_is_patch(): bool
 {
-    return request_matches_method('PATCH');
+    return request_internal_matches_method('PATCH');
 }
 
 function request_is_delete(): bool
 {
-    return request_matches_method('DELETE');
+    return request_internal_matches_method('DELETE');
 }
 
 function request_is_options(): bool
 {
-    return request_matches_method('OPTIONS');
+    return request_internal_matches_method('OPTIONS');
 }
 
 function request_is_head(): bool
 {
-    return request_matches_method('HEAD');
+    return request_internal_matches_method('HEAD');
 }
 
 function request_is_trace(): bool
 {
-    return request_matches_method('TRACE');
+    return request_internal_matches_method('TRACE');
 }
 
 function request_is_connect(): bool
 {
-    return request_matches_method('CONNECT');
+    return request_internal_matches_method('CONNECT');
 }
 
 function request_uri(): string
@@ -265,7 +265,7 @@ function request_headers(): array
         $all_headers = getallheaders();
         if (is_array($all_headers)) {
             foreach ($all_headers as $name => $value) {
-                $headers[request_normalize_header_name((string) $name)] = $value;
+                $headers[request_internal_normalize_header_name((string) $name)] = $value;
             }
         }
     }
@@ -294,7 +294,7 @@ function request_headers(): array
 function request_header(string $key, mixed $default = null): mixed
 {
     $headers = request_headers();
-    $normalized = request_normalize_header_name($key);
+    $normalized = request_internal_normalize_header_name($key);
 
     return $headers[$normalized] ?? $default;
 }
@@ -302,44 +302,44 @@ function request_header(string $key, mixed $default = null): mixed
 function request_header_exists(string $key): bool
 {
     $headers = request_headers();
-    $normalized = request_normalize_header_name($key);
+    $normalized = request_internal_normalize_header_name($key);
 
     return array_key_exists($normalized, $headers);
 }
 
 function request_header_int(string $key, int $default = 0): int
 {
-    return request_value_to_int(request_header($key), $default);
+    return request_internal_value_to_int(request_header($key), $default);
 }
 
 function request_header_float(string $key, float $default = 0.0): float
 {
-    return request_value_to_float(request_header($key), $default);
+    return request_internal_value_to_float(request_header($key), $default);
 }
 
 function request_header_str(string $key, string $default = ''): string
 {
-    return request_value_to_str(request_header($key), $default);
+    return request_internal_value_to_str(request_header($key), $default);
 }
 
 function request_header_bool(string $key, bool $default = false): bool
 {
-    return request_value_to_bool(request_header($key), $default);
+    return request_internal_value_to_bool(request_header($key), $default);
 }
 
 function request_header_arr(string $key, array $default = []): array
 {
-    return request_value_to_arr(request_header($key), $default);
+    return request_internal_value_to_arr(request_header($key), $default);
 }
 
 function request_header_obj(string $key, ?object $default = null): ?object
 {
-    return request_value_to_obj(request_header($key), $default);
+    return request_internal_value_to_obj(request_header($key), $default);
 }
 
 function request_header_json(string $key, mixed $default = null): mixed
 {
-    return request_value_to_json(request_header($key), $default);
+    return request_internal_value_to_json(request_header($key), $default);
 }
 
 /**
@@ -365,18 +365,18 @@ function request_raw_body(): string
 
 function request_body(?string $key = null, mixed $default = null): mixed
 {
-    $body = request_body_data();
+    $body = request_internal_body_data();
 
     if (harbor_is_blank($key)) {
         return $body;
     }
 
     if (is_array($body)) {
-        return request_array_get($body, $key, $default);
+        return request_internal_array_get($body, $key, $default);
     }
 
     if (is_object($body)) {
-        return request_array_get((array) $body, $key, $default);
+        return request_internal_array_get((array) $body, $key, $default);
     }
 
     return $default;
@@ -384,7 +384,7 @@ function request_body(?string $key = null, mixed $default = null): mixed
 
 function request_body_all(): array
 {
-    $body = request_body_data();
+    $body = request_internal_body_data();
 
     if (is_array($body)) {
         return $body;
@@ -404,42 +404,42 @@ function request_body_count(): int
 
 function request_body_exists(string $key): bool
 {
-    return request_array_has(request_body_all(), $key);
+    return request_internal_array_has(request_body_all(), $key);
 }
 
 function request_body_int(string $key, int $default = 0): int
 {
-    return request_value_to_int(request_body($key), $default);
+    return request_internal_value_to_int(request_body($key), $default);
 }
 
 function request_body_float(string $key, float $default = 0.0): float
 {
-    return request_value_to_float(request_body($key), $default);
+    return request_internal_value_to_float(request_body($key), $default);
 }
 
 function request_body_str(string $key, string $default = ''): string
 {
-    return request_value_to_str(request_body($key), $default);
+    return request_internal_value_to_str(request_body($key), $default);
 }
 
 function request_body_bool(string $key, bool $default = false): bool
 {
-    return request_value_to_bool(request_body($key), $default);
+    return request_internal_value_to_bool(request_body($key), $default);
 }
 
 function request_body_arr(string $key, array $default = []): array
 {
-    return request_value_to_arr(request_body($key), $default);
+    return request_internal_value_to_arr(request_body($key), $default);
 }
 
 function request_body_obj(string $key, ?object $default = null): ?object
 {
-    return request_value_to_obj(request_body($key), $default);
+    return request_internal_value_to_obj(request_body($key), $default);
 }
 
 function request_body_json(string $key, mixed $default = null): mixed
 {
-    return request_value_to_json(request_body($key), $default);
+    return request_internal_value_to_json(request_body($key), $default);
 }
 
 /**
@@ -460,11 +460,11 @@ function request_only(string ...$keys): array
     $only = [];
 
     foreach ($keys as $key) {
-        if (harbor_is_blank($key) || ! request_array_has($input, $key)) {
+        if (harbor_is_blank($key) || ! request_internal_array_has($input, $key)) {
             continue;
         }
 
-        $only[$key] = request_array_get($input, $key);
+        $only[$key] = request_internal_array_get($input, $key);
     }
 
     return $only;
@@ -487,37 +487,37 @@ function request_except(string ...$keys): array
 
 function request_input_int(string $key, int $default = 0): int
 {
-    return request_value_to_int(request_input($key), $default);
+    return request_internal_value_to_int(request_input($key), $default);
 }
 
 function request_input_float(string $key, float $default = 0.0): float
 {
-    return request_value_to_float(request_input($key), $default);
+    return request_internal_value_to_float(request_input($key), $default);
 }
 
 function request_input_str(string $key, string $default = ''): string
 {
-    return request_value_to_str(request_input($key), $default);
+    return request_internal_value_to_str(request_input($key), $default);
 }
 
 function request_input_bool(string $key, bool $default = false): bool
 {
-    return request_value_to_bool(request_input($key), $default);
+    return request_internal_value_to_bool(request_input($key), $default);
 }
 
 function request_input_arr(string $key, array $default = []): array
 {
-    return request_value_to_arr(request_input($key), $default);
+    return request_internal_value_to_arr(request_input($key), $default);
 }
 
 function request_input_obj(string $key, ?object $default = null): ?object
 {
-    return request_value_to_obj(request_input($key), $default);
+    return request_internal_value_to_obj(request_input($key), $default);
 }
 
 function request_input_json(string $key, mixed $default = null): mixed
 {
-    return request_value_to_json(request_input($key), $default);
+    return request_internal_value_to_json(request_input($key), $default);
 }
 
 /**
@@ -529,7 +529,7 @@ function request_cookie(?string $key = null, mixed $default = null): mixed
         return request_cookies();
     }
 
-    return request_array_get(request_cookies(), $key, $default);
+    return request_internal_array_get(request_cookies(), $key, $default);
 }
 
 function request_cookies(): array
@@ -539,7 +539,7 @@ function request_cookies(): array
 
 function request_cookie_exists(string $key): bool
 {
-    return request_array_has(request_cookies(), $key);
+    return request_internal_array_has(request_cookies(), $key);
 }
 
 function request_files(?string $key = null, mixed $default = null): mixed
@@ -550,7 +550,7 @@ function request_files(?string $key = null, mixed $default = null): mixed
         return $files;
     }
 
-    return request_array_get($files, $key, $default);
+    return request_internal_array_get($files, $key, $default);
 }
 
 function request_file(string $key, mixed $default = null): mixed
@@ -560,7 +560,7 @@ function request_file(string $key, mixed $default = null): mixed
 
 function request_has_file(string $key): bool
 {
-    return request_array_has(is_array($_FILES) ? $_FILES : [], $key);
+    return request_internal_array_has(is_array($_FILES) ? $_FILES : [], $key);
 }
 
 /**
@@ -574,14 +574,14 @@ function request_server(?string $key = null, mixed $default = null): mixed
         return $server;
     }
 
-    return request_array_get($server, $key, $default);
+    return request_internal_array_get($server, $key, $default);
 }
 
 /**
  * Internal helpers.
  */
 /** Private */
-function request_body_data(): mixed
+function request_internal_body_data(): mixed
 {
     static $parsed_body = null;
     static $has_parsed_body = false;
@@ -606,7 +606,7 @@ function request_body_data(): mixed
     }
 
     if (request_is_json()) {
-        $decoded_json = request_decode_json($raw_body, true);
+        $decoded_json = request_internal_decode_json($raw_body, true);
         if (null !== $decoded_json) {
             $parsed_body = $decoded_json;
 
@@ -621,7 +621,7 @@ function request_body_data(): mixed
         return $parsed_body;
     }
 
-    $decoded = request_decode_json($raw_body, true);
+    $decoded = request_internal_decode_json($raw_body, true);
     if (null !== $decoded) {
         $parsed_body = $decoded;
 
@@ -633,7 +633,7 @@ function request_body_data(): mixed
     return $parsed_body;
 }
 
-function request_normalize_header_name(string $key): string
+function request_internal_normalize_header_name(string $key): string
 {
     $normalized = strtolower(trim($key));
     $normalized = str_replace('_', '-', $normalized);
@@ -641,12 +641,12 @@ function request_normalize_header_name(string $key): string
     return preg_replace('/\s+/', '', $normalized) ?? $normalized;
 }
 
-function request_matches_method(string $method): bool
+function request_internal_matches_method(string $method): bool
 {
     return request_method() === strtoupper($method);
 }
 
-function request_array_get(array $array, string $key, mixed $default = null): mixed
+function request_internal_array_get(array $array, string $key, mixed $default = null): mixed
 {
     if (array_key_exists($key, $array)) {
         return $array[$key];
@@ -666,7 +666,7 @@ function request_array_get(array $array, string $key, mixed $default = null): mi
     return $current;
 }
 
-function request_array_has(array $array, string $key): bool
+function request_internal_array_has(array $array, string $key): bool
 {
     if (array_key_exists($key, $array)) {
         return true;
@@ -686,7 +686,7 @@ function request_array_has(array $array, string $key): bool
     return true;
 }
 
-function request_decode_json(string $value, bool $assoc): mixed
+function request_internal_decode_json(string $value, bool $assoc): mixed
 {
     $decoded = json_decode(rawurldecode($value), $assoc);
 
@@ -697,7 +697,7 @@ function request_decode_json(string $value, bool $assoc): mixed
     return $decoded;
 }
 
-function request_value_to_int(mixed $value, int $default = 0): int
+function request_internal_value_to_int(mixed $value, int $default = 0): int
 {
     if (is_int($value)) {
         return $value;
@@ -710,7 +710,7 @@ function request_value_to_int(mixed $value, int $default = 0): int
     return $default;
 }
 
-function request_value_to_float(mixed $value, float $default = 0.0): float
+function request_internal_value_to_float(mixed $value, float $default = 0.0): float
 {
     if (is_float($value) || is_int($value)) {
         return (float) $value;
@@ -723,7 +723,7 @@ function request_value_to_float(mixed $value, float $default = 0.0): float
     return $default;
 }
 
-function request_value_to_str(mixed $value, string $default = ''): string
+function request_internal_value_to_str(mixed $value, string $default = ''): string
 {
     if (is_string($value)) {
         return $value;
@@ -740,7 +740,7 @@ function request_value_to_str(mixed $value, string $default = ''): string
     return $default;
 }
 
-function request_value_to_bool(mixed $value, bool $default = false): bool
+function request_internal_value_to_bool(mixed $value, bool $default = false): bool
 {
     if (is_bool($value)) {
         return $value;
@@ -761,7 +761,7 @@ function request_value_to_bool(mixed $value, bool $default = false): bool
     return $default;
 }
 
-function request_value_to_arr(mixed $value, array $default = []): array
+function request_internal_value_to_arr(mixed $value, array $default = []): array
 {
     if (is_array($value)) {
         return $value;
@@ -776,7 +776,7 @@ function request_value_to_arr(mixed $value, array $default = []): array
     }
 
     if (is_string($value)) {
-        $decoded = request_decode_json($value, true);
+        $decoded = request_internal_decode_json($value, true);
 
         if (is_array($decoded)) {
             return $decoded;
@@ -794,7 +794,7 @@ function request_value_to_arr(mixed $value, array $default = []): array
     return $default;
 }
 
-function request_value_to_obj(mixed $value, ?object $default = null): ?object
+function request_internal_value_to_obj(mixed $value, ?object $default = null): ?object
 {
     if (is_object($value)) {
         return $value;
@@ -805,7 +805,7 @@ function request_value_to_obj(mixed $value, ?object $default = null): ?object
     }
 
     if (is_string($value)) {
-        $decoded = request_decode_json($value, false);
+        $decoded = request_internal_decode_json($value, false);
 
         if (is_object($decoded)) {
             return $decoded;
@@ -819,13 +819,13 @@ function request_value_to_obj(mixed $value, ?object $default = null): ?object
     return $default;
 }
 
-function request_value_to_json(mixed $value, mixed $default = null): mixed
+function request_internal_value_to_json(mixed $value, mixed $default = null): mixed
 {
     if (! is_string($value)) {
         return $default;
     }
 
-    $decoded = request_decode_json($value, true);
+    $decoded = request_internal_decode_json($value, true);
 
     return $decoded ?? $default;
 }
