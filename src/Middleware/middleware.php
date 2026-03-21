@@ -46,7 +46,7 @@ function csrf_token(
         return trim($existing_token);
     }
 
-    $generated_token = middleware_generate_csrf_token();
+    $generated_token = middleware_internal_generate_csrf_token();
     $is_cookie_set = cookie_set(
         $normalized_cookie_token_key,
         $generated_token,
@@ -76,13 +76,13 @@ function csrf_field(
 
     return sprintf(
         '<input type="hidden" name="%s" value="%s">',
-        middleware_escape_html($normalized_field_name),
-        middleware_escape_html($token)
+        middleware_internal_escape_html($normalized_field_name),
+        middleware_internal_escape_html($token)
     );
 }
 
 /** Private */
-function middleware_generate_csrf_token(): string
+function middleware_internal_generate_csrf_token(): string
 {
     try {
         return bin2hex(random_bytes(32));
@@ -91,7 +91,7 @@ function middleware_generate_csrf_token(): string
     }
 }
 
-function middleware_escape_html(string $value): string
+function middleware_internal_escape_html(string $value): string
 {
     return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 }
