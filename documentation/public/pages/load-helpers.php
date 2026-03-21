@@ -25,6 +25,7 @@ Helper::Cookie->load();
 Helper::Session->load();
 Helper::Validation->load();
 Helper::Response->load();
+Helper::Command->load();
 Helper::Database->load();</code></pre>
     <h3>What it does</h3>
     <p>Loads helper modules through typed enum cases, so keys are discoverable and typo-safe.</p>
@@ -115,6 +116,11 @@ Helper::load_many(Helper::Cache, Helper::Log);</code></pre>
                 <td><code>response</code></td>
                 <td><code>Harbor\Response</code></td>
                 <td>HTTP response helpers, full official <code>ResponseStatus</code> enum set, and <code>abort()</code>.</td>
+            </tr>
+            <tr>
+                <td><code>command</code></td>
+                <td><code>Harbor\Command</code></td>
+                <td>Run custom <code>harbor-command</code> keys from application code with <code>command_run()</code>.</td>
             </tr>
             <tr>
                 <td><code>db</code>, <code>database</code>, <code>db_sqlite</code>, <code>db_mysql_pdo</code>, <code>db_mysqli</code></td>

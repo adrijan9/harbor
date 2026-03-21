@@ -41,6 +41,7 @@ final class HelperTest extends TestCase
         self::assertContains('auth_api', $helpers);
         self::assertContains('auth', $helpers);
         self::assertContains('response', $helpers);
+        self::assertContains('command', $helpers);
         self::assertContains('db', $helpers);
         self::assertContains('database', $helpers);
         self::assertContains('db_sqlite', $helpers);
@@ -226,6 +227,13 @@ final class HelperTest extends TestCase
         self::assertTrue(function_exists('Harbor\Response\response_validation'));
         self::assertTrue(function_exists('Harbor\Response\abort'));
         self::assertTrue(class_exists('Harbor\Response\ResponseStatus'));
+    }
+
+    public function test_load_command_helper_registers_namespaced_functions(): void
+    {
+        Helper::load_many('command');
+
+        self::assertTrue(function_exists('Harbor\Command\command_run'));
     }
 
     public function test_load_validation_helper_registers_namespaced_functions(): void

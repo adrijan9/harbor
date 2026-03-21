@@ -95,6 +95,40 @@ require __DIR__.'/../shared/header.php';
 </section>
 
 <section class="docs-section">
+    <h2>Run Commands From Code</h2>
+    <h3>Example</h3>
+    <pre><code class="language-php">use Harbor\Helper;
+
+use function Harbor\Command\command_run;
+
+Helper::load_many('command');
+
+$exit_code = command_run('users:import', ['--file=storage/users.csv', '--chunk=500']);
+
+if (0 !== $exit_code) {
+    // handle failure path
+}</code></pre>
+    <h3>What it does</h3>
+    <p>Runs one command key from application code (for example API endpoints or internal workflows) without calling the CLI binary directly.</p>
+    <h3>API</h3>
+    <details class="api-details">
+        <summary class="api-summary">
+            <span>Helper API</span>
+            <span class="api-state"><span class="api-state-closed">Hidden - click to open</span><span class="api-state-open">Open</span></span>
+        </summary>
+        <div class="api-body">
+            <ul class="api-method-list">
+                <li><code>command_run(string $key, array $forwarded_arguments = [], ?string $working_directory = null, bool $debug_mode = false): int</code> Runs one command key and returns its process exit code.</li>
+                <li><code>$forwarded_arguments</code> Values are forwarded as argv arguments to the command entry script.</li>
+                <li><code>$working_directory</code> Optional site root path (directory containing <code>.router</code>). Defaults to current working directory.</li>
+                <li><code>$debug_mode</code> Enables debug diagnostics from the command runner.</li>
+                <li><code>Errors</code> Invalid keys, missing registry/entry files, disabled commands, and timeout failures throw <code>Harbor\CommandSystem\CommandException</code>.</li>
+            </ul>
+        </div>
+    </details>
+</section>
+
+<section class="docs-section">
     <h2>Manual Definitions</h2>
     <h3>Example</h3>
     <pre><code class="language-ini"># File: my-site/.commands
