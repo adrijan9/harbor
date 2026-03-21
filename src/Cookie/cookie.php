@@ -11,10 +11,10 @@ use function Harbor\Support\harbor_is_blank;
 /** Public */
 function cookie_set(string $key, string $value, int $ttl_seconds = 0, array $options = []): bool
 {
-    $normalized_key = cookie_normalize_key($key);
-    $resolved_options = cookie_resolve_options($options);
-    $encoded_value = $ttl_seconds < 0 ? '' : cookie_encode_value($value, $resolved_options);
-    $expires_at = cookie_resolve_expires_at($ttl_seconds);
+    $normalized_key = cookie_internal_normalize_key($key);
+    $resolved_options = cookie_internal_resolve_options($options);
+    $encoded_value = $ttl_seconds < 0 ? '' : cookie_internal_encode_value($value, $resolved_options);
+    $expires_at = cookie_internal_resolve_expires_at($ttl_seconds);
 
     if (headers_sent()) {
         return false;
@@ -50,14 +50,14 @@ function cookie_get(?string $key = null, mixed $default = null, array $options =
         return cookie_all();
     }
 
-    $normalized_key = cookie_normalize_key($key);
+    $normalized_key = cookie_internal_normalize_key($key);
     $cookies = cookie_all();
     if (! array_key_exists($normalized_key, $cookies)) {
         return $default;
     }
 
-    $resolved_options = cookie_resolve_options($options);
-    $decoded_cookie = cookie_decode_value($cookies[$normalized_key], $resolved_options);
+    $resolved_options = cookie_internal_resolve_options($options);
+    $decoded_cookie = cookie_internal_decode_value($cookies[$normalized_key], $resolved_options);
 
     if ($decoded_cookie['is_secure'] && ! $decoded_cookie['is_valid']) {
         return $default;
@@ -100,14 +100,14 @@ function cookie_get_encrypted(string $key, string $encryption_key, mixed $defaul
 
 function cookie_has(string $key): bool
 {
-    $normalized_key = cookie_normalize_key($key);
+    $normalized_key = cookie_internal_normalize_key($key);
 
     return array_key_exists($normalized_key, cookie_all());
 }
 
 function cookie_forget(string $key, array $options = []): bool
 {
-    $normalized_key = cookie_normalize_key($key);
+    $normalized_key = cookie_internal_normalize_key($key);
     $is_forgotten = cookie_set($normalized_key, '', -31536000, $options);
 
     if (! $is_forgotten) {
@@ -125,7 +125,7 @@ function cookie_all(): array
 }
 
 /** Private */
-function cookie_normalize_key(string $key): string
+function cookie_internal_normalize_key(string $key): string
 {
     $normalized_key = trim($key);
     if (harbor_is_blank($normalized_key)) {
@@ -141,13 +141,13 @@ function cookie_normalize_key(string $key): string
     return $normalized_key;
 }
 
-function cookie_resolve_options(array $options): array
+function cookie_internal_resolve_options(array $options): array
 {
-    $shared_key = cookie_option_to_string($options['key'] ?? $options['secret'] ?? null);
-    $is_signed = cookie_value_to_bool($options['signed'] ?? false, false);
-    $is_encrypted = cookie_value_to_bool($options['encrypted'] ?? false, false);
-    $signing_key = cookie_option_to_string($options['signing_key'] ?? $shared_key);
-    $encryption_key = cookie_option_to_string($options['encryption_key'] ?? $shared_key);
+    $shared_key = cookie_internal_option_to_string($options['key'] ?? $options['secret'] ?? null);
+    $is_signed = cookie_internal_value_to_bool($options['signed'] ?? false, false);
+    $is_encrypted = cookie_internal_value_to_bool($options['encrypted'] ?? false, false);
+    $signing_key = cookie_internal_option_to_string($options['signing_key'] ?? $shared_key);
+    $encryption_key = cookie_internal_option_to_string($options['encryption_key'] ?? $shared_key);
 
     if ($is_signed && ! is_string($signing_key)) {
         throw new \InvalidArgumentException('Cookie signing key is required when "signed" is enabled.');
@@ -172,9 +172,9 @@ function cookie_resolve_options(array $options): array
     return [
         'path' => $path,
         'domain' => $domain,
-        'secure' => cookie_value_to_bool($options['secure'] ?? false, false),
-        'http_only' => cookie_value_to_bool($options['http_only'] ?? true, true),
-        'same_site' => cookie_resolve_same_site($options['same_site'] ?? 'Lax'),
+        'secure' => cookie_internal_value_to_bool($options['secure'] ?? false, false),
+        'http_only' => cookie_internal_value_to_bool($options['http_only'] ?? true, true),
+        'same_site' => cookie_internal_resolve_same_site($options['same_site'] ?? 'Lax'),
         'signed' => $is_signed,
         'encrypted' => $is_encrypted,
         'signing_key' => $signing_key,
@@ -182,7 +182,7 @@ function cookie_resolve_options(array $options): array
     ];
 }
 
-function cookie_resolve_same_site(mixed $same_site): string
+function cookie_internal_resolve_same_site(mixed $same_site): string
 {
     if (! is_string($same_site)) {
         return 'Lax';
@@ -203,7 +203,7 @@ function cookie_resolve_same_site(mixed $same_site): string
     };
 }
 
-function cookie_resolve_expires_at(int $ttl_seconds): int
+function cookie_internal_resolve_expires_at(int $ttl_seconds): int
 {
     if (0 === $ttl_seconds) {
         return 0;
@@ -212,7 +212,7 @@ function cookie_resolve_expires_at(int $ttl_seconds): int
     return time() + $ttl_seconds;
 }
 
-function cookie_value_to_bool(mixed $value, bool $default): bool
+function cookie_internal_value_to_bool(mixed $value, bool $default): bool
 {
     if (is_bool($value)) {
         return $value;
@@ -232,7 +232,7 @@ function cookie_value_to_bool(mixed $value, bool $default): bool
     return $default;
 }
 
-function cookie_option_to_string(mixed $value): ?string
+function cookie_internal_option_to_string(mixed $value): ?string
 {
     if (! is_scalar($value) && ! is_string($value)) {
         return null;
@@ -247,16 +247,16 @@ function cookie_option_to_string(mixed $value): ?string
     return $normalized_value;
 }
 
-function cookie_encode_value(string $value, array $options): string
+function cookie_internal_encode_value(string $value, array $options): string
 {
     $encoded_value = $value;
 
     if ($options['encrypted']) {
-        $encoded_value = cookie_encrypt_value($encoded_value, $options['encryption_key']);
+        $encoded_value = cookie_internal_encrypt_value($encoded_value, $options['encryption_key']);
     }
 
     if ($options['signed']) {
-        $encoded_value = cookie_sign_value($encoded_value, $options['signing_key']);
+        $encoded_value = cookie_internal_sign_value($encoded_value, $options['signing_key']);
     }
 
     return $encoded_value;
@@ -265,7 +265,7 @@ function cookie_encode_value(string $value, array $options): string
 /**
  * @return array{is_secure: bool, is_valid: bool, value: mixed}
  */
-function cookie_decode_value(mixed $value, array $options): array
+function cookie_internal_decode_value(mixed $value, array $options): array
 {
     $is_secure_cookie = $options['signed'] || $options['encrypted'];
 
@@ -288,7 +288,7 @@ function cookie_decode_value(mixed $value, array $options): array
     $decoded_value = $value;
 
     if ($options['signed']) {
-        $decoded_value = cookie_unsign_value($decoded_value, $options['signing_key']);
+        $decoded_value = cookie_internal_unsign_value($decoded_value, $options['signing_key']);
 
         if (! is_string($decoded_value)) {
             return [
@@ -300,7 +300,7 @@ function cookie_decode_value(mixed $value, array $options): array
     }
 
     if ($options['encrypted']) {
-        $decoded_value = cookie_decrypt_value($decoded_value, $options['encryption_key']);
+        $decoded_value = cookie_internal_decrypt_value($decoded_value, $options['encryption_key']);
 
         if (! is_string($decoded_value)) {
             return [
@@ -318,19 +318,19 @@ function cookie_decode_value(mixed $value, array $options): array
     ];
 }
 
-function cookie_sign_value(string $value, string $signing_key): string
+function cookie_internal_sign_value(string $value, string $signing_key): string
 {
-    $payload = cookie_base64_url_encode($value);
+    $payload = cookie_internal_base64_url_encode($value);
     $signature = hash_hmac('sha256', $payload, $signing_key, true);
 
     return sprintf(
         'hcs1.%s.%s',
         $payload,
-        cookie_base64_url_encode($signature)
+        cookie_internal_base64_url_encode($signature)
     );
 }
 
-function cookie_unsign_value(string $signed_value, string $signing_key): ?string
+function cookie_internal_unsign_value(string $signed_value, string $signing_key): ?string
 {
     $parts = explode('.', $signed_value);
     if (3 !== count($parts)) {
@@ -342,7 +342,7 @@ function cookie_unsign_value(string $signed_value, string $signing_key): ?string
     }
 
     $payload = $parts[1];
-    $provided_signature = cookie_base64_url_decode($parts[2]);
+    $provided_signature = cookie_internal_base64_url_decode($parts[2]);
     if (! is_string($provided_signature)) {
         return null;
     }
@@ -352,10 +352,10 @@ function cookie_unsign_value(string $signed_value, string $signing_key): ?string
         return null;
     }
 
-    return cookie_base64_url_decode($payload);
+    return cookie_internal_base64_url_decode($payload);
 }
 
-function cookie_encrypt_value(string $value, string $encryption_key): string
+function cookie_internal_encrypt_value(string $value, string $encryption_key): string
 {
     if (! function_exists('openssl_encrypt')) {
         throw new \RuntimeException('Encrypted cookies require the OpenSSL extension.');
@@ -367,7 +367,7 @@ function cookie_encrypt_value(string $value, string $encryption_key): string
     $encrypted_value = openssl_encrypt(
         $value,
         $cipher,
-        cookie_hash_key($encryption_key),
+        cookie_internal_hash_key($encryption_key),
         OPENSSL_RAW_DATA,
         $initialization_vector,
         $tag,
@@ -381,13 +381,13 @@ function cookie_encrypt_value(string $value, string $encryption_key): string
 
     return sprintf(
         'hce1.%s.%s.%s',
-        cookie_base64_url_encode($initialization_vector),
-        cookie_base64_url_encode($tag),
-        cookie_base64_url_encode($encrypted_value)
+        cookie_internal_base64_url_encode($initialization_vector),
+        cookie_internal_base64_url_encode($tag),
+        cookie_internal_base64_url_encode($encrypted_value)
     );
 }
 
-function cookie_decrypt_value(string $encrypted_value, string $encryption_key): ?string
+function cookie_internal_decrypt_value(string $encrypted_value, string $encryption_key): ?string
 {
     if (! function_exists('openssl_decrypt')) {
         throw new \RuntimeException('Encrypted cookies require the OpenSSL extension.');
@@ -402,9 +402,9 @@ function cookie_decrypt_value(string $encrypted_value, string $encryption_key): 
         return null;
     }
 
-    $initialization_vector = cookie_base64_url_decode($parts[1]);
-    $tag = cookie_base64_url_decode($parts[2]);
-    $encrypted_payload = cookie_base64_url_decode($parts[3]);
+    $initialization_vector = cookie_internal_base64_url_decode($parts[1]);
+    $tag = cookie_internal_base64_url_decode($parts[2]);
+    $encrypted_payload = cookie_internal_base64_url_decode($parts[3]);
 
     if (! is_string($initialization_vector) || ! is_string($tag) || ! is_string($encrypted_payload)) {
         return null;
@@ -413,7 +413,7 @@ function cookie_decrypt_value(string $encrypted_value, string $encryption_key): 
     $decrypted_value = openssl_decrypt(
         $encrypted_payload,
         'aes-256-gcm',
-        cookie_hash_key($encryption_key),
+        cookie_internal_hash_key($encryption_key),
         OPENSSL_RAW_DATA,
         $initialization_vector,
         $tag
@@ -426,17 +426,17 @@ function cookie_decrypt_value(string $encrypted_value, string $encryption_key): 
     return $decrypted_value;
 }
 
-function cookie_hash_key(string $key): string
+function cookie_internal_hash_key(string $key): string
 {
     return hash('sha256', $key, true);
 }
 
-function cookie_base64_url_encode(string $value): string
+function cookie_internal_base64_url_encode(string $value): string
 {
     return rtrim(strtr(base64_encode($value), '+/', '-_'), '=');
 }
 
-function cookie_base64_url_decode(string $value): ?string
+function cookie_internal_base64_url_decode(string $value): ?string
 {
     if (harbor_is_blank(trim($value))) {
         return null;
