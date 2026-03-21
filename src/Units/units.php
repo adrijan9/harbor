@@ -12,77 +12,77 @@ const UNIT_BYTES_PER_TB = 1024 * UNIT_BYTES_PER_GB;
 /** Public */
 function unit_kb_from_bytes(float|int $bytes, int $precision = 3): float
 {
-    return unit_round(((float) $bytes) / UNIT_BYTES_PER_KB, $precision);
+    return unit_internal_round(((float) $bytes) / UNIT_BYTES_PER_KB, $precision);
 }
 
 function unit_mb_from_bytes(float|int $bytes, int $precision = 3): float
 {
-    return unit_round(((float) $bytes) / UNIT_BYTES_PER_MB, $precision);
+    return unit_internal_round(((float) $bytes) / UNIT_BYTES_PER_MB, $precision);
 }
 
 function unit_gb_from_bytes(float|int $bytes, int $precision = 3): float
 {
-    return unit_round(((float) $bytes) / UNIT_BYTES_PER_GB, $precision);
+    return unit_internal_round(((float) $bytes) / UNIT_BYTES_PER_GB, $precision);
 }
 
 function unit_tb_from_bytes(float|int $bytes, int $precision = 3): float
 {
-    return unit_round(((float) $bytes) / UNIT_BYTES_PER_TB, $precision);
+    return unit_internal_round(((float) $bytes) / UNIT_BYTES_PER_TB, $precision);
 }
 
 function unit_bytes_from_kb(float|int $kilobytes, int $precision = 3): float
 {
-    return unit_round(((float) $kilobytes) * UNIT_BYTES_PER_KB, $precision);
+    return unit_internal_round(((float) $kilobytes) * UNIT_BYTES_PER_KB, $precision);
 }
 
 function unit_bytes_from_mb(float|int $megabytes, int $precision = 3): float
 {
-    return unit_round(((float) $megabytes) * UNIT_BYTES_PER_MB, $precision);
+    return unit_internal_round(((float) $megabytes) * UNIT_BYTES_PER_MB, $precision);
 }
 
 function unit_bytes_from_gb(float|int $gigabytes, int $precision = 3): float
 {
-    return unit_round(((float) $gigabytes) * UNIT_BYTES_PER_GB, $precision);
+    return unit_internal_round(((float) $gigabytes) * UNIT_BYTES_PER_GB, $precision);
 }
 
 function unit_bytes_from_tb(float|int $terabytes, int $precision = 3): float
 {
-    return unit_round(((float) $terabytes) * UNIT_BYTES_PER_TB, $precision);
+    return unit_internal_round(((float) $terabytes) * UNIT_BYTES_PER_TB, $precision);
 }
 
 function unit_kb_from_mb(float|int $megabytes, int $precision = 3): float
 {
-    return unit_round(((float) $megabytes) * UNIT_BYTES_PER_KB, $precision);
+    return unit_internal_round(((float) $megabytes) * UNIT_BYTES_PER_KB, $precision);
 }
 
 function unit_mb_from_kb(float|int $kilobytes, int $precision = 3): float
 {
-    return unit_round(((float) $kilobytes) / UNIT_BYTES_PER_KB, $precision);
+    return unit_internal_round(((float) $kilobytes) / UNIT_BYTES_PER_KB, $precision);
 }
 
 function unit_mb_from_gb(float|int $gigabytes, int $precision = 3): float
 {
-    return unit_round(((float) $gigabytes) * UNIT_BYTES_PER_KB, $precision);
+    return unit_internal_round(((float) $gigabytes) * UNIT_BYTES_PER_KB, $precision);
 }
 
 function unit_gb_from_mb(float|int $megabytes, int $precision = 3): float
 {
-    return unit_round(((float) $megabytes) / UNIT_BYTES_PER_KB, $precision);
+    return unit_internal_round(((float) $megabytes) / UNIT_BYTES_PER_KB, $precision);
 }
 
 function unit_gb_from_tb(float|int $terabytes, int $precision = 3): float
 {
-    return unit_round(((float) $terabytes) * UNIT_BYTES_PER_KB, $precision);
+    return unit_internal_round(((float) $terabytes) * UNIT_BYTES_PER_KB, $precision);
 }
 
 function unit_tb_from_gb(float|int $gigabytes, int $precision = 3): float
 {
-    return unit_round(((float) $gigabytes) / UNIT_BYTES_PER_KB, $precision);
+    return unit_internal_round(((float) $gigabytes) / UNIT_BYTES_PER_KB, $precision);
 }
 
 function unit_bytes_to_human(float|int $bytes, int $precision = 3): string
 {
-    $normalized_precision = unit_normalize_precision($precision);
+    $normalized_precision = unit_internal_normalize_precision($precision);
     $absolute_value = abs((float) $bytes);
     $unit_labels = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
     $unit_index = 0;
@@ -93,14 +93,14 @@ function unit_bytes_to_human(float|int $bytes, int $precision = 3): string
     }
 
     $sign = ((float) $bytes) < 0 ? '-' : '';
-    $formatted_value = unit_format_number($absolute_value, $normalized_precision);
+    $formatted_value = unit_internal_format_number($absolute_value, $normalized_precision);
 
     return $sign.$formatted_value.' '.$unit_labels[$unit_index];
 }
 
 function unit_duration_ms_to_human(float|int $duration_ms, int $precision = 3): string
 {
-    $normalized_precision = unit_normalize_precision($precision);
+    $normalized_precision = unit_internal_normalize_precision($precision);
     $absolute_duration_ms = abs((float) $duration_ms);
     $sign = ((float) $duration_ms) < 0 ? '-' : '';
 
@@ -121,18 +121,18 @@ function unit_duration_ms_to_human(float|int $duration_ms, int $precision = 3): 
         $unit = 's';
     }
 
-    return $sign.unit_format_number($value, $normalized_precision).' '.$unit;
+    return $sign.unit_internal_format_number($value, $normalized_precision).' '.$unit;
 }
 
 /** Private */
-function unit_round(float|int $value, int $precision = 3): float
+function unit_internal_round(float|int $value, int $precision = 3): float
 {
-    return round((float) $value, unit_normalize_precision($precision));
+    return round((float) $value, unit_internal_normalize_precision($precision));
 }
 
-function unit_format_number(float $value, int $precision): string
+function unit_internal_format_number(float $value, int $precision): string
 {
-    $formatted_value = number_format($value, unit_normalize_precision($precision), '.', '');
+    $formatted_value = number_format($value, unit_internal_normalize_precision($precision), '.', '');
 
     if (str_contains($formatted_value, '.')) {
         $formatted_value = rtrim(rtrim($formatted_value, '0'), '.');
@@ -141,7 +141,7 @@ function unit_format_number(float $value, int $precision): string
     return '' === $formatted_value ? '0' : $formatted_value;
 }
 
-function unit_normalize_precision(int $precision): int
+function unit_internal_normalize_precision(int $precision): int
 {
     if ($precision < 0) {
         throw new \InvalidArgumentException('Precision cannot be negative.');
