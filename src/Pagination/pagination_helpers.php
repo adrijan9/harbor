@@ -11,6 +11,7 @@ require_once __DIR__.'/../Database/QueryBuilder/QueryBuilder.php';
 require_once __DIR__.'/PaginationOptionsBag.php';
 
 require_once __DIR__.'/../Support/value.php';
+
 require_once __DIR__.'/../Router/helpers/route_query.php';
 
 use Harbor\Database\QueryBuilder\QueryBuilder;
@@ -29,27 +30,27 @@ function pagination_paginate(
     \mysqli|\PDO|null $connection = null,
     ?PaginationOptionsBag $options = null
 ): array {
-    $resolved_options = pagination_resolve_options($options);
-    $resolved_page = pagination_resolve_page($page);
+    $resolved_options = pagination_internal_resolve_options($options);
+    $resolved_page = pagination_internal_resolve_page($page);
 
-    [$normalized_page, $normalized_per_page] = pagination_normalize_input(
+    [$normalized_page, $normalized_per_page] = pagination_internal_normalize_input(
         $resolved_page,
         $per_page,
-        pagination_max_per_page($resolved_options)
+        pagination_internal_max_per_page($resolved_options)
     );
 
-    pagination_assert_base_query($base_query);
+    pagination_internal_assert_base_query($base_query);
 
-    $active_connection = pagination_resolve_connection($connection);
-    $total = pagination_resolve_total($active_connection, $base_query);
-    $rows = pagination_resolve_rows(
+    $active_connection = pagination_internal_resolve_connection($connection);
+    $total = pagination_internal_resolve_total($active_connection, $base_query);
+    $rows = pagination_internal_resolve_rows(
         $active_connection,
         $base_query,
         $normalized_page,
         $normalized_per_page
     );
 
-    return pagination_build_payload(
+    return pagination_internal_build_payload(
         $rows,
         $total,
         $normalized_page,
@@ -59,7 +60,7 @@ function pagination_paginate(
 }
 
 /** Private */
-function pagination_resolve_options(?PaginationOptionsBag $options): PaginationOptionsBag
+function pagination_internal_resolve_options(?PaginationOptionsBag $options): PaginationOptionsBag
 {
     if ($options instanceof PaginationOptionsBag) {
         return $options;
@@ -68,7 +69,7 @@ function pagination_resolve_options(?PaginationOptionsBag $options): PaginationO
     return PaginationOptionsBag::make();
 }
 
-function pagination_resolve_page(?int $page): int
+function pagination_internal_resolve_page(?int $page): int
 {
     if (is_int($page)) {
         return $page;
@@ -80,7 +81,7 @@ function pagination_resolve_page(?int $page): int
 /**
  * @return array{0: int, 1: int}
  */
-function pagination_normalize_input(int $page, int $per_page, int $max_per_page): array
+function pagination_internal_normalize_input(int $page, int $per_page, int $max_per_page): array
 {
     if ($page < 1) {
         throw new \InvalidArgumentException('paginate() expects page >= 1.');
@@ -95,12 +96,12 @@ function pagination_normalize_input(int $page, int $per_page, int $max_per_page)
     return [$page, $normalized_per_page];
 }
 
-function pagination_max_per_page(PaginationOptionsBag $options): int
+function pagination_internal_max_per_page(PaginationOptionsBag $options): int
 {
     return $options->max_per_page();
 }
 
-function pagination_assert_base_query(QueryBuilder $base_query): void
+function pagination_internal_assert_base_query(QueryBuilder $base_query): void
 {
     if ('select' !== $base_query->type()) {
         throw new \InvalidArgumentException('Pagination base_query() must return a select QueryBuilder.');
@@ -119,7 +120,7 @@ function pagination_assert_base_query(QueryBuilder $base_query): void
     }
 }
 
-function pagination_resolve_connection(\mysqli|\PDO|null $connection): \mysqli|\PDO
+function pagination_internal_resolve_connection(\mysqli|\PDO|null $connection): \mysqli|\PDO
 {
     if ($connection instanceof \PDO || $connection instanceof \mysqli) {
         return $connection;
@@ -128,7 +129,7 @@ function pagination_resolve_connection(\mysqli|\PDO|null $connection): \mysqli|\
     return db_connect();
 }
 
-function pagination_resolve_total(\mysqli|\PDO $connection, QueryBuilder $base_query): int
+function pagination_internal_resolve_total(\mysqli|\PDO $connection, QueryBuilder $base_query): int
 {
     $count_query = QueryBuilder::select()
         ->from_sub($base_query, 'base_rows')
@@ -144,7 +145,7 @@ function pagination_resolve_total(\mysqli|\PDO $connection, QueryBuilder $base_q
     return max(0, (int) ($row['total_count'] ?? 0));
 }
 
-function pagination_resolve_rows(
+function pagination_internal_resolve_rows(
     \mysqli|\PDO $connection,
     QueryBuilder $base_query,
     int $page,
@@ -160,7 +161,7 @@ function pagination_resolve_rows(
     );
 }
 
-function pagination_build_payload(
+function pagination_internal_build_payload(
     array $rows,
     int $total,
     int $page,
@@ -188,14 +189,14 @@ function pagination_build_payload(
             'to' => $to,
             'has_more' => $current_page < $last_page,
         ],
-        'links' => pagination_build_links($current_page, $last_page, $options),
+        'links' => pagination_internal_build_links($current_page, $last_page, $options),
     ];
 }
 
 /**
  * @return array{first: string, prev: string, next: string, last: string}
  */
-function pagination_build_links(int $current_page, int $last_page, PaginationOptionsBag $options): array
+function pagination_internal_build_links(int $current_page, int $last_page, PaginationOptionsBag $options): array
 {
     $base_path = $options->base_path();
     $query = $options->query();
@@ -220,17 +221,17 @@ function pagination_build_links(int $current_page, int $last_page, PaginationOpt
     }
 
     return [
-        'first' => pagination_build_page_url($normalized_base_path, $query, 1),
-        'prev' => pagination_build_page_url($normalized_base_path, $query, max(1, $current_page - 1)),
-        'next' => pagination_build_page_url($normalized_base_path, $query, min($last_page, $current_page + 1)),
-        'last' => pagination_build_page_url($normalized_base_path, $query, $last_page),
+        'first' => pagination_internal_build_page_url($normalized_base_path, $query, 1),
+        'prev' => pagination_internal_build_page_url($normalized_base_path, $query, max(1, $current_page - 1)),
+        'next' => pagination_internal_build_page_url($normalized_base_path, $query, min($last_page, $current_page + 1)),
+        'last' => pagination_internal_build_page_url($normalized_base_path, $query, $last_page),
     ];
 }
 
 /**
  * @param array<string, mixed> $query
  */
-function pagination_build_page_url(string $base_path, array $query, int $page): string
+function pagination_internal_build_page_url(string $base_path, array $query, int $page): string
 {
     $query['page'] = $page;
     $query_string = http_build_query($query);
