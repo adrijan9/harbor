@@ -19,7 +19,7 @@ function route_exists(string $name): bool
         return false;
     }
 
-    return ! harbor_is_null(route_find_by_name($name));
+    return ! harbor_is_null(route_named_internal_find_by_name($name));
 }
 
 function route_name_is(string $name): bool
@@ -35,7 +35,7 @@ function route_name_is(string $name): bool
 
 function route(string $name, array $parameters = []): string
 {
-    $definition = route_find_by_name($name);
+    $definition = route_named_internal_find_by_name($name);
     if (harbor_is_null($definition)) {
         throw new \InvalidArgumentException(sprintf('Route "%s" is not defined.', $name));
     }
@@ -45,7 +45,7 @@ function route(string $name, array $parameters = []): string
         throw new \RuntimeException(sprintf('Route "%s" has invalid path.', $name));
     }
 
-    return route_compile_named_path($name, $path, $parameters);
+    return route_named_internal_compile_path($name, $path, $parameters);
 }
 
 function route_current_name(): ?string
@@ -65,7 +65,7 @@ function route_current_name(): ?string
  * @return array<int, array<string, mixed>>
  */
 /** Private */
-function route_all_definitions(): array
+function route_named_internal_all_definitions(): array
 {
     global $routes, $route;
 
@@ -80,9 +80,9 @@ function route_all_definitions(): array
     return [];
 }
 
-function route_find_by_name(string $name): ?array
+function route_named_internal_find_by_name(string $name): ?array
 {
-    foreach (route_all_definitions() as $definition) {
+    foreach (route_named_internal_all_definitions() as $definition) {
         $route_name = $definition['name'] ?? null;
         if (! is_string($route_name)) {
             continue;
@@ -96,7 +96,7 @@ function route_find_by_name(string $name): ?array
     return null;
 }
 
-function route_compile_named_path(string $name, string $path, array $parameters): string
+function route_named_internal_compile_path(string $name, string $path, array $parameters): string
 {
     $trimmed_path = trim($path, '/');
     if (harbor_is_blank($trimmed_path)) {
@@ -122,7 +122,7 @@ function route_compile_named_path(string $name, string $path, array $parameters)
             );
         }
 
-        $segments[$index] = rawurlencode(route_parameter_to_string($parameter_values[$parameter_index], $name, $parameter_index));
+        $segments[$index] = rawurlencode(route_named_internal_parameter_to_string($parameter_values[$parameter_index], $name, $parameter_index));
         ++$parameter_index;
     }
 
@@ -135,7 +135,7 @@ function route_compile_named_path(string $name, string $path, array $parameters)
     return '/'.implode('/', $segments);
 }
 
-function route_parameter_to_string(mixed $value, string $name, int $index): string
+function route_named_internal_parameter_to_string(mixed $value, string $name, int $index): string
 {
     if (harbor_is_null($value)) {
         throw new \InvalidArgumentException(
