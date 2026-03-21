@@ -33,13 +33,13 @@ $session_flash_processed_request_id = null;
 /** Public */
 function session_driver(SessionDriver|string $default_driver = SessionDriver::COOKIE): string
 {
-    $resolved_default_driver = session_resolve_driver($default_driver);
+    $resolved_default_driver = session_internal_resolve_driver($default_driver);
     if (null === $resolved_default_driver) {
         $resolved_default_driver = SessionDriver::COOKIE;
     }
 
     $configured_driver = config_resolve('session.driver', 'session_driver', $resolved_default_driver->value);
-    $resolved_driver = session_resolve_driver($configured_driver);
+    $resolved_driver = session_internal_resolve_driver($configured_driver);
 
     if (null === $resolved_driver) {
         return $resolved_default_driver->value;
@@ -65,18 +65,18 @@ function session_is_file(): bool
 
 function session_set(string $key, mixed $value, ?int $ttl_seconds = null): bool
 {
-    $normalized_key = session_normalize_key($key);
-    $resolved_ttl_seconds = is_int($ttl_seconds) ? $ttl_seconds : session_ttl_seconds();
+    $normalized_key = session_internal_normalize_key($key);
+    $resolved_ttl_seconds = is_int($ttl_seconds) ? $ttl_seconds : session_internal_ttl_seconds();
 
     if (session_is_file()) {
-        return session_file_set($normalized_key, $value, $resolved_ttl_seconds, session_cookie_options());
+        return session_file_set($normalized_key, $value, $resolved_ttl_seconds, session_internal_cookie_options());
     }
 
     if (session_is_array()) {
         return session_array_set($normalized_key, $value, $resolved_ttl_seconds);
     }
 
-    return session_cookie_driver_set($normalized_key, $value, $resolved_ttl_seconds);
+    return session_internal_cookie_driver_set($normalized_key, $value, $resolved_ttl_seconds);
 }
 
 function session_get(?string $key = null, mixed $default = null): mixed
@@ -85,47 +85,47 @@ function session_get(?string $key = null, mixed $default = null): mixed
         return session_all();
     }
 
-    $normalized_key = session_normalize_key($key);
+    $normalized_key = session_internal_normalize_key($key);
 
     if (session_is_file()) {
-        return session_file_get($normalized_key, $default, session_cookie_options());
+        return session_file_get($normalized_key, $default, session_internal_cookie_options());
     }
 
     if (session_is_array()) {
         return session_array_get($normalized_key, $default);
     }
 
-    return session_cookie_driver_get($normalized_key, $default);
+    return session_internal_cookie_driver_get($normalized_key, $default);
 }
 
 function session_has(string $key): bool
 {
-    $normalized_key = session_normalize_key($key);
+    $normalized_key = session_internal_normalize_key($key);
 
     if (session_is_file()) {
-        return session_file_has($normalized_key, session_cookie_options());
+        return session_file_has($normalized_key, session_internal_cookie_options());
     }
 
     if (session_is_array()) {
         return session_array_has($normalized_key);
     }
 
-    return session_cookie_driver_has($normalized_key);
+    return session_internal_cookie_driver_has($normalized_key);
 }
 
 function session_forget(string $key): bool
 {
-    $normalized_key = session_normalize_key($key);
+    $normalized_key = session_internal_normalize_key($key);
 
     if (session_is_file()) {
-        return session_file_forget($normalized_key, session_cookie_options());
+        return session_file_forget($normalized_key, session_internal_cookie_options());
     }
 
     if (session_is_array()) {
         return session_array_forget($normalized_key);
     }
 
-    return session_cookie_driver_forget($normalized_key);
+    return session_internal_cookie_driver_forget($normalized_key);
 }
 
 function session_pull(string $key, mixed $default = null): mixed
@@ -138,45 +138,45 @@ function session_pull(string $key, mixed $default = null): mixed
 
 function session_flash_set(string $key, mixed $value): bool
 {
-    session_flash_boot();
+    session_internal_flash_boot();
 
-    $normalized_key = session_normalize_key($key);
-    $flash_meta = session_flash_meta();
-    $flash_meta['old'] = session_flash_remove_key($flash_meta['old'], $normalized_key);
+    $normalized_key = session_internal_normalize_key($key);
+    $flash_meta = session_internal_flash_meta();
+    $flash_meta['old'] = session_internal_flash_remove_key($flash_meta['old'], $normalized_key);
     $flash_meta['new'][] = $normalized_key;
-    $flash_meta['new'] = session_flash_unique_keys($flash_meta['new']);
+    $flash_meta['new'] = session_internal_flash_unique_keys($flash_meta['new']);
 
-    $is_set = session_set(session_flash_value_key($normalized_key), $value);
-    $is_meta_set = session_flash_write_meta($flash_meta);
+    $is_set = session_set(session_internal_flash_value_key($normalized_key), $value);
+    $is_meta_set = session_internal_flash_write_meta($flash_meta);
 
     return $is_set && $is_meta_set;
 }
 
 function session_flash_get(string $key, mixed $default = null): mixed
 {
-    session_flash_boot();
+    session_internal_flash_boot();
 
-    return session_get(session_flash_value_key(session_normalize_key($key)), $default);
+    return session_get(session_internal_flash_value_key(session_internal_normalize_key($key)), $default);
 }
 
 function session_flash_has(string $key): bool
 {
-    session_flash_boot();
+    session_internal_flash_boot();
 
-    return session_has(session_flash_value_key(session_normalize_key($key)));
+    return session_has(session_internal_flash_value_key(session_internal_normalize_key($key)));
 }
 
 function session_flash_forget(string $key): bool
 {
-    session_flash_boot();
+    session_internal_flash_boot();
 
-    $normalized_key = session_normalize_key($key);
-    $flash_meta = session_flash_meta();
-    $flash_meta['new'] = session_flash_remove_key($flash_meta['new'], $normalized_key);
-    $flash_meta['old'] = session_flash_remove_key($flash_meta['old'], $normalized_key);
+    $normalized_key = session_internal_normalize_key($key);
+    $flash_meta = session_internal_flash_meta();
+    $flash_meta['new'] = session_internal_flash_remove_key($flash_meta['new'], $normalized_key);
+    $flash_meta['old'] = session_internal_flash_remove_key($flash_meta['old'], $normalized_key);
 
-    $is_forgotten = session_forget(session_flash_value_key($normalized_key));
-    $is_meta_set = session_flash_write_meta($flash_meta);
+    $is_forgotten = session_forget(session_internal_flash_value_key($normalized_key));
+    $is_meta_set = session_internal_flash_write_meta($flash_meta);
 
     return $is_forgotten && $is_meta_set;
 }
@@ -191,21 +191,21 @@ function session_flash_pull(string $key, mixed $default = null): mixed
 
 function session_flash_all(): array
 {
-    session_flash_boot();
+    session_internal_flash_boot();
 
-    $flash_meta = session_flash_meta();
-    $flash_keys = session_flash_unique_keys([
+    $flash_meta = session_internal_flash_meta();
+    $flash_keys = session_internal_flash_unique_keys([
         ...$flash_meta['old'],
         ...$flash_meta['new'],
     ]);
     $flash_values = [];
 
     foreach ($flash_keys as $flash_key) {
-        if (! session_has(session_flash_value_key($flash_key))) {
+        if (! session_has(session_internal_flash_value_key($flash_key))) {
             continue;
         }
 
-        $flash_values[$flash_key] = session_get(session_flash_value_key($flash_key));
+        $flash_values[$flash_key] = session_get(session_internal_flash_value_key($flash_key));
     }
 
     return $flash_values;
@@ -213,22 +213,22 @@ function session_flash_all(): array
 
 function session_flash_clear(): bool
 {
-    session_flash_boot();
+    session_internal_flash_boot();
 
-    $flash_meta = session_flash_meta();
-    $flash_keys = session_flash_unique_keys([
+    $flash_meta = session_internal_flash_meta();
+    $flash_keys = session_internal_flash_unique_keys([
         ...$flash_meta['old'],
         ...$flash_meta['new'],
     ]);
     $is_cleared = true;
 
     foreach ($flash_keys as $flash_key) {
-        if (! session_forget(session_flash_value_key($flash_key))) {
+        if (! session_forget(session_internal_flash_value_key($flash_key))) {
             $is_cleared = false;
         }
     }
 
-    if (! session_forget(session_flash_meta_key())) {
+    if (! session_forget(session_internal_flash_meta_key())) {
         $is_cleared = false;
     }
 
@@ -238,27 +238,27 @@ function session_flash_clear(): bool
 function session_all(): array
 {
     if (session_is_file()) {
-        return session_file_all(session_cookie_options());
+        return session_file_all(session_internal_cookie_options());
     }
 
     if (session_is_array()) {
         return session_array_all();
     }
 
-    return session_cookie_driver_all();
+    return session_internal_cookie_driver_all();
 }
 
 function session_clear(): bool
 {
     if (session_is_file()) {
-        return session_file_clear(session_cookie_options());
+        return session_file_clear(session_internal_cookie_options());
     }
 
     if (session_is_array()) {
         return session_array_clear();
     }
 
-    return session_cookie_driver_clear();
+    return session_internal_cookie_driver_clear();
 }
 
 function session_config(?string $key = null, mixed $default = null): mixed
@@ -266,19 +266,19 @@ function session_config(?string $key = null, mixed $default = null): mixed
     if (harbor_is_blank($key)) {
         return [
             'driver' => session_driver(),
-            'prefix' => session_cookie_prefix(),
-            'ttl_seconds' => session_ttl_seconds(),
-            'path' => session_cookie_path(),
-            'domain' => session_cookie_domain(),
-            'secure' => session_cookie_secure(),
-            'http_only' => session_cookie_http_only(),
-            'same_site' => session_cookie_same_site(),
-            'signed' => session_cookie_signed(),
-            'encrypted' => session_cookie_encrypted(),
-            'signing_key' => session_cookie_signing_key(),
-            'encryption_key' => session_cookie_encryption_key(),
-            'file_path' => session_file_root_path(),
-            'id_cookie' => session_file_id_cookie_name(),
+            'prefix' => session_internal_cookie_prefix(),
+            'ttl_seconds' => session_internal_ttl_seconds(),
+            'path' => session_internal_cookie_path(),
+            'domain' => session_internal_cookie_domain(),
+            'secure' => session_internal_cookie_secure(),
+            'http_only' => session_internal_cookie_http_only(),
+            'same_site' => session_internal_cookie_same_site(),
+            'signed' => session_internal_cookie_signed(),
+            'encrypted' => session_internal_cookie_encrypted(),
+            'signing_key' => session_internal_cookie_signing_key(),
+            'encryption_key' => session_internal_cookie_encryption_key(),
+            'file_path' => session_file_internal_root_path(),
+            'id_cookie' => session_file_internal_id_cookie_name(),
         ];
     }
 
@@ -286,11 +286,11 @@ function session_config(?string $key = null, mixed $default = null): mixed
 }
 
 /** Private */
-function session_flash_boot(): void
+function session_internal_flash_boot(): void
 {
     global $session_flash_processed_request_id;
 
-    $current_request_id = session_flash_request_id();
+    $current_request_id = session_internal_flash_request_id();
 
     if (
         is_string($session_flash_processed_request_id)
@@ -300,14 +300,14 @@ function session_flash_boot(): void
         return;
     }
 
-    $flash_meta = session_flash_meta();
+    $flash_meta = session_internal_flash_meta();
 
     foreach ($flash_meta['old'] as $old_flash_key) {
-        session_forget(session_flash_value_key($old_flash_key));
+        session_forget(session_internal_flash_value_key($old_flash_key));
     }
 
-    $promoted_flash_keys = session_flash_unique_keys($flash_meta['new']);
-    session_flash_write_meta([
+    $promoted_flash_keys = session_internal_flash_unique_keys($flash_meta['new']);
+    session_internal_flash_write_meta([
         'new' => [],
         'old' => $promoted_flash_keys,
     ]);
@@ -315,9 +315,9 @@ function session_flash_boot(): void
     $session_flash_processed_request_id = $current_request_id;
 }
 
-function session_flash_meta(): array
+function session_internal_flash_meta(): array
 {
-    $flash_meta = session_get(session_flash_meta_key(), [
+    $flash_meta = session_get(session_internal_flash_meta_key(), [
         'new' => [],
         'old' => [],
     ]);
@@ -330,31 +330,31 @@ function session_flash_meta(): array
     }
 
     return [
-        'new' => session_flash_unique_keys($flash_meta['new'] ?? []),
-        'old' => session_flash_unique_keys($flash_meta['old'] ?? []),
+        'new' => session_internal_flash_unique_keys($flash_meta['new'] ?? []),
+        'old' => session_internal_flash_unique_keys($flash_meta['old'] ?? []),
     ];
 }
 
-function session_flash_write_meta(array $flash_meta): bool
+function session_internal_flash_write_meta(array $flash_meta): bool
 {
     $normalized_flash_meta = [
-        'new' => session_flash_unique_keys($flash_meta['new'] ?? []),
-        'old' => session_flash_unique_keys($flash_meta['old'] ?? []),
+        'new' => session_internal_flash_unique_keys($flash_meta['new'] ?? []),
+        'old' => session_internal_flash_unique_keys($flash_meta['old'] ?? []),
     ];
 
     if (empty($normalized_flash_meta['new']) && empty($normalized_flash_meta['old'])) {
-        return session_forget(session_flash_meta_key());
+        return session_forget(session_internal_flash_meta_key());
     }
 
-    return session_set(session_flash_meta_key(), $normalized_flash_meta);
+    return session_set(session_internal_flash_meta_key(), $normalized_flash_meta);
 }
 
-function session_flash_meta_key(): string
+function session_internal_flash_meta_key(): string
 {
     return '__flash_meta';
 }
 
-function session_flash_value_key(string $key): string
+function session_internal_flash_value_key(string $key): string
 {
     return '__flash_value_'.rawurlencode($key);
 }
@@ -364,7 +364,7 @@ function session_flash_value_key(string $key): string
  *
  * @return array<int, string>
  */
-function session_flash_unique_keys(array $keys): array
+function session_internal_flash_unique_keys(array $keys): array
 {
     $unique_flash_keys = [];
 
@@ -389,7 +389,7 @@ function session_flash_unique_keys(array $keys): array
  *
  * @return array<int, string>
  */
-function session_flash_remove_key(array $keys, string $target_key): array
+function session_internal_flash_remove_key(array $keys, string $target_key): array
 {
     $filtered_keys = [];
 
@@ -401,10 +401,10 @@ function session_flash_remove_key(array $keys, string $target_key): array
         $filtered_keys[] = $key;
     }
 
-    return session_flash_unique_keys($filtered_keys);
+    return session_internal_flash_unique_keys($filtered_keys);
 }
 
-function session_flash_request_id(): string
+function session_internal_flash_request_id(): string
 {
     $request_time = $_SERVER['REQUEST_TIME_FLOAT']
         ?? $_SERVER['REQUEST_TIME']
@@ -421,47 +421,47 @@ function session_flash_request_id(): string
     return 'request-default';
 }
 
-function session_cookie_driver_set(string $key, mixed $value, int $ttl_seconds): bool
+function session_internal_cookie_driver_set(string $key, mixed $value, int $ttl_seconds): bool
 {
     return cookie_set(
-        session_cookie_name($key),
-        session_encode_value($value),
+        session_internal_cookie_name($key),
+        session_internal_encode_value($value),
         $ttl_seconds,
-        session_cookie_options(),
+        session_internal_cookie_options(),
     );
 }
 
-function session_cookie_driver_get(string $key, mixed $default = null): mixed
+function session_internal_cookie_driver_get(string $key, mixed $default = null): mixed
 {
-    $cookie_key = session_cookie_name($key);
+    $cookie_key = session_internal_cookie_name($key);
 
     if (! cookie_has($cookie_key)) {
         return $default;
     }
 
-    $cookie_value = cookie_get($cookie_key, null, session_cookie_options());
+    $cookie_value = cookie_get($cookie_key, null, session_internal_cookie_options());
     if (null === $cookie_value) {
         return $default;
     }
 
-    return session_decode_value($cookie_value);
+    return session_internal_decode_value($cookie_value);
 }
 
-function session_cookie_driver_has(string $key): bool
+function session_internal_cookie_driver_has(string $key): bool
 {
-    return cookie_has(session_cookie_name($key));
+    return cookie_has(session_internal_cookie_name($key));
 }
 
-function session_cookie_driver_forget(string $key): bool
+function session_internal_cookie_driver_forget(string $key): bool
 {
-    return cookie_forget(session_cookie_name($key), session_cookie_options());
+    return cookie_forget(session_internal_cookie_name($key), session_internal_cookie_options());
 }
 
-function session_cookie_driver_all(): array
+function session_internal_cookie_driver_all(): array
 {
-    $cookie_prefix = session_cookie_prefix().'_';
+    $cookie_prefix = session_internal_cookie_prefix().'_';
     $session_values = [];
-    $session_cookie_options = session_cookie_options();
+    $session_internal_cookie_options = session_internal_cookie_options();
 
     foreach (array_keys(cookie_all()) as $cookie_name) {
         if (! is_string($cookie_name) || ! str_starts_with($cookie_name, $cookie_prefix)) {
@@ -473,20 +473,20 @@ function session_cookie_driver_all(): array
             continue;
         }
 
-        $decoded_cookie_value = cookie_get($cookie_name, null, $session_cookie_options);
+        $decoded_cookie_value = cookie_get($cookie_name, null, $session_internal_cookie_options);
         if (null === $decoded_cookie_value) {
             continue;
         }
 
-        $session_values[$session_key] = session_decode_value($decoded_cookie_value);
+        $session_values[$session_key] = session_internal_decode_value($decoded_cookie_value);
     }
 
     return $session_values;
 }
 
-function session_cookie_driver_clear(): bool
+function session_internal_cookie_driver_clear(): bool
 {
-    $session_keys = array_keys(session_cookie_driver_all());
+    $session_keys = array_keys(session_internal_cookie_driver_all());
 
     if (empty($session_keys)) {
         return true;
@@ -499,7 +499,7 @@ function session_cookie_driver_clear(): bool
             continue;
         }
 
-        if (! session_cookie_driver_forget($session_key)) {
+        if (! session_internal_cookie_driver_forget($session_key)) {
             $is_cleared = false;
         }
     }
@@ -507,27 +507,27 @@ function session_cookie_driver_clear(): bool
     return $is_cleared;
 }
 
-function session_cookie_name(string $key): string
+function session_internal_cookie_name(string $key): string
 {
-    return session_cookie_prefix().'_'.rawurlencode($key);
+    return session_internal_cookie_prefix().'_'.rawurlencode($key);
 }
 
-function session_cookie_options(): array
+function session_internal_cookie_options(): array
 {
     return [
-        'path' => session_cookie_path(),
-        'domain' => session_cookie_domain(),
-        'secure' => session_cookie_secure(),
-        'http_only' => session_cookie_http_only(),
-        'same_site' => session_cookie_same_site(),
-        'signed' => session_cookie_signed(),
-        'encrypted' => session_cookie_encrypted(),
-        'signing_key' => session_cookie_signing_key(),
-        'encryption_key' => session_cookie_encryption_key(),
+        'path' => session_internal_cookie_path(),
+        'domain' => session_internal_cookie_domain(),
+        'secure' => session_internal_cookie_secure(),
+        'http_only' => session_internal_cookie_http_only(),
+        'same_site' => session_internal_cookie_same_site(),
+        'signed' => session_internal_cookie_signed(),
+        'encrypted' => session_internal_cookie_encrypted(),
+        'signing_key' => session_internal_cookie_signing_key(),
+        'encryption_key' => session_internal_cookie_encryption_key(),
     ];
 }
 
-function session_cookie_prefix(): string
+function session_internal_cookie_prefix(): string
 {
     $prefix = trim(config_str('session.prefix', 'harbor'));
 
@@ -538,7 +538,7 @@ function session_cookie_prefix(): string
     return $prefix;
 }
 
-function session_ttl_seconds(): int
+function session_internal_ttl_seconds(): int
 {
     $ttl_seconds = config_int('session.ttl_seconds', 7200);
 
@@ -549,7 +549,7 @@ function session_ttl_seconds(): int
     return $ttl_seconds;
 }
 
-function session_cookie_path(): string
+function session_internal_cookie_path(): string
 {
     $path = trim(config_str('session.path', '/'));
 
@@ -560,7 +560,7 @@ function session_cookie_path(): string
     return $path;
 }
 
-function session_cookie_domain(): ?string
+function session_internal_cookie_domain(): ?string
 {
     $domain = config_get('session.domain');
 
@@ -577,32 +577,32 @@ function session_cookie_domain(): ?string
     return $normalized_domain;
 }
 
-function session_cookie_secure(): bool
+function session_internal_cookie_secure(): bool
 {
     return config_bool('session.secure', false);
 }
 
-function session_cookie_http_only(): bool
+function session_internal_cookie_http_only(): bool
 {
     return config_bool('session.http_only', true);
 }
 
-function session_cookie_same_site(): string
+function session_internal_cookie_same_site(): string
 {
-    return session_normalize_same_site(config_str('session.same_site', 'Lax'));
+    return session_internal_normalize_same_site(config_str('session.same_site', 'Lax'));
 }
 
-function session_cookie_signed(): bool
+function session_internal_cookie_signed(): bool
 {
     return config_bool('session.signed', false);
 }
 
-function session_cookie_encrypted(): bool
+function session_internal_cookie_encrypted(): bool
 {
     return config_bool('session.encrypted', false);
 }
 
-function session_cookie_signing_key(): ?string
+function session_internal_cookie_signing_key(): ?string
 {
     $signing_key = config_resolve('session.signing_key', 'session.key');
 
@@ -619,7 +619,7 @@ function session_cookie_signing_key(): ?string
     return $normalized_signing_key;
 }
 
-function session_cookie_encryption_key(): ?string
+function session_internal_cookie_encryption_key(): ?string
 {
     $encryption_key = config_resolve('session.encryption_key', 'session.key');
 
@@ -636,7 +636,7 @@ function session_cookie_encryption_key(): ?string
     return $normalized_encryption_key;
 }
 
-function session_normalize_key(string $key): string
+function session_internal_normalize_key(string $key): string
 {
     $normalized_key = trim($key);
     if (harbor_is_blank($normalized_key)) {
@@ -646,7 +646,7 @@ function session_normalize_key(string $key): string
     return $normalized_key;
 }
 
-function session_normalize_same_site(string $same_site): string
+function session_internal_normalize_same_site(string $same_site): string
 {
     $normalized_same_site = strtolower(trim($same_site));
     if (harbor_is_blank($normalized_same_site)) {
@@ -663,7 +663,7 @@ function session_normalize_same_site(string $same_site): string
     };
 }
 
-function session_encode_value(mixed $value): string
+function session_internal_encode_value(mixed $value): string
 {
     try {
         return json_encode(
@@ -681,7 +681,7 @@ function session_encode_value(mixed $value): string
     }
 }
 
-function session_decode_value(mixed $value): mixed
+function session_internal_decode_value(mixed $value): mixed
 {
     if (! is_string($value)) {
         return $value;
@@ -704,7 +704,7 @@ function session_decode_value(mixed $value): mixed
     return $decoded_value['value'];
 }
 
-function session_resolve_driver(mixed $driver): ?SessionDriver
+function session_internal_resolve_driver(mixed $driver): ?SessionDriver
 {
     if ($driver instanceof SessionDriver) {
         return $driver;

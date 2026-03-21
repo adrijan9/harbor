@@ -35,7 +35,7 @@ function session_file_set_path(string $path): void
 {
     global $session_file_runtime_path;
 
-    $session_file_runtime_path = session_file_normalize_path($path);
+    $session_file_runtime_path = session_file_internal_normalize_path($path);
 }
 
 function session_file_reset_path(): void
@@ -47,48 +47,48 @@ function session_file_reset_path(): void
 
 function session_file_set(string $key, mixed $value, int $ttl_seconds, array $cookie_options = []): bool
 {
-    $normalized_key = session_file_normalize_key($key);
-    $session_id = session_file_resolve_or_create_session_id($cookie_options);
+    $normalized_key = session_file_internal_normalize_key($key);
+    $session_id = session_file_internal_resolve_or_create_session_id($cookie_options);
 
     if (null === $session_id) {
         return false;
     }
 
-    $session_payload = session_file_read_payload($session_id);
-    session_file_prune_expired_items($session_payload);
+    $session_payload = session_file_internal_read_payload($session_id);
+    session_file_internal_prune_expired_items($session_payload);
 
     $session_payload['items'][$normalized_key] = [
         'value' => $value,
-        'expires_at' => session_file_expiration_timestamp($ttl_seconds),
+        'expires_at' => session_file_internal_expiration_timestamp($ttl_seconds),
     ];
 
-    session_file_write_payload($session_id, $session_payload);
+    session_file_internal_write_payload($session_id, $session_payload);
 
     return true;
 }
 
 function session_file_get(string $key, mixed $default = null, array $cookie_options = []): mixed
 {
-    $normalized_key = session_file_normalize_key($key);
-    $session_id = session_file_current_session_id($cookie_options);
+    $normalized_key = session_file_internal_normalize_key($key);
+    $session_id = session_file_internal_current_session_id($cookie_options);
 
     if (! is_string($session_id)) {
         return $default;
     }
 
-    $session_payload = session_file_read_payload($session_id);
-    $is_dirty = session_file_prune_expired_items($session_payload);
+    $session_payload = session_file_internal_read_payload($session_id);
+    $is_dirty = session_file_internal_prune_expired_items($session_payload);
 
     if (! array_key_exists($normalized_key, $session_payload['items'])) {
         if ($is_dirty) {
-            session_file_write_payload($session_id, $session_payload);
+            session_file_internal_write_payload($session_id, $session_payload);
         }
 
         return $default;
     }
 
     if ($is_dirty) {
-        session_file_write_payload($session_id, $session_payload);
+        session_file_internal_write_payload($session_id, $session_payload);
     }
 
     $session_item = $session_payload['items'][$normalized_key];
@@ -107,15 +107,15 @@ function session_file_has(string $key, array $cookie_options = []): bool
 
 function session_file_forget(string $key, array $cookie_options = []): bool
 {
-    $normalized_key = session_file_normalize_key($key);
-    $session_id = session_file_current_session_id($cookie_options);
+    $normalized_key = session_file_internal_normalize_key($key);
+    $session_id = session_file_internal_current_session_id($cookie_options);
 
     if (! is_string($session_id)) {
         return true;
     }
 
-    $session_payload = session_file_read_payload($session_id);
-    session_file_prune_expired_items($session_payload);
+    $session_payload = session_file_internal_read_payload($session_id);
+    session_file_internal_prune_expired_items($session_payload);
 
     if (! array_key_exists($normalized_key, $session_payload['items'])) {
         return true;
@@ -123,24 +123,24 @@ function session_file_forget(string $key, array $cookie_options = []): bool
 
     unset($session_payload['items'][$normalized_key]);
 
-    session_file_write_payload($session_id, $session_payload);
+    session_file_internal_write_payload($session_id, $session_payload);
 
     return true;
 }
 
 function session_file_all(array $cookie_options = []): array
 {
-    $session_id = session_file_current_session_id($cookie_options);
+    $session_id = session_file_internal_current_session_id($cookie_options);
 
     if (! is_string($session_id)) {
         return [];
     }
 
-    $session_payload = session_file_read_payload($session_id);
-    $is_dirty = session_file_prune_expired_items($session_payload);
+    $session_payload = session_file_internal_read_payload($session_id);
+    $is_dirty = session_file_internal_prune_expired_items($session_payload);
 
     if ($is_dirty) {
-        session_file_write_payload($session_id, $session_payload);
+        session_file_internal_write_payload($session_id, $session_payload);
     }
 
     $session_values = [];
@@ -158,34 +158,34 @@ function session_file_all(array $cookie_options = []): array
 
 function session_file_clear(array $cookie_options = []): bool
 {
-    $session_id = session_file_current_session_id($cookie_options);
+    $session_id = session_file_internal_current_session_id($cookie_options);
 
     if (! is_string($session_id)) {
         return true;
     }
 
-    $session_file_path = session_file_path_for_id($session_id);
+    $session_file_path = session_file_internal_path_for_id($session_id);
     if (fs_exists($session_file_path)) {
-        session_file_delete_file_path($session_file_path);
-        session_file_cleanup_empty_directories(dirname($session_file_path));
+        session_file_internal_delete_file_path($session_file_path);
+        session_file_internal_cleanup_empty_directories(dirname($session_file_path));
     }
 
-    return cookie_forget(session_file_id_cookie_name(), $cookie_options);
+    return cookie_forget(session_file_internal_id_cookie_name(), $cookie_options);
 }
 
 /** Private */
-function session_file_resolve_or_create_session_id(array $cookie_options): ?string
+function session_file_internal_resolve_or_create_session_id(array $cookie_options): ?string
 {
-    $session_id = session_file_current_session_id($cookie_options);
+    $session_id = session_file_internal_current_session_id($cookie_options);
     if (is_string($session_id)) {
         return $session_id;
     }
 
-    $new_session_id = session_file_generate_session_id();
+    $new_session_id = session_file_internal_generate_session_id();
     $is_set = cookie_set(
-        session_file_id_cookie_name(),
+        session_file_internal_id_cookie_name(),
         $new_session_id,
-        session_ttl_seconds(),
+        session_internal_ttl_seconds(),
         $cookie_options,
     );
 
@@ -196,57 +196,57 @@ function session_file_resolve_or_create_session_id(array $cookie_options): ?stri
     return $new_session_id;
 }
 
-function session_file_current_session_id(array $cookie_options): ?string
+function session_file_internal_current_session_id(array $cookie_options): ?string
 {
-    $raw_session_id = cookie_get(session_file_id_cookie_name(), null, $cookie_options);
+    $raw_session_id = cookie_get(session_file_internal_id_cookie_name(), null, $cookie_options);
 
     if (! is_string($raw_session_id)) {
         return null;
     }
 
-    return session_file_normalize_session_id($raw_session_id);
+    return session_file_internal_normalize_session_id($raw_session_id);
 }
 
-function session_file_generate_session_id(): string
+function session_file_internal_generate_session_id(): string
 {
     return bin2hex(random_bytes(20));
 }
 
-function session_file_read_payload(string $session_id): array
+function session_file_internal_read_payload(string $session_id): array
 {
-    $session_file_path = session_file_path_for_id($session_id);
+    $session_file_path = session_file_internal_path_for_id($session_id);
 
     if (! fs_exists($session_file_path)) {
-        return session_file_empty_payload($session_id);
+        return session_file_internal_empty_payload($session_id);
     }
 
     $serialized_payload = fs_read($session_file_path);
-    $session_payload = session_file_unserialize($serialized_payload);
+    $session_payload = session_file_internal_unserialize($serialized_payload);
 
-    if (! session_file_payload_is_valid($session_payload, $session_id)) {
-        session_file_delete_file_path($session_file_path);
-        session_file_cleanup_empty_directories(dirname($session_file_path));
+    if (! session_file_internal_payload_is_valid($session_payload, $session_id)) {
+        session_file_internal_delete_file_path($session_file_path);
+        session_file_internal_cleanup_empty_directories(dirname($session_file_path));
 
-        return session_file_empty_payload($session_id);
+        return session_file_internal_empty_payload($session_id);
     }
 
     return $session_payload;
 }
 
-function session_file_write_payload(string $session_id, array $session_payload): void
+function session_file_internal_write_payload(string $session_id, array $session_payload): void
 {
     if (empty($session_payload['items'])) {
-        $session_file_path = session_file_path_for_id($session_id);
+        $session_file_path = session_file_internal_path_for_id($session_id);
 
         if (fs_exists($session_file_path)) {
-            session_file_delete_file_path($session_file_path);
-            session_file_cleanup_empty_directories(dirname($session_file_path));
+            session_file_internal_delete_file_path($session_file_path);
+            session_file_internal_cleanup_empty_directories(dirname($session_file_path));
         }
 
         return;
     }
 
-    $session_file_path = session_file_path_for_id($session_id);
+    $session_file_path = session_file_internal_path_for_id($session_id);
     $session_file_directory = dirname($session_file_path);
 
     if (! fs_dir_exists($session_file_directory)) {
@@ -256,7 +256,7 @@ function session_file_write_payload(string $session_id, array $session_payload):
     fs_write($session_file_path, serialize($session_payload));
 }
 
-function session_file_empty_payload(string $session_id): array
+function session_file_internal_empty_payload(string $session_id): array
 {
     return [
         'id' => $session_id,
@@ -264,7 +264,7 @@ function session_file_empty_payload(string $session_id): array
     ];
 }
 
-function session_file_payload_is_valid(mixed $session_payload, string $session_id): bool
+function session_file_internal_payload_is_valid(mixed $session_payload, string $session_id): bool
 {
     if (! is_array($session_payload)) {
         return false;
@@ -281,12 +281,12 @@ function session_file_payload_is_valid(mixed $session_payload, string $session_i
     return true;
 }
 
-function session_file_prune_expired_items(array &$session_payload): bool
+function session_file_internal_prune_expired_items(array &$session_payload): bool
 {
     $is_dirty = false;
 
     foreach ($session_payload['items'] as $session_key => $session_item) {
-        if (! is_string($session_key) || ! session_file_item_is_valid($session_item) || session_file_item_is_expired($session_item)) {
+        if (! is_string($session_key) || ! session_file_internal_item_is_valid($session_item) || session_file_internal_item_is_expired($session_item)) {
             unset($session_payload['items'][$session_key]);
             $is_dirty = true;
         }
@@ -295,7 +295,7 @@ function session_file_prune_expired_items(array &$session_payload): bool
     return $is_dirty;
 }
 
-function session_file_item_is_valid(mixed $session_item): bool
+function session_file_internal_item_is_valid(mixed $session_item): bool
 {
     if (! is_array($session_item)) {
         return false;
@@ -314,7 +314,7 @@ function session_file_item_is_valid(mixed $session_item): bool
     return is_int($expires_at);
 }
 
-function session_file_item_is_expired(array $session_item): bool
+function session_file_internal_item_is_expired(array $session_item): bool
 {
     $expires_at = $session_item['expires_at'] ?? null;
 
@@ -329,7 +329,7 @@ function session_file_item_is_expired(array $session_item): bool
     return $expires_at <= time();
 }
 
-function session_file_expiration_timestamp(int $ttl_seconds): ?int
+function session_file_internal_expiration_timestamp(int $ttl_seconds): ?int
 {
     if ($ttl_seconds <= 0) {
         return null;
@@ -338,10 +338,10 @@ function session_file_expiration_timestamp(int $ttl_seconds): ?int
     return time() + $ttl_seconds;
 }
 
-function session_file_path_for_id(string $session_id): string
+function session_file_internal_path_for_id(string $session_id): string
 {
     $session_hash = sha1($session_id);
-    $root_path = session_file_ensure_root_directory();
+    $root_path = session_file_internal_ensure_root_directory();
     $first_directory = substr($session_hash, 0, 2);
     $second_directory = substr($session_hash, 2, 2);
     $file_name = substr($session_hash, 4).'.session';
@@ -349,7 +349,7 @@ function session_file_path_for_id(string $session_id): string
     return $root_path.'/'.$first_directory.'/'.$second_directory.'/'.$file_name;
 }
 
-function session_file_root_path(): string
+function session_file_internal_root_path(): string
 {
     global $session_file_runtime_path;
 
@@ -357,7 +357,7 @@ function session_file_root_path(): string
         return $session_file_runtime_path;
     }
 
-    $configured_path = session_file_configured_path();
+    $configured_path = session_file_internal_configured_path();
     if (! harbor_is_null($configured_path)) {
         return $configured_path;
     }
@@ -370,7 +370,7 @@ function session_file_root_path(): string
     return dirname(__DIR__, 2).'/storage/session';
 }
 
-function session_file_configured_path(): ?string
+function session_file_internal_configured_path(): ?string
 {
     $configured_path = config_resolve('session.file_path', 'session_path');
 
@@ -384,10 +384,10 @@ function session_file_configured_path(): ?string
         return null;
     }
 
-    return session_file_normalize_path($normalized_path);
+    return session_file_internal_normalize_path($normalized_path);
 }
 
-function session_file_id_cookie_name(): string
+function session_file_internal_id_cookie_name(): string
 {
     $configured_cookie_name = config_resolve('session.id_cookie', 'session_id_cookie');
 
@@ -399,10 +399,10 @@ function session_file_id_cookie_name(): string
         }
     }
 
-    return session_cookie_prefix().'-session-id';
+    return session_internal_cookie_prefix().'-session-id';
 }
 
-function session_file_normalize_path(string $path): string
+function session_file_internal_normalize_path(string $path): string
 {
     $normalized_path = trim($path);
 
@@ -413,7 +413,7 @@ function session_file_normalize_path(string $path): string
     return rtrim($normalized_path, '/\\');
 }
 
-function session_file_normalize_key(string $key): string
+function session_file_internal_normalize_key(string $key): string
 {
     $normalized_key = trim($key);
 
@@ -424,7 +424,7 @@ function session_file_normalize_key(string $key): string
     return $normalized_key;
 }
 
-function session_file_normalize_session_id(string $session_id): ?string
+function session_file_internal_normalize_session_id(string $session_id): ?string
 {
     $normalized_session_id = trim($session_id);
 
@@ -439,20 +439,20 @@ function session_file_normalize_session_id(string $session_id): ?string
     return $normalized_session_id;
 }
 
-function session_file_ensure_root_directory(): string
+function session_file_internal_ensure_root_directory(): string
 {
-    $session_root_path = session_file_root_path();
+    $session_root_path = session_file_internal_root_path();
 
     if (! fs_dir_exists($session_root_path)) {
         fs_dir_create($session_root_path);
     }
 
-    session_file_ensure_gitignore($session_root_path);
+    session_file_internal_ensure_gitignore($session_root_path);
 
     return $session_root_path;
 }
 
-function session_file_ensure_gitignore(string $root_path): void
+function session_file_internal_ensure_gitignore(string $root_path): void
 {
     $gitignore_path = $root_path.'/.gitignore';
 
@@ -463,7 +463,7 @@ function session_file_ensure_gitignore(string $root_path): void
     fs_write($gitignore_path, "*\n!.gitignore\n");
 }
 
-function session_file_delete_file_path(string $file_path): void
+function session_file_internal_delete_file_path(string $file_path): void
 {
     if (! fs_exists($file_path)) {
         return;
@@ -472,9 +472,9 @@ function session_file_delete_file_path(string $file_path): void
     fs_delete($file_path);
 }
 
-function session_file_cleanup_empty_directories(string $directory_path): void
+function session_file_internal_cleanup_empty_directories(string $directory_path): void
 {
-    $root_path = session_file_root_path();
+    $root_path = session_file_internal_root_path();
 
     while (str_starts_with($directory_path, $root_path) && $directory_path !== $root_path) {
         if (! fs_dir_exists($directory_path) || ! fs_dir_is_empty($directory_path)) {
@@ -492,7 +492,7 @@ function session_file_cleanup_empty_directories(string $directory_path): void
     }
 }
 
-function session_file_unserialize(string $session_payload): mixed
+function session_file_internal_unserialize(string $session_payload): mixed
 {
     set_error_handler(static fn (): bool => true);
 
