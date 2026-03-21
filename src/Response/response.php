@@ -22,7 +22,7 @@ function response_status(int|ResponseStatus $status): void
         return;
     }
 
-    http_response_code(response_resolve_status_code($status));
+    http_response_code(response_internal_resolve_status_code($status));
 }
 
 function response_header(string $name, string $value, bool $replace = true): void
@@ -43,11 +43,11 @@ function response_json(array $payload, int|ResponseStatus $status = ResponseStat
 {
     response_status($status);
 
-    if (! response_headers_has_key($headers, 'content-type')) {
+    if (! response_internal_headers_has_key($headers, 'content-type')) {
         response_header('Content-Type', 'application/json; charset=UTF-8');
     }
 
-    response_apply_headers($headers);
+    response_internal_apply_headers($headers);
 
     $json_content = json_encode(
         $payload,
@@ -61,11 +61,11 @@ function response_text(string $content, int|ResponseStatus $status = ResponseSta
 {
     response_status($status);
 
-    if (! response_headers_has_key($headers, 'content-type')) {
+    if (! response_internal_headers_has_key($headers, 'content-type')) {
         response_header('Content-Type', 'text/plain; charset=UTF-8');
     }
 
-    response_apply_headers($headers);
+    response_internal_apply_headers($headers);
 
     echo $content;
 }
@@ -78,25 +78,25 @@ function response_file(string $file_path, ?string $download_name = null, array $
 
     $resolved_download_name = null;
     if (! harbor_is_null($download_name)) {
-        $resolved_download_name = response_normalize_download_name($download_name);
+        $resolved_download_name = response_internal_normalize_download_name($download_name);
     }
 
     response_status(200);
 
-    if (! response_headers_has_key($headers, 'content-type')) {
-        response_header('Content-Type', response_resolve_file_mime_type($file_path));
+    if (! response_internal_headers_has_key($headers, 'content-type')) {
+        response_header('Content-Type', response_internal_resolve_file_mime_type($file_path));
     }
 
     $file_size = filesize($file_path);
-    if (false !== $file_size && ! response_headers_has_key($headers, 'content-length')) {
+    if (false !== $file_size && ! response_internal_headers_has_key($headers, 'content-length')) {
         response_header('Content-Length', (string) $file_size);
     }
 
-    if (! harbor_is_null($resolved_download_name) && ! response_headers_has_key($headers, 'content-disposition')) {
+    if (! harbor_is_null($resolved_download_name) && ! response_internal_headers_has_key($headers, 'content-disposition')) {
         response_header('Content-Disposition', 'attachment; filename="'.$resolved_download_name.'"');
     }
 
-    response_apply_headers($headers);
+    response_internal_apply_headers($headers);
 
     if (false === readfile($file_path)) {
         throw new \RuntimeException(sprintf('Failed to read response file "%s".', $file_path));
@@ -124,7 +124,7 @@ function response_validation(
         'errors' => $result->errors(),
     ];
 
-    if (response_request_prefers_json()) {
+    if (response_internal_request_prefers_json()) {
         response_json($payload, $status, $headers);
 
         return;
@@ -132,34 +132,34 @@ function response_validation(
 
     response_status($status);
 
-    if (! response_headers_has_key($headers, 'content-type')) {
+    if (! response_internal_headers_has_key($headers, 'content-type')) {
         response_header('Content-Type', 'text/plain; charset=UTF-8');
     }
 
-    response_apply_headers($headers);
+    response_internal_apply_headers($headers);
 
     echo $payload['message'];
 }
 
 function abort(int|ResponseStatus $status, ?string $content = null): never
 {
-    $resolved_status = response_resolve_status_code($status);
+    $resolved_status = response_internal_resolve_status_code($status);
     response_status($resolved_status);
 
-    $error_page_path = response_resolve_abort_error_page_path($resolved_status);
+    $error_page_path = response_internal_resolve_abort_error_page_path($resolved_status);
     if (is_string($error_page_path)) {
         require $error_page_path;
 
         exit;
     }
 
-    echo response_resolve_abort_content($resolved_status, $content);
+    echo response_internal_resolve_abort_content($resolved_status, $content);
 
     exit;
 }
 
 /** Private */
-function response_apply_headers(array $headers): void
+function response_internal_apply_headers(array $headers): void
 {
     foreach ($headers as $name => $value) {
         if (! is_string($name)) {
@@ -171,11 +171,11 @@ function response_apply_headers(array $headers): void
             continue;
         }
 
-        response_header($normalized_name, response_header_value_to_string($value));
+        response_header($normalized_name, response_internal_header_value_to_string($value));
     }
 }
 
-function response_headers_has_key(array $headers, string $key): bool
+function response_internal_headers_has_key(array $headers, string $key): bool
 {
     $normalized_key = strtolower(trim($key));
     if (harbor_is_blank($normalized_key)) {
@@ -195,7 +195,7 @@ function response_headers_has_key(array $headers, string $key): bool
     return false;
 }
 
-function response_header_value_to_string(mixed $value): string
+function response_internal_header_value_to_string(mixed $value): string
 {
     if (is_string($value)) {
         return $value;
@@ -225,7 +225,7 @@ function response_header_value_to_string(mixed $value): string
     return is_string($encoded_value) ? $encoded_value : '';
 }
 
-function response_resolve_file_mime_type(string $file_path): string
+function response_internal_resolve_file_mime_type(string $file_path): string
 {
     $mime_type = function_exists('mime_content_type') ? mime_content_type($file_path) : null;
     if (is_string($mime_type) && ! harbor_is_blank($mime_type)) {
@@ -235,7 +235,7 @@ function response_resolve_file_mime_type(string $file_path): string
     return 'application/octet-stream';
 }
 
-function response_normalize_download_name(string $download_name): string
+function response_internal_normalize_download_name(string $download_name): string
 {
     $normalized_download_name = trim($download_name);
     if (harbor_is_blank($normalized_download_name)) {
@@ -250,7 +250,7 @@ function response_normalize_download_name(string $download_name): string
     return $sanitized_download_name;
 }
 
-function response_request_prefers_json(): bool
+function response_internal_request_prefers_json(): bool
 {
     $accept_header = $_SERVER['HTTP_ACCEPT'] ?? null;
     if (is_string($accept_header) && ! harbor_is_blank($accept_header)) {
@@ -268,7 +268,7 @@ function response_request_prefers_json(): bool
     return false;
 }
 
-function response_resolve_abort_content(int|ResponseStatus $status, ?string $content = null): string
+function response_internal_resolve_abort_content(int|ResponseStatus $status, ?string $content = null): string
 {
     if (is_string($content)) {
         $normalized_content = trim($content);
@@ -280,7 +280,7 @@ function response_resolve_abort_content(int|ResponseStatus $status, ?string $con
     return ResponseStatus::message_for($status);
 }
 
-function response_resolve_abort_error_page_path(int $status): ?string
+function response_internal_resolve_abort_error_page_path(int $status): ?string
 {
     $error_page_name = sprintf('%d.php', $status);
     $candidates = [];
@@ -310,7 +310,7 @@ function response_resolve_abort_error_page_path(int $status): ?string
     return null;
 }
 
-function response_resolve_status_code(int|ResponseStatus $status): int
+function response_internal_resolve_status_code(int|ResponseStatus $status): int
 {
     if ($status instanceof ResponseStatus) {
         return $status->value;
