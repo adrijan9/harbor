@@ -9,7 +9,7 @@ require_once __DIR__.'/PasswordAlgorithm.php';
 /** Public */
 function password_hash(string $password, ?PasswordAlgorithm $algorithm = null, array $options = []): string
 {
-    $resolved_algorithm = password_resolve_algorithm($algorithm);
+    $resolved_algorithm = password_internal_resolve_algorithm($algorithm);
     $hashed_password = \password_hash($password, $resolved_algorithm, $options);
 
     if (! is_string($hashed_password)) {
@@ -26,7 +26,7 @@ function password_verify(string $password, string $hash): bool
 
 function password_needs_rehash(string $hash, ?PasswordAlgorithm $algorithm = null, array $options = []): bool
 {
-    return \password_needs_rehash($hash, password_resolve_algorithm($algorithm), $options);
+    return \password_needs_rehash($hash, password_internal_resolve_algorithm($algorithm), $options);
 }
 
 function password_info(string $hash): array
@@ -55,7 +55,7 @@ function argon2id(string $password, array $options = []): string
 }
 
 /** Private */
-function password_resolve_algorithm(?PasswordAlgorithm $algorithm): int|string
+function password_internal_resolve_algorithm(?PasswordAlgorithm $algorithm): int|string
 {
     $resolved_algorithm = $algorithm ?? PasswordAlgorithm::DEFAULT;
     $resolved_algorithm->assert_supported();
