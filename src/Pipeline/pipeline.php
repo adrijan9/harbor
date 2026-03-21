@@ -17,7 +17,7 @@ function pipeline_new(): array
 
 function pipeline_send(array &$pipeline, mixed ...$passable): void
 {
-    pipeline_bootstrap($pipeline);
+    pipeline_internal_bootstrap($pipeline);
 
     $pipeline['passable'] = $passable;
     $pipeline['result'] = null;
@@ -26,18 +26,18 @@ function pipeline_send(array &$pipeline, mixed ...$passable): void
 
 function pipeline_through(array &$pipeline, callable ...$actions): void
 {
-    pipeline_bootstrap($pipeline);
+    pipeline_internal_bootstrap($pipeline);
 
-    $pipeline['actions'] = pipeline_prepare_actions($actions);
+    $pipeline['actions'] = pipeline_internal_prepare_actions($actions);
     $pipeline['result'] = null;
     $pipeline['closed'] = false;
 }
 
 function pipeline_clog(array &$pipeline): void
 {
-    pipeline_bootstrap($pipeline);
+    pipeline_internal_bootstrap($pipeline);
 
-    $destination = static fn (mixed ...$passable): mixed => pipeline_finalize_passable($passable);
+    $destination = static fn (mixed ...$passable): mixed => pipeline_internal_finalize_passable($passable);
 
     $runner = array_reduce(
         array_reverse($pipeline['actions']),
@@ -64,16 +64,16 @@ function pipeline_clog(array &$pipeline): void
     $pipeline['result'] = $result;
     $pipeline['closed'] = true;
 
-    $GLOBALS[pipeline_result_global_key()] = $result;
+    $GLOBALS[pipeline_internal_result_global_key()] = $result;
 }
 
 function pipeline_get(): mixed
 {
-    return $GLOBALS[pipeline_result_global_key()] ?? null;
+    return $GLOBALS[pipeline_internal_result_global_key()] ?? null;
 }
 
 /** Private */
-function pipeline_bootstrap(array &$pipeline): void
+function pipeline_internal_bootstrap(array &$pipeline): void
 {
     if (! isset($pipeline['passable']) || ! is_array($pipeline['passable'])) {
         $pipeline['passable'] = [];
@@ -92,7 +92,7 @@ function pipeline_bootstrap(array &$pipeline): void
     }
 }
 
-function pipeline_finalize_passable(array $passable): mixed
+function pipeline_internal_finalize_passable(array $passable): mixed
 {
     if (empty($passable)) {
         return null;
@@ -105,18 +105,18 @@ function pipeline_finalize_passable(array $passable): mixed
     return $passable;
 }
 
-function pipeline_prepare_actions(array $actions): array
+function pipeline_internal_prepare_actions(array $actions): array
 {
     $prepared_actions = [];
 
     foreach ($actions as $action) {
-        $prepared_actions[] = pipeline_prepare_action($action);
+        $prepared_actions[] = pipeline_internal_prepare_action($action);
     }
 
     return $prepared_actions;
 }
 
-function pipeline_prepare_action(callable $action): callable
+function pipeline_internal_prepare_action(callable $action): callable
 {
     if (! is_object($action) || ! method_exists($action, '__invoke')) {
         return $action;
@@ -135,7 +135,7 @@ function pipeline_prepare_action(callable $action): callable
     return $resolved_action;
 }
 
-function pipeline_result_global_key(): string
+function pipeline_internal_result_global_key(): string
 {
     return '__harbor_pipeline_last_result';
 }
