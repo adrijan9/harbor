@@ -10,7 +10,7 @@ require_once __DIR__.'/../Filesystem/filesystem.php';
 
 require_once __DIR__.'/../Support/value.php';
 
-use function Harbor\Config\config_global_directory_path;
+use function Harbor\Config\config_internal_global_directory_path;
 use function Harbor\Config\config_resolve;
 use function Harbor\Filesystem\fs_delete;
 use function Harbor\Filesystem\fs_dir_create;
@@ -306,7 +306,7 @@ function cache_file_root_path(): string
         return $configured_path;
     }
 
-    $global_directory_path = config_global_directory_path();
+    $global_directory_path = config_internal_global_directory_path();
     if (! harbor_is_null($global_directory_path)) {
         return $global_directory_path.'/cache';
     }

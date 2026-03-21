@@ -10,8 +10,8 @@ require_once __DIR__.'/../../Support/value.php';
 
 require_once __DIR__.'/../DatabaseConnectionDtoInterface.php';
 
-use function Harbor\Config\config_array_get;
 use function Harbor\Config\config_get;
+use function Harbor\Config\config_internal_array_get;
 use function Harbor\Config\config_resolve;
 use function Harbor\Support\harbor_is_blank;
 use function Harbor\Support\harbor_is_null;
@@ -155,7 +155,7 @@ final readonly class MysqlDto implements DatabaseConnectionDtoInterface
         mixed $default = null
     ): mixed {
         foreach ($config_keys as $config_key) {
-            $value = config_array_get($config, $config_key);
+            $value = config_internal_array_get($config, $config_key);
             if (! harbor_is_null($value) && ! (is_string($value) && harbor_is_blank($value))) {
                 return $value;
             }

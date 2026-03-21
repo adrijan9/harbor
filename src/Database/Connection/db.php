@@ -40,7 +40,7 @@ require_once __DIR__.'/../QueryBuilder/query_compile.php';
 
 require_once __DIR__.'/../QueryBuilder/query_builder.php';
 
-use function Harbor\Config\config_array_get;
+use function Harbor\Config\config_internal_array_get;
 use function Harbor\Config\config_resolve;
 use function Harbor\Support\array_first;
 use function Harbor\Support\array_last;
@@ -268,7 +268,7 @@ function db_resolve_mysql_option(array $config, array $keys, mixed $default = nu
 function db_config_pick(array $config, array $keys): mixed
 {
     foreach ($keys as $key) {
-        $value = config_array_get($config, $key);
+        $value = config_internal_array_get($config, $key);
         if (! harbor_is_null($value)) {
             return $value;
         }
