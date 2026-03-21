@@ -45,9 +45,9 @@ function log_init(string $file_path, string $channel = 'app'): void
 {
     global $log_file_path, $log_is_initialized, $log_default_channel;
 
-    $log_file_path = log_prepare_file_path($file_path);
+    $log_file_path = log_internal_prepare_file_path($file_path);
     $log_is_initialized = true;
-    $log_default_channel = log_validate_channel($channel);
+    $log_default_channel = log_internal_validate_channel($channel);
 }
 
 function log_reset(): void
@@ -77,17 +77,17 @@ function log_set_channel(string $channel): void
 {
     global $log_default_channel;
 
-    $log_default_channel = log_validate_channel($channel);
+    $log_default_channel = log_internal_validate_channel($channel);
 }
 
 function log_write(LogLevel|string $level, string $message, array $context = [], ?string $channel = null): void
 {
-    $normalized_level = log_validate_level($level);
+    $normalized_level = log_internal_validate_level($level);
     $timestamp = date('Y-m-d H:i:s');
-    $write_targets = log_resolve_write_targets($channel);
+    $write_targets = log_internal_resolve_write_targets($channel);
 
     foreach ($write_targets as $write_target) {
-        $log_content = log_create_content_with_timestamp(
+        $log_content = log_internal_create_content_with_timestamp(
             $normalized_level,
             $message,
             $context,
@@ -95,10 +95,10 @@ function log_write(LogLevel|string $level, string $message, array $context = [],
             $timestamp
         );
 
-        log_append_to_path($write_target['file_path'], $log_content.PHP_EOL);
+        log_internal_append_to_path($write_target['file_path'], $log_content.PHP_EOL);
 
         if ('daily' === $write_target['driver']) {
-            log_prune_daily_channel_files($write_target['base_path'], $write_target['days']);
+            log_internal_prune_daily_channel_files($write_target['base_path'], $write_target['days']);
         }
     }
 }
@@ -107,10 +107,11 @@ function log_create_content(LogLevel|string $level, string $message, array $cont
 {
     global $log_default_channel;
 
-    $normalized_level = log_validate_level($level);
+    $normalized_level = log_internal_validate_level($level);
     $channel_candidate = harbor_is_null($channel) ? $log_default_channel : $channel;
-    $normalized_channel = log_validate_channel($channel_candidate);
-    return log_create_content_with_timestamp(
+    $normalized_channel = log_internal_validate_channel($channel_candidate);
+
+    return log_internal_create_content_with_timestamp(
         $normalized_level,
         $message,
         $context,
@@ -121,14 +122,14 @@ function log_create_content(LogLevel|string $level, string $message, array $cont
 
 function log_write_content(string $log_content): void
 {
-    $write_targets = log_resolve_content_write_targets();
+    $write_targets = log_internal_resolve_content_write_targets();
     $normalized_content = str_ends_with($log_content, PHP_EOL) ? $log_content : $log_content.PHP_EOL;
 
     foreach ($write_targets as $write_target) {
-        log_append_to_path($write_target['file_path'], $normalized_content);
+        log_internal_append_to_path($write_target['file_path'], $normalized_content);
 
         if ('daily' === $write_target['driver']) {
-            log_prune_daily_channel_files($write_target['base_path'], $write_target['days']);
+            log_internal_prune_daily_channel_files($write_target['base_path'], $write_target['days']);
         }
     }
 }
@@ -190,7 +191,7 @@ function log_exception(\Throwable $exception, array $context = [], LogLevel|stri
 }
 
 /** Private */
-function log_bail_if_not_initialized(): void
+function log_internal_bail_if_not_initialized(): void
 {
     global $log_is_initialized, $log_file_path;
 
@@ -202,42 +203,43 @@ function log_bail_if_not_initialized(): void
 /**
  * @return array<int, array{driver: string, file_path: string, base_path: string, days: int, channel: string}>
  */
-function log_resolve_write_targets(?string $requested_channel): array
+function log_internal_resolve_write_targets(?string $requested_channel): array
 {
-    $configured_channels = log_configured_channels();
+    $configured_channels = log_internal_configured_channels();
 
     if (harbor_is_blank($configured_channels)) {
-        return [log_resolve_legacy_write_target($requested_channel)];
+        return [log_internal_resolve_legacy_write_target($requested_channel)];
     }
 
-    $resolved_channel = log_resolve_configured_channel_name($requested_channel, $configured_channels);
+    $resolved_channel = log_internal_resolve_configured_channel_name($requested_channel, $configured_channels);
 
-    return log_resolve_channel_targets($resolved_channel, $configured_channels);
+    return log_internal_resolve_channel_targets($resolved_channel, $configured_channels);
 }
 
 /**
  * @return array<int, array{driver: string, file_path: string, base_path: string, days: int, channel: string}>
  */
-function log_resolve_content_write_targets(): array
+function log_internal_resolve_content_write_targets(): array
 {
-    $configured_channels = log_configured_channels();
+    $configured_channels = log_internal_configured_channels();
 
     if (harbor_is_blank($configured_channels)) {
-        return [log_resolve_legacy_write_target(null)];
+        return [log_internal_resolve_legacy_write_target(null)];
     }
 
-    $resolved_channel = log_resolve_configured_channel_name(null, $configured_channels);
+    $resolved_channel = log_internal_resolve_configured_channel_name(null, $configured_channels);
 
-    return log_resolve_channel_targets($resolved_channel, $configured_channels);
+    return log_internal_resolve_channel_targets($resolved_channel, $configured_channels);
 }
 
 /**
  * @param array<string, mixed> $configured_channels
+ *
  * @return array<int, array{driver: string, file_path: string, base_path: string, days: int, channel: string}>
  */
-function log_resolve_channel_targets(string $channel, array $configured_channels, array $visited_channels = []): array
+function log_internal_resolve_channel_targets(string $channel, array $configured_channels, array $visited_channels = []): array
 {
-    $normalized_channel = log_validate_channel($channel);
+    $normalized_channel = log_internal_validate_channel($channel);
 
     if (in_array($normalized_channel, $visited_channels, true)) {
         throw new \RuntimeException(sprintf('Circular log stack detected for channel "%s".', $normalized_channel));
@@ -248,7 +250,7 @@ function log_resolve_channel_targets(string $channel, array $configured_channels
         throw new \InvalidArgumentException(sprintf('Log channel "%s" is not defined in logging.channels.', $normalized_channel));
     }
 
-    $driver = log_validate_driver($channel_definition['driver'] ?? 'single', $normalized_channel);
+    $driver = log_internal_validate_driver($channel_definition['driver'] ?? 'single', $normalized_channel);
 
     if ('stack' === $driver) {
         $stack_channels = $channel_definition['channels'] ?? null;
@@ -268,7 +270,7 @@ function log_resolve_channel_targets(string $channel, array $configured_channels
 
             $targets = array_merge(
                 $targets,
-                log_resolve_channel_targets($stack_channel, $configured_channels, $next_visited_channels)
+                log_internal_resolve_channel_targets($stack_channel, $configured_channels, $next_visited_channels)
             );
         }
 
@@ -278,40 +280,40 @@ function log_resolve_channel_targets(string $channel, array $configured_channels
             );
         }
 
-        return log_unique_targets($targets);
+        return log_internal_unique_targets($targets);
     }
 
     if ('daily' === $driver) {
-        $base_path = log_extract_config_path($channel_definition, $normalized_channel);
+        $base_path = log_internal_extract_config_path($channel_definition, $normalized_channel);
 
         return [[
             'driver' => 'daily',
-            'file_path' => log_daily_file_path($base_path),
+            'file_path' => log_internal_daily_file_path($base_path),
             'base_path' => $base_path,
-            'days' => log_extract_daily_days($channel_definition),
-            'channel' => log_extract_output_channel_name($channel_definition, $normalized_channel),
+            'days' => log_internal_extract_daily_days($channel_definition),
+            'channel' => log_internal_extract_output_channel_name($channel_definition, $normalized_channel),
         ]];
     }
 
-    $single_path = log_extract_config_path($channel_definition, $normalized_channel);
+    $single_path = log_internal_extract_config_path($channel_definition, $normalized_channel);
 
     return [[
         'driver' => 'single',
         'file_path' => $single_path,
         'base_path' => $single_path,
         'days' => 0,
-        'channel' => log_extract_output_channel_name($channel_definition, $normalized_channel),
+        'channel' => log_internal_extract_output_channel_name($channel_definition, $normalized_channel),
     ]];
 }
 
 /**
  * @return array{driver: string, file_path: string, base_path: string, days: int, channel: string}
  */
-function log_resolve_legacy_write_target(?string $requested_channel): array
+function log_internal_resolve_legacy_write_target(?string $requested_channel): array
 {
     global $log_default_channel;
 
-    log_bail_if_not_initialized();
+    log_internal_bail_if_not_initialized();
 
     $resolved_file_path = log_file_path();
     if (! is_string($resolved_file_path) || harbor_is_blank(trim($resolved_file_path))) {
@@ -325,14 +327,14 @@ function log_resolve_legacy_write_target(?string $requested_channel): array
         'file_path' => $resolved_file_path,
         'base_path' => $resolved_file_path,
         'days' => 0,
-        'channel' => log_validate_channel($resolved_channel),
+        'channel' => log_internal_validate_channel($resolved_channel),
     ];
 }
 
 /**
  * @return array<string, mixed>
  */
-function log_configured_channels(): array
+function log_internal_configured_channels(): array
 {
     $channels = config_get('logging.channels', []);
 
@@ -342,15 +344,15 @@ function log_configured_channels(): array
 /**
  * @param array<string, mixed> $configured_channels
  */
-function log_resolve_configured_channel_name(?string $requested_channel, array $configured_channels): string
+function log_internal_resolve_configured_channel_name(?string $requested_channel, array $configured_channels): string
 {
     if (is_string($requested_channel) && ! harbor_is_blank(trim($requested_channel))) {
-        return log_validate_channel($requested_channel);
+        return log_internal_validate_channel($requested_channel);
     }
 
     $configured_default_channel = config_get('logging.default');
     if (is_string($configured_default_channel) && ! harbor_is_blank(trim($configured_default_channel))) {
-        return log_validate_channel($configured_default_channel);
+        return log_internal_validate_channel($configured_default_channel);
     }
 
     if (array_key_exists('single', $configured_channels)) {
@@ -359,7 +361,7 @@ function log_resolve_configured_channel_name(?string $requested_channel, array $
 
     foreach ($configured_channels as $channel_name => $channel_definition) {
         if (is_string($channel_name) && is_array($channel_definition)) {
-            return log_validate_channel($channel_name);
+            return log_internal_validate_channel($channel_name);
         }
     }
 
@@ -369,7 +371,7 @@ function log_resolve_configured_channel_name(?string $requested_channel, array $
 /**
  * @param array<string, mixed> $channel_definition
  */
-function log_extract_config_path(array $channel_definition, string $channel_name): string
+function log_internal_extract_config_path(array $channel_definition, string $channel_name): string
 {
     $path = $channel_definition['path'] ?? null;
     if (! is_string($path) || harbor_is_blank(trim($path))) {
@@ -384,7 +386,7 @@ function log_extract_config_path(array $channel_definition, string $channel_name
 /**
  * @param array<string, mixed> $channel_definition
  */
-function log_extract_output_channel_name(array $channel_definition, string $channel_name): string
+function log_internal_extract_output_channel_name(array $channel_definition, string $channel_name): string
 {
     $configured_channel = $channel_definition['channel'] ?? $channel_name;
     if (! is_string($configured_channel)) {
@@ -393,13 +395,13 @@ function log_extract_output_channel_name(array $channel_definition, string $chan
         );
     }
 
-    return log_validate_channel($configured_channel);
+    return log_internal_validate_channel($configured_channel);
 }
 
 /**
  * @param array<string, mixed> $channel_definition
  */
-function log_extract_daily_days(array $channel_definition): int
+function log_internal_extract_daily_days(array $channel_definition): int
 {
     $days = $channel_definition['days'] ?? 14;
 
@@ -414,7 +416,7 @@ function log_extract_daily_days(array $channel_definition): int
     return 14;
 }
 
-function log_validate_driver(mixed $driver, string $channel_name): string
+function log_internal_validate_driver(mixed $driver, string $channel_name): string
 {
     if (! is_string($driver)) {
         throw new \InvalidArgumentException(
@@ -438,9 +440,10 @@ function log_validate_driver(mixed $driver, string $channel_name): string
 
 /**
  * @param array<int, array{driver: string, file_path: string, base_path: string, days: int, channel: string}> $targets
+ *
  * @return array<int, array{driver: string, file_path: string, base_path: string, days: int, channel: string}>
  */
-function log_unique_targets(array $targets): array
+function log_internal_unique_targets(array $targets): array
 {
     $unique_targets = [];
     $seen_keys = [];
@@ -458,7 +461,7 @@ function log_unique_targets(array $targets): array
     return $unique_targets;
 }
 
-function log_daily_file_path(string $base_path): string
+function log_internal_daily_file_path(string $base_path): string
 {
     $normalized_path = trim($base_path);
     if (harbor_is_blank($normalized_path)) {
@@ -483,10 +486,10 @@ function log_daily_file_path(string $base_path): string
     return sprintf('%s/%s-%s.log', $directory_path, $name_without_extension, $date_suffix);
 }
 
-function log_prune_daily_channel_files(string $base_path, int $days): void
+function log_internal_prune_daily_channel_files(string $base_path, int $days): void
 {
     $retained_days = max(1, $days);
-    $daily_files = log_match_daily_files($base_path);
+    $daily_files = log_internal_match_daily_files($base_path);
 
     if (harbor_is_blank($daily_files) || count($daily_files) <= $retained_days) {
         return;
@@ -506,7 +509,7 @@ function log_prune_daily_channel_files(string $base_path, int $days): void
 /**
  * @return array<int, string>
  */
-function log_match_daily_files(string $base_path): array
+function log_internal_match_daily_files(string $base_path): array
 {
     $normalized_path = trim($base_path);
     if (harbor_is_blank($normalized_path)) {
@@ -537,7 +540,7 @@ function log_match_daily_files(string $base_path): array
     ));
 }
 
-function log_prepare_file_path(string $file_path): string
+function log_internal_prepare_file_path(string $file_path): string
 {
     $normalized_file_path = trim($file_path);
     if (harbor_is_blank($normalized_file_path)) {
@@ -556,23 +559,23 @@ function log_prepare_file_path(string $file_path): string
     return $normalized_file_path;
 }
 
-function log_append_to_path(string $file_path, string $content): void
+function log_internal_append_to_path(string $file_path, string $content): void
 {
-    $resolved_file_path = log_prepare_file_path($file_path);
+    $resolved_file_path = log_internal_prepare_file_path($file_path);
 
     fs_append($resolved_file_path, $content);
 }
 
-function log_create_content_with_timestamp(
+function log_internal_create_content_with_timestamp(
     string $normalized_level,
     string $message,
     array $context,
     string $channel,
     string $timestamp,
 ): string {
-    $interpolated_message = log_interpolate_message($message, $context);
-    $normalized_context = log_normalize_context($context);
-    $context_json = log_encode_context($normalized_context);
+    $interpolated_message = log_internal_interpolate_message($message, $context);
+    $normalized_context = log_internal_normalize_context($context);
+    $context_json = log_internal_encode_context($normalized_context);
 
     $log_content = sprintf('[%s] [%s] [%s] %s', $timestamp, strtoupper($normalized_level), $channel, $interpolated_message);
 
@@ -583,7 +586,7 @@ function log_create_content_with_timestamp(
     return $log_content;
 }
 
-function log_validate_level(LogLevel|string $level): string
+function log_internal_validate_level(LogLevel|string $level): string
 {
     if ($level instanceof LogLevel) {
         return $level->value;
@@ -599,7 +602,7 @@ function log_validate_level(LogLevel|string $level): string
     return $log_level->value;
 }
 
-function log_validate_channel(string $channel): string
+function log_internal_validate_channel(string $channel): string
 {
     $normalized_channel = trim($channel);
 
@@ -616,7 +619,7 @@ function log_validate_channel(string $channel): string
     return $normalized_channel;
 }
 
-function log_interpolate_message(string $message, array $context): string
+function log_internal_interpolate_message(string $message, array $context): string
 {
     if (harbor_is_blank($context)) {
         return $message;
@@ -628,13 +631,13 @@ function log_interpolate_message(string $message, array $context): string
             continue;
         }
 
-        $replace['{'.$key.'}'] = log_context_value_to_string($value);
+        $replace['{'.$key.'}'] = log_internal_context_value_to_string($value);
     }
 
     return strtr($message, $replace);
 }
 
-function log_context_value_to_string(mixed $value): string
+function log_internal_context_value_to_string(mixed $value): string
 {
     if (is_string($value)) {
         return $value;
@@ -656,22 +659,22 @@ function log_context_value_to_string(mixed $value): string
         return (string) $value;
     }
 
-    return log_encode_context(log_normalize_context(['value' => $value]));
+    return log_internal_encode_context(log_internal_normalize_context(['value' => $value]));
 }
 
-function log_normalize_context(array $context): array
+function log_internal_normalize_context(array $context): array
 {
     $normalized_context = [];
 
     foreach ($context as $key => $value) {
         $normalized_key = is_string($key) || is_int($key) ? $key : (string) $key;
-        $normalized_context[$normalized_key] = log_normalize_context_value($value);
+        $normalized_context[$normalized_key] = log_internal_normalize_context_value($value);
     }
 
     return $normalized_context;
 }
 
-function log_normalize_context_value(mixed $value): mixed
+function log_internal_normalize_context_value(mixed $value): mixed
 {
     if (is_scalar($value) || harbor_is_null($value)) {
         return $value;
@@ -696,7 +699,7 @@ function log_normalize_context_value(mixed $value): mixed
 
         foreach ($value as $array_key => $array_value) {
             $normalized_key = is_string($array_key) || is_int($array_key) ? $array_key : (string) $array_key;
-            $normalized_array[$normalized_key] = log_normalize_context_value($array_value);
+            $normalized_array[$normalized_key] = log_internal_normalize_context_value($array_value);
         }
 
         return $normalized_array;
@@ -705,7 +708,7 @@ function log_normalize_context_value(mixed $value): mixed
     if (is_object($value)) {
         return [
             'class' => $value::class,
-            'properties' => log_normalize_context(get_object_vars($value)),
+            'properties' => log_internal_normalize_context(get_object_vars($value)),
         ];
     }
 
@@ -716,7 +719,7 @@ function log_normalize_context_value(mixed $value): mixed
     return '[unserializable]';
 }
 
-function log_encode_context(array $context): string
+function log_internal_encode_context(array $context): string
 {
     if (harbor_is_blank($context)) {
         return '';
