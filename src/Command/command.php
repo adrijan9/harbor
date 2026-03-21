@@ -29,8 +29,8 @@ function command_run(
     ?string $working_directory = null,
     bool $debug_mode = false
 ): int {
-    $resolved_working_directory = command_resolve_working_directory($working_directory);
-    $normalized_arguments = command_normalize_forwarded_arguments($forwarded_arguments);
+    $resolved_working_directory = command_internal_resolve_working_directory($working_directory);
+    $normalized_arguments = command_internal_normalize_forwarded_arguments($forwarded_arguments);
 
     $compiler = new CommandCompiler();
     $run_command = new RunCommand($debug_mode, $compiler);
@@ -39,7 +39,7 @@ function command_run(
 }
 
 /** Private */
-function command_resolve_working_directory(?string $working_directory = null): string
+function command_internal_resolve_working_directory(?string $working_directory = null): string
 {
     if (is_string($working_directory) && ! harbor_is_blank($working_directory)) {
         return rtrim($working_directory, '/\\');
@@ -58,7 +58,7 @@ function command_resolve_working_directory(?string $working_directory = null): s
  *
  * @return array<int, string>
  */
-function command_normalize_forwarded_arguments(array $forwarded_arguments): array
+function command_internal_normalize_forwarded_arguments(array $forwarded_arguments): array
 {
     $normalized_arguments = [];
 
