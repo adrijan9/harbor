@@ -30,37 +30,37 @@ function cache_apc_available(): bool
 
 function cache_apc_set(string $key, mixed $value, int $ttl_seconds = 0): bool
 {
-    $normalized_key = cache_apc_normalize_key($key);
-    cache_apc_require_available();
+    $normalized_key = cache_apc_internal_normalize_key($key);
+    cache_apc_internal_require_available();
 
     $cache_payload = [
         'key' => $normalized_key,
         'value' => $value,
-        'expires_at' => cache_apc_expiration_timestamp($ttl_seconds),
+        'expires_at' => cache_apc_internal_expiration_timestamp($ttl_seconds),
     ];
 
-    $stored = apcu_store(cache_apc_storage_key($normalized_key), $cache_payload, max($ttl_seconds, 0));
+    $stored = apcu_store(cache_apc_internal_storage_key($normalized_key), $cache_payload, max($ttl_seconds, 0));
     if (! $stored) {
         return false;
     }
 
-    cache_apc_index_add($normalized_key);
+    cache_apc_internal_index_add($normalized_key);
 
     return true;
 }
 
 function cache_apc_get(string $key, mixed $default = null): mixed
 {
-    $normalized_key = cache_apc_normalize_key($key);
-    cache_apc_require_available();
+    $normalized_key = cache_apc_internal_normalize_key($key);
+    cache_apc_internal_require_available();
 
     $success = false;
-    $cache_item = apcu_fetch(cache_apc_storage_key($normalized_key), $success);
+    $cache_item = apcu_fetch(cache_apc_internal_storage_key($normalized_key), $success);
     if (! $success) {
         return $default;
     }
 
-    if (! cache_apc_item_is_valid($cache_item) || $cache_item['key'] !== $normalized_key || cache_apc_item_is_expired($cache_item)) {
+    if (! cache_apc_internal_item_is_valid($cache_item) || $cache_item['key'] !== $normalized_key || cache_apc_internal_item_is_expired($cache_item)) {
         cache_apc_delete($normalized_key);
 
         return $default;
@@ -71,20 +71,20 @@ function cache_apc_get(string $key, mixed $default = null): mixed
 
 function cache_apc_has(string $key): bool
 {
-    $normalized_key = cache_apc_normalize_key($key);
-    cache_apc_require_available();
+    $normalized_key = cache_apc_internal_normalize_key($key);
+    cache_apc_internal_require_available();
 
-    if (! apcu_exists(cache_apc_storage_key($normalized_key))) {
+    if (! apcu_exists(cache_apc_internal_storage_key($normalized_key))) {
         return false;
     }
 
     $success = false;
-    $cache_item = apcu_fetch(cache_apc_storage_key($normalized_key), $success);
+    $cache_item = apcu_fetch(cache_apc_internal_storage_key($normalized_key), $success);
     if (! $success) {
         return false;
     }
 
-    if (! cache_apc_item_is_valid($cache_item) || $cache_item['key'] !== $normalized_key || cache_apc_item_is_expired($cache_item)) {
+    if (! cache_apc_internal_item_is_valid($cache_item) || $cache_item['key'] !== $normalized_key || cache_apc_internal_item_is_expired($cache_item)) {
         cache_apc_delete($normalized_key);
 
         return false;
@@ -95,12 +95,12 @@ function cache_apc_has(string $key): bool
 
 function cache_apc_delete(string $key): bool
 {
-    $normalized_key = cache_apc_normalize_key($key);
-    cache_apc_require_available();
+    $normalized_key = cache_apc_internal_normalize_key($key);
+    cache_apc_internal_require_available();
 
-    $deleted = apcu_delete(cache_apc_storage_key($normalized_key));
+    $deleted = apcu_delete(cache_apc_internal_storage_key($normalized_key));
     if ($deleted) {
-        cache_apc_index_remove($normalized_key);
+        cache_apc_internal_index_remove($normalized_key);
     }
 
     return $deleted;
@@ -108,35 +108,35 @@ function cache_apc_delete(string $key): bool
 
 function cache_apc_clear(): bool
 {
-    cache_apc_require_available();
+    cache_apc_internal_require_available();
 
-    $cache_keys = cache_apc_index_values();
+    $cache_keys = cache_apc_internal_index_values();
     foreach ($cache_keys as $cache_key) {
-        apcu_delete(cache_apc_storage_key($cache_key));
+        apcu_delete(cache_apc_internal_storage_key($cache_key));
     }
 
-    apcu_delete(cache_apc_index_key());
+    apcu_delete(cache_apc_internal_index_key());
 
     return true;
 }
 
 function cache_apc_all(): array
 {
-    cache_apc_require_available();
+    cache_apc_internal_require_available();
 
     $cache_values = [];
     $active_keys = [];
-    $cache_keys = cache_apc_index_values();
+    $cache_keys = cache_apc_internal_index_values();
 
     foreach ($cache_keys as $cache_key) {
         $success = false;
-        $cache_item = apcu_fetch(cache_apc_storage_key($cache_key), $success);
+        $cache_item = apcu_fetch(cache_apc_internal_storage_key($cache_key), $success);
         if (! $success) {
             continue;
         }
 
-        if (! cache_apc_item_is_valid($cache_item) || cache_apc_item_is_expired($cache_item)) {
-            apcu_delete(cache_apc_storage_key($cache_key));
+        if (! cache_apc_internal_item_is_valid($cache_item) || cache_apc_internal_item_is_expired($cache_item)) {
+            apcu_delete(cache_apc_internal_storage_key($cache_key));
 
             continue;
         }
@@ -145,7 +145,7 @@ function cache_apc_all(): array
         $cache_values[$cache_key] = $cache_item['value'];
     }
 
-    cache_apc_index_write($active_keys);
+    cache_apc_internal_index_write($active_keys);
 
     return $cache_values;
 }
@@ -156,7 +156,7 @@ function cache_apc_count(): int
 }
 
 /** Private */
-function cache_apc_require_available(): void
+function cache_apc_internal_require_available(): void
 {
     if (cache_apc_available()) {
         return;
@@ -165,7 +165,7 @@ function cache_apc_require_available(): void
     throw new \RuntimeException('APCu extension is not available or enabled.');
 }
 
-function cache_apc_item_is_valid(mixed $cache_item): bool
+function cache_apc_internal_item_is_valid(mixed $cache_item): bool
 {
     if (! is_array($cache_item)) {
         return false;
@@ -190,7 +190,7 @@ function cache_apc_item_is_valid(mixed $cache_item): bool
     return is_int($expires_at);
 }
 
-function cache_apc_item_is_expired(array $cache_item): bool
+function cache_apc_internal_item_is_expired(array $cache_item): bool
 {
     $expires_at = $cache_item['expires_at'] ?? null;
 
@@ -205,7 +205,7 @@ function cache_apc_item_is_expired(array $cache_item): bool
     return $expires_at <= time();
 }
 
-function cache_apc_expiration_timestamp(int $ttl_seconds): ?int
+function cache_apc_internal_expiration_timestamp(int $ttl_seconds): ?int
 {
     if ($ttl_seconds <= 0) {
         return null;
@@ -214,7 +214,7 @@ function cache_apc_expiration_timestamp(int $ttl_seconds): ?int
     return time() + $ttl_seconds;
 }
 
-function cache_apc_normalize_key(string $key): string
+function cache_apc_internal_normalize_key(string $key): string
 {
     $normalized_key = trim($key);
 
@@ -225,25 +225,25 @@ function cache_apc_normalize_key(string $key): string
     return $normalized_key;
 }
 
-function cache_apc_storage_key(string $key): string
+function cache_apc_internal_storage_key(string $key): string
 {
-    return cache_apc_storage_prefix().$key;
+    return cache_apc_internal_storage_prefix().$key;
 }
 
-function cache_apc_storage_prefix(): string
+function cache_apc_internal_storage_prefix(): string
 {
     return 'harbor:cache:apc:item:';
 }
 
-function cache_apc_index_key(): string
+function cache_apc_internal_index_key(): string
 {
     return 'harbor:cache:apc:index';
 }
 
-function cache_apc_index_values(): array
+function cache_apc_internal_index_values(): array
 {
     $success = false;
-    $stored_index = apcu_fetch(cache_apc_index_key(), $success);
+    $stored_index = apcu_fetch(cache_apc_internal_index_key(), $success);
     if (! $success || ! is_array($stored_index) || empty($stored_index)) {
         return [];
     }
@@ -266,31 +266,31 @@ function cache_apc_index_values(): array
     return array_values(array_unique($cache_keys));
 }
 
-function cache_apc_index_write(array $cache_keys): void
+function cache_apc_internal_index_write(array $cache_keys): void
 {
-    apcu_store(cache_apc_index_key(), array_values(array_unique($cache_keys)));
+    apcu_store(cache_apc_internal_index_key(), array_values(array_unique($cache_keys)));
 }
 
-function cache_apc_index_add(string $cache_key): void
+function cache_apc_internal_index_add(string $cache_key): void
 {
-    $cache_keys = cache_apc_index_values();
+    $cache_keys = cache_apc_internal_index_values();
     $cache_keys[] = $cache_key;
-    cache_apc_index_write($cache_keys);
+    cache_apc_internal_index_write($cache_keys);
 }
 
-function cache_apc_index_remove(string $cache_key): void
+function cache_apc_internal_index_remove(string $cache_key): void
 {
-    $cache_keys = cache_apc_index_values();
+    $cache_keys = cache_apc_internal_index_values();
     $remaining_keys = array_values(array_filter(
         $cache_keys,
         static fn (string $existing_cache_key): bool => $existing_cache_key !== $cache_key
     ));
 
     if (empty($remaining_keys)) {
-        apcu_delete(cache_apc_index_key());
+        apcu_delete(cache_apc_internal_index_key());
 
         return;
     }
 
-    cache_apc_index_write($remaining_keys);
+    cache_apc_internal_index_write($remaining_keys);
 }

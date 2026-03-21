@@ -23,13 +23,13 @@ use function Harbor\Support\harbor_is_null;
 /** Public */
 function cache_driver(CacheDriver|string $default_driver = CacheDriver::ARRAY): string
 {
-    $resolved_default_driver = cache_resolve_driver($default_driver);
+    $resolved_default_driver = cache_internal_resolve_driver($default_driver);
     if (harbor_is_null($resolved_default_driver)) {
         $resolved_default_driver = CacheDriver::ARRAY;
     }
 
     $configured_driver = config_resolve('cache.driver', 'cache_driver', $resolved_default_driver->value);
-    $resolved_driver = cache_resolve_driver($configured_driver);
+    $resolved_driver = cache_internal_resolve_driver($configured_driver);
 
     if (harbor_is_null($resolved_driver)) {
         return $resolved_default_driver->value;
@@ -145,7 +145,7 @@ function cache_count(): int
 }
 
 /** Private */
-function cache_resolve_driver(mixed $driver): ?CacheDriver
+function cache_internal_resolve_driver(mixed $driver): ?CacheDriver
 {
     if ($driver instanceof CacheDriver) {
         return $driver;

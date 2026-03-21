@@ -16,11 +16,11 @@ function cache_array_set(string $key, mixed $value, int $ttl_seconds = 0): bool
 {
     global $cache_array;
 
-    $normalized_key = cache_array_normalize_key($key);
+    $normalized_key = cache_array_internal_normalize_key($key);
 
     $cache_array[$normalized_key] = [
         'value' => $value,
-        'expires_at' => cache_array_expiration_timestamp($ttl_seconds),
+        'expires_at' => cache_array_internal_expiration_timestamp($ttl_seconds),
     ];
 
     return true;
@@ -30,14 +30,14 @@ function cache_array_get(string $key, mixed $default = null): mixed
 {
     global $cache_array;
 
-    $normalized_key = cache_array_normalize_key($key);
+    $normalized_key = cache_array_internal_normalize_key($key);
 
     if (! array_key_exists($normalized_key, $cache_array)) {
         return $default;
     }
 
     $cache_item = $cache_array[$normalized_key];
-    if (! cache_array_item_is_valid($cache_item) || cache_array_item_is_expired($cache_item)) {
+    if (! cache_array_internal_item_is_valid($cache_item) || cache_array_internal_item_is_expired($cache_item)) {
         unset($cache_array[$normalized_key]);
 
         return $default;
@@ -50,14 +50,14 @@ function cache_array_has(string $key): bool
 {
     global $cache_array;
 
-    $normalized_key = cache_array_normalize_key($key);
+    $normalized_key = cache_array_internal_normalize_key($key);
 
     if (! array_key_exists($normalized_key, $cache_array)) {
         return false;
     }
 
     $cache_item = $cache_array[$normalized_key];
-    if (! cache_array_item_is_valid($cache_item) || cache_array_item_is_expired($cache_item)) {
+    if (! cache_array_internal_item_is_valid($cache_item) || cache_array_internal_item_is_expired($cache_item)) {
         unset($cache_array[$normalized_key]);
 
         return false;
@@ -70,7 +70,7 @@ function cache_array_delete(string $key): bool
 {
     global $cache_array;
 
-    $normalized_key = cache_array_normalize_key($key);
+    $normalized_key = cache_array_internal_normalize_key($key);
 
     if (! array_key_exists($normalized_key, $cache_array)) {
         return false;
@@ -94,12 +94,12 @@ function cache_array_all(): array
 {
     global $cache_array;
 
-    cache_array_prune_expired();
+    cache_array_internal_prune_expired();
 
     $cache_values = [];
 
     foreach ($cache_array as $cache_key => $cache_item) {
-        if (! cache_array_item_is_valid($cache_item)) {
+        if (! cache_array_internal_item_is_valid($cache_item)) {
             continue;
         }
 
@@ -115,18 +115,18 @@ function cache_array_count(): int
 }
 
 /** Private */
-function cache_array_prune_expired(): void
+function cache_array_internal_prune_expired(): void
 {
     global $cache_array;
 
     foreach ($cache_array as $cache_key => $cache_item) {
-        if (! cache_array_item_is_valid($cache_item) || cache_array_item_is_expired($cache_item)) {
+        if (! cache_array_internal_item_is_valid($cache_item) || cache_array_internal_item_is_expired($cache_item)) {
             unset($cache_array[$cache_key]);
         }
     }
 }
 
-function cache_array_item_is_valid(mixed $cache_item): bool
+function cache_array_internal_item_is_valid(mixed $cache_item): bool
 {
     if (! is_array($cache_item)) {
         return false;
@@ -145,7 +145,7 @@ function cache_array_item_is_valid(mixed $cache_item): bool
     return is_int($expires_at);
 }
 
-function cache_array_item_is_expired(array $cache_item): bool
+function cache_array_internal_item_is_expired(array $cache_item): bool
 {
     $expires_at = $cache_item['expires_at'] ?? null;
 
@@ -160,7 +160,7 @@ function cache_array_item_is_expired(array $cache_item): bool
     return $expires_at <= time();
 }
 
-function cache_array_expiration_timestamp(int $ttl_seconds): ?int
+function cache_array_internal_expiration_timestamp(int $ttl_seconds): ?int
 {
     if ($ttl_seconds <= 0) {
         return null;
@@ -169,7 +169,7 @@ function cache_array_expiration_timestamp(int $ttl_seconds): ?int
     return time() + $ttl_seconds;
 }
 
-function cache_array_normalize_key(string $key): string
+function cache_array_internal_normalize_key(string $key): string
 {
     $normalized_key = trim($key);
 
