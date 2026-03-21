@@ -22,14 +22,14 @@ use function Harbor\Support\harbor_is_null;
  */
 function query_builder_compile(QueryBuilder $builder, ?string $driver = null): array
 {
-    $resolved_driver = query_builder_resolve_driver($driver);
+    $resolved_driver = query_builder_internal_resolve_driver($driver);
     $state = $builder->state();
 
     $compiled = match ($state['type'] ?? null) {
-        'select' => query_builder_compile_select($state, $resolved_driver),
-        'insert' => query_builder_compile_insert($state, $resolved_driver),
-        'update' => query_builder_compile_update($state, $resolved_driver),
-        'delete' => query_builder_compile_delete($state, $resolved_driver),
+        'select' => query_builder_internal_compile_select($state, $resolved_driver),
+        'insert' => query_builder_internal_compile_insert($state, $resolved_driver),
+        'update' => query_builder_internal_compile_update($state, $resolved_driver),
+        'delete' => query_builder_internal_compile_delete($state, $resolved_driver),
         default => throw new \InvalidArgumentException(
             sprintf('Unsupported query builder type "%s".', (string) ($state['type'] ?? ''))
         ),
@@ -64,7 +64,7 @@ function query_builder_interpolate_bindings(string $statement, array $bindings):
     $sql = array_shift($segments);
 
     foreach ($bindings as $index => $binding) {
-        $sql .= query_builder_literal($binding).($segments[$index] ?? '');
+        $sql .= query_builder_internal_literal($binding).($segments[$index] ?? '');
     }
 
     return $sql;
@@ -76,13 +76,13 @@ function query_builder_interpolate_bindings(string $statement, array $bindings):
  *
  * @return array{statement: string, bindings: array<int, mixed>}
  */
-function query_builder_compile_select(array $state, string $driver): array
+function query_builder_internal_compile_select(array $state, string $driver): array
 {
     $bindings = [];
-    $columns_sql = query_builder_compile_select_columns($state, $driver, $bindings);
-    $from_sql = query_builder_compile_select_from($state, $driver, $bindings);
+    $columns_sql = query_builder_internal_compile_select_columns($state, $driver, $bindings);
+    $from_sql = query_builder_internal_compile_select_from($state, $driver, $bindings);
 
-    $lock_sql = query_builder_compile_lock($state['lock'] ?? [], $driver);
+    $lock_sql = query_builder_internal_compile_lock($state['lock'] ?? [], $driver);
 
     $sql = 'SELECT';
     if (! harbor_is_blank($lock_sql['prefix'])) {
@@ -95,27 +95,27 @@ function query_builder_compile_select(array $state, string $driver): array
 
     $sql .= ' '.$columns_sql.' FROM '.$from_sql;
 
-    $joins_sql = query_builder_compile_joins($state['joins'] ?? [], $driver, $bindings);
+    $joins_sql = query_builder_internal_compile_joins($state['joins'] ?? [], $driver, $bindings);
     if (! harbor_is_blank($joins_sql)) {
         $sql .= ' '.$joins_sql;
     }
 
-    $where_sql = query_builder_compile_conditions($state['wheres'] ?? [], $driver, $bindings);
+    $where_sql = query_builder_internal_compile_conditions($state['wheres'] ?? [], $driver, $bindings);
     if (! harbor_is_blank($where_sql)) {
         $sql .= ' WHERE '.$where_sql;
     }
 
-    $group_sql = query_builder_compile_group_by($state['groups'] ?? []);
+    $group_sql = query_builder_internal_compile_group_by($state['groups'] ?? []);
     if (! harbor_is_blank($group_sql)) {
         $sql .= ' '.$group_sql;
     }
 
-    $having_sql = query_builder_compile_conditions($state['havings'] ?? [], $driver, $bindings);
+    $having_sql = query_builder_internal_compile_conditions($state['havings'] ?? [], $driver, $bindings);
     if (! harbor_is_blank($having_sql)) {
         $sql .= ' HAVING '.$having_sql;
     }
 
-    $order_sql = query_builder_compile_order_by($state['orders'] ?? []);
+    $order_sql = query_builder_internal_compile_order_by($state['orders'] ?? []);
     if (! harbor_is_blank($order_sql)) {
         $sql .= ' '.$order_sql;
     }
@@ -174,7 +174,7 @@ function query_builder_compile_select(array $state, string $driver): array
  *
  * @return array{statement: string, bindings: array<int, mixed>}
  */
-function query_builder_compile_insert(array $state, string $driver): array
+function query_builder_internal_compile_insert(array $state, string $driver): array
 {
     $table = $state['table'] ?? null;
     if (! is_string($table) || harbor_is_blank($table)) {
@@ -187,7 +187,7 @@ function query_builder_compile_insert(array $state, string $driver): array
 
     $upsert = $state['upsert'] ?? null;
     if (is_array($upsert)) {
-        return query_builder_compile_upsert($state, $driver);
+        return query_builder_internal_compile_upsert($state, $driver);
     }
 
     $rows = $state['insert_rows'] ?? [];
@@ -195,7 +195,7 @@ function query_builder_compile_insert(array $state, string $driver): array
         throw new \InvalidArgumentException('Insert query requires values() or rows().');
     }
 
-    [$columns, $normalized_rows] = query_builder_normalize_insert_rows($rows);
+    [$columns, $normalized_rows] = query_builder_internal_normalize_insert_rows($rows);
 
     $bindings = [];
     $placeholder_chunks = [];
@@ -217,12 +217,12 @@ function query_builder_compile_insert(array $state, string $driver): array
     $sql = sprintf(
         '%s %s (%s) VALUES %s',
         $insert_keyword,
-        query_builder_quote_identifier_path($table),
-        implode(', ', array_map('Harbor\Database\query_builder_quote_identifier_path', $columns)),
+        query_builder_internal_quote_identifier_path($table),
+        implode(', ', array_map('Harbor\Database\query_builder_internal_quote_identifier_path', $columns)),
         implode(', ', $placeholder_chunks)
     );
 
-    $sql .= query_builder_compile_returning($state['returning'] ?? [], $driver);
+    $sql .= query_builder_internal_compile_returning($state['returning'] ?? [], $driver);
 
     return [
         'statement' => $sql,
@@ -235,7 +235,7 @@ function query_builder_compile_insert(array $state, string $driver): array
  *
  * @return array{statement: string, bindings: array<int, mixed>}
  */
-function query_builder_compile_update(array $state, string $driver): array
+function query_builder_internal_compile_update(array $state, string $driver): array
 {
     $table = $state['table'] ?? null;
     if (! is_string($table) || harbor_is_blank($table)) {
@@ -255,7 +255,7 @@ function query_builder_compile_update(array $state, string $driver): array
             throw new \InvalidArgumentException('Invalid update operation payload.');
         }
 
-        $column = query_builder_quote_identifier_path((string) ($update['column'] ?? ''));
+        $column = query_builder_internal_quote_identifier_path((string) ($update['column'] ?? ''));
         $type = (string) ($update['type'] ?? '');
 
         if ('set' === $type) {
@@ -286,16 +286,16 @@ function query_builder_compile_update(array $state, string $driver): array
 
     $sql = sprintf(
         'UPDATE %s SET %s',
-        query_builder_quote_identifier_path($table),
+        query_builder_internal_quote_identifier_path($table),
         implode(', ', $set_fragments)
     );
 
-    $where_sql = query_builder_compile_conditions($state['wheres'] ?? [], $driver, $bindings);
+    $where_sql = query_builder_internal_compile_conditions($state['wheres'] ?? [], $driver, $bindings);
     if (! harbor_is_blank($where_sql)) {
         $sql .= ' WHERE '.$where_sql;
     }
 
-    $sql .= query_builder_compile_returning($state['returning'] ?? [], $driver);
+    $sql .= query_builder_internal_compile_returning($state['returning'] ?? [], $driver);
 
     return [
         'statement' => $sql,
@@ -308,7 +308,7 @@ function query_builder_compile_update(array $state, string $driver): array
  *
  * @return array{statement: string, bindings: array<int, mixed>}
  */
-function query_builder_compile_delete(array $state, string $driver): array
+function query_builder_internal_compile_delete(array $state, string $driver): array
 {
     $table = $state['table'] ?? null;
     if (! is_string($table) || harbor_is_blank($table)) {
@@ -325,13 +325,13 @@ function query_builder_compile_delete(array $state, string $driver): array
         throw new \InvalidArgumentException('Delete query without where() requires allow_full_table(true).');
     }
 
-    $sql = 'DELETE FROM '.query_builder_quote_identifier_path($table);
-    $where_sql = query_builder_compile_conditions($wheres, $driver, $bindings);
+    $sql = 'DELETE FROM '.query_builder_internal_quote_identifier_path($table);
+    $where_sql = query_builder_internal_compile_conditions($wheres, $driver, $bindings);
     if (! harbor_is_blank($where_sql)) {
         $sql .= ' WHERE '.$where_sql;
     }
 
-    $sql .= query_builder_compile_returning($state['returning'] ?? [], $driver);
+    $sql .= query_builder_internal_compile_returning($state['returning'] ?? [], $driver);
 
     return [
         'statement' => $sql,
@@ -343,20 +343,20 @@ function query_builder_compile_delete(array $state, string $driver): array
  * @param array<string, mixed> $state
  * @param array<int, mixed>    $bindings
  */
-function query_builder_compile_select_columns(array $state, string $driver, array &$bindings): string
+function query_builder_internal_compile_select_columns(array $state, string $driver, array &$bindings): string
 {
     $aggregate = $state['aggregate'] ?? null;
     if (is_array($aggregate) && ! harbor_is_blank((string) ($aggregate['function'] ?? null))) {
         $function_name = strtoupper((string) $aggregate['function']);
         $column = (string) ($aggregate['column'] ?? '*');
         $alias = (string) ($aggregate['alias'] ?? strtolower($function_name));
-        $column_sql = '*' === $column ? '*' : query_builder_quote_identifier_path($column);
+        $column_sql = '*' === $column ? '*' : query_builder_internal_quote_identifier_path($column);
 
         return sprintf(
             '%s(%s) AS %s',
             $function_name,
             $column_sql,
-            query_builder_quote_identifier($alias)
+            query_builder_internal_quote_identifier($alias)
         );
     }
 
@@ -375,7 +375,7 @@ function query_builder_compile_select_columns(array $state, string $driver, arra
         $type = (string) ($column['type'] ?? '');
 
         if ('column' === $type) {
-            $compiled_columns[] = query_builder_compile_column_token((string) ($column['value'] ?? ''));
+            $compiled_columns[] = query_builder_internal_compile_column_token((string) ($column['value'] ?? ''));
 
             continue;
         }
@@ -386,7 +386,7 @@ function query_builder_compile_select_columns(array $state, string $driver, arra
                 throw new \InvalidArgumentException('Invalid select raw expression payload.');
             }
 
-            $compiled_columns[] = query_builder_compile_expression_sql($expression, $bindings);
+            $compiled_columns[] = query_builder_internal_compile_expression_sql($expression, $bindings);
 
             continue;
         }
@@ -402,7 +402,7 @@ function query_builder_compile_select_columns(array $state, string $driver, arra
             $compiled_columns[] = sprintf(
                 '(%s) AS %s',
                 $compiled_sub['statement'],
-                query_builder_quote_identifier($alias)
+                query_builder_internal_quote_identifier($alias)
             );
 
             foreach ($compiled_sub['bindings'] as $binding) {
@@ -422,7 +422,7 @@ function query_builder_compile_select_columns(array $state, string $driver, arra
  * @param array<string, mixed> $state
  * @param array<int, mixed>    $bindings
  */
-function query_builder_compile_select_from(array $state, string $driver, array &$bindings): string
+function query_builder_internal_compile_select_from(array $state, string $driver, array &$bindings): string
 {
     $from_sub = $state['from_sub'] ?? null;
     if (is_array($from_sub)) {
@@ -440,7 +440,7 @@ function query_builder_compile_select_from(array $state, string $driver, array &
         return sprintf(
             '(%s) AS %s',
             $compiled_sub['statement'],
-            query_builder_quote_identifier($alias)
+            query_builder_internal_quote_identifier($alias)
         );
     }
 
@@ -449,11 +449,11 @@ function query_builder_compile_select_from(array $state, string $driver, array &
         throw new \InvalidArgumentException('Query requires table source.');
     }
 
-    $sql = query_builder_quote_identifier_path($table);
+    $sql = query_builder_internal_quote_identifier_path($table);
 
     $alias = $state['alias'] ?? null;
     if (is_string($alias) && ! harbor_is_blank($alias)) {
-        $sql .= ' AS '.query_builder_quote_identifier($alias);
+        $sql .= ' AS '.query_builder_internal_quote_identifier($alias);
     }
 
     return $sql;
@@ -463,7 +463,7 @@ function query_builder_compile_select_from(array $state, string $driver, array &
  * @param array<int, array<string, mixed>> $joins
  * @param array<int, mixed>                $bindings
  */
-function query_builder_compile_joins(array $joins, string $driver, array &$bindings): string
+function query_builder_internal_compile_joins(array $joins, string $driver, array &$bindings): string
 {
     if (empty($joins)) {
         return '';
@@ -493,12 +493,12 @@ function query_builder_compile_joins(array $joins, string $driver, array &$bindi
                 throw new \InvalidArgumentException('Join table cannot be empty.');
             }
 
-            $join_sql = sprintf('%s %s', $join_keyword, query_builder_quote_identifier_path($table));
+            $join_sql = sprintf('%s %s', $join_keyword, query_builder_internal_quote_identifier_path($table));
 
             if ('cross' !== $join_type) {
-                $left = query_builder_quote_identifier_path((string) ($join['left'] ?? ''));
-                $operator = query_builder_normalize_operator((string) ($join['operator'] ?? ''));
-                $right = query_builder_quote_identifier_path((string) ($join['right'] ?? ''));
+                $left = query_builder_internal_quote_identifier_path((string) ($join['left'] ?? ''));
+                $operator = query_builder_internal_normalize_operator((string) ($join['operator'] ?? ''));
+                $right = query_builder_internal_quote_identifier_path((string) ($join['right'] ?? ''));
 
                 $join_sql .= sprintf(' ON %s %s %s', $left, $operator, $right);
             }
@@ -520,15 +520,15 @@ function query_builder_compile_joins(array $joins, string $driver, array &$bindi
                 $bindings[] = $binding;
             }
 
-            $left = query_builder_quote_identifier_path((string) ($join['left'] ?? ''));
-            $operator = query_builder_normalize_operator((string) ($join['operator'] ?? ''));
-            $right = query_builder_quote_identifier_path((string) ($join['right'] ?? ''));
+            $left = query_builder_internal_quote_identifier_path((string) ($join['left'] ?? ''));
+            $operator = query_builder_internal_normalize_operator((string) ($join['operator'] ?? ''));
+            $right = query_builder_internal_quote_identifier_path((string) ($join['right'] ?? ''));
 
             $compiled_joins[] = sprintf(
                 '%s (%s) AS %s ON %s %s %s',
                 $join_keyword,
                 $compiled_sub['statement'],
-                query_builder_quote_identifier($alias),
+                query_builder_internal_quote_identifier($alias),
                 $left,
                 $operator,
                 $right
@@ -547,7 +547,7 @@ function query_builder_compile_joins(array $joins, string $driver, array &$bindi
  * @param array<int, array<string, mixed>> $conditions
  * @param array<int, mixed>                $bindings
  */
-function query_builder_compile_conditions(array $conditions, string $driver, array &$bindings): string
+function query_builder_internal_compile_conditions(array $conditions, string $driver, array &$bindings): string
 {
     if (empty($conditions)) {
         return '';
@@ -560,7 +560,7 @@ function query_builder_compile_conditions(array $conditions, string $driver, arr
             throw new \InvalidArgumentException('Invalid condition payload.');
         }
 
-        $compiled_condition = query_builder_compile_condition($condition, $driver, $bindings);
+        $compiled_condition = query_builder_internal_compile_condition($condition, $driver, $bindings);
         $boolean = strtoupper((string) ($condition['boolean'] ?? 'AND'));
         if (! in_array($boolean, ['AND', 'OR'], true)) {
             throw new \InvalidArgumentException(sprintf('Unsupported condition boolean "%s".', $boolean));
@@ -582,28 +582,28 @@ function query_builder_compile_conditions(array $conditions, string $driver, arr
  * @param array<string, mixed> $condition
  * @param array<int, mixed>    $bindings
  */
-function query_builder_compile_condition(array $condition, string $driver, array &$bindings): string
+function query_builder_internal_compile_condition(array $condition, string $driver, array &$bindings): string
 {
     $type = (string) ($condition['type'] ?? '');
 
     if ('basic' === $type) {
-        $column = query_builder_quote_identifier_path((string) ($condition['column'] ?? ''));
-        $operator = query_builder_normalize_operator((string) ($condition['operator'] ?? ''));
+        $column = query_builder_internal_quote_identifier_path((string) ($condition['column'] ?? ''));
+        $operator = query_builder_internal_normalize_operator((string) ($condition['operator'] ?? ''));
         $bindings[] = $condition['value'] ?? null;
 
         return sprintf('%s %s ?', $column, $operator);
     }
 
     if ('column' === $type) {
-        $left = query_builder_quote_identifier_path((string) ($condition['left'] ?? ''));
-        $operator = query_builder_normalize_operator((string) ($condition['operator'] ?? ''));
-        $right = query_builder_quote_identifier_path((string) ($condition['right'] ?? ''));
+        $left = query_builder_internal_quote_identifier_path((string) ($condition['left'] ?? ''));
+        $operator = query_builder_internal_normalize_operator((string) ($condition['operator'] ?? ''));
+        $right = query_builder_internal_quote_identifier_path((string) ($condition['right'] ?? ''));
 
         return sprintf('%s %s %s', $left, $operator, $right);
     }
 
     if ('like' === $type) {
-        $column = query_builder_quote_identifier_path((string) ($condition['column'] ?? ''));
+        $column = query_builder_internal_quote_identifier_path((string) ($condition['column'] ?? ''));
         $case_sensitive = (bool) ($condition['case_sensitive'] ?? false);
         $bindings[] = $condition['pattern'] ?? '';
 
@@ -619,7 +619,7 @@ function query_builder_compile_condition(array $condition, string $driver, array
     }
 
     if ('in' === $type || 'not_in' === $type) {
-        $column = query_builder_quote_identifier_path((string) ($condition['column'] ?? ''));
+        $column = query_builder_internal_quote_identifier_path((string) ($condition['column'] ?? ''));
         $values = $condition['values'] ?? [];
         if (! is_array($values) || empty($values)) {
             throw new \InvalidArgumentException('IN condition requires at least one value.');
@@ -636,14 +636,14 @@ function query_builder_compile_condition(array $condition, string $driver, array
     }
 
     if ('null' === $type) {
-        $column = query_builder_quote_identifier_path((string) ($condition['column'] ?? ''));
+        $column = query_builder_internal_quote_identifier_path((string) ($condition['column'] ?? ''));
         $not = (bool) ($condition['not'] ?? false);
 
         return sprintf('%s IS %sNULL', $column, $not ? 'NOT ' : '');
     }
 
     if ('between' === $type) {
-        $column = query_builder_quote_identifier_path((string) ($condition['column'] ?? ''));
+        $column = query_builder_internal_quote_identifier_path((string) ($condition['column'] ?? ''));
         $bindings[] = $condition['from'] ?? null;
         $bindings[] = $condition['to'] ?? null;
 
@@ -656,7 +656,7 @@ function query_builder_compile_condition(array $condition, string $driver, array
             throw new \InvalidArgumentException('Invalid raw condition expression payload.');
         }
 
-        $sql = query_builder_compile_expression_sql($expression, $bindings);
+        $sql = query_builder_internal_compile_expression_sql($expression, $bindings);
 
         return '('.$sql.')';
     }
@@ -667,7 +667,7 @@ function query_builder_compile_condition(array $condition, string $driver, array
             throw new \InvalidArgumentException('where_group() condition cannot be empty.');
         }
 
-        $nested_sql = query_builder_compile_conditions($nested_conditions, $driver, $bindings);
+        $nested_sql = query_builder_internal_compile_conditions($nested_conditions, $driver, $bindings);
 
         return '('.$nested_sql.')';
     }
@@ -689,7 +689,7 @@ function query_builder_compile_condition(array $condition, string $driver, array
     }
 
     if ('in_sub' === $type) {
-        $column = query_builder_quote_identifier_path((string) ($condition['column'] ?? ''));
+        $column = query_builder_internal_quote_identifier_path((string) ($condition['column'] ?? ''));
         $query = $condition['query'] ?? null;
         if (! $query instanceof QueryBuilder) {
             throw new \InvalidArgumentException('Invalid in_sub condition payload.');
@@ -712,8 +712,8 @@ function query_builder_compile_condition(array $condition, string $driver, array
 
     if ('date_part' === $type) {
         $part = strtolower((string) ($condition['part'] ?? ''));
-        $column = query_builder_quote_identifier_path((string) ($condition['column'] ?? ''));
-        $operator = query_builder_normalize_operator((string) ($condition['operator'] ?? '='));
+        $column = query_builder_internal_quote_identifier_path((string) ($condition['column'] ?? ''));
+        $operator = query_builder_internal_normalize_operator((string) ($condition['operator'] ?? '='));
 
         $expression = match ($part) {
             'date' => sprintf('DATE(%s)', $column),
@@ -742,13 +742,13 @@ function query_builder_compile_condition(array $condition, string $driver, array
 /**
  * @param array<int, string> $groups
  */
-function query_builder_compile_group_by(array $groups): string
+function query_builder_internal_compile_group_by(array $groups): string
 {
     if (empty($groups)) {
         return '';
     }
 
-    $compiled_groups = array_map('Harbor\Database\query_builder_quote_identifier_path', $groups);
+    $compiled_groups = array_map('Harbor\Database\query_builder_internal_quote_identifier_path', $groups);
 
     return 'GROUP BY '.implode(', ', $compiled_groups);
 }
@@ -756,7 +756,7 @@ function query_builder_compile_group_by(array $groups): string
 /**
  * @param array<int, array<string, mixed>> $orders
  */
-function query_builder_compile_order_by(array $orders): string
+function query_builder_internal_compile_order_by(array $orders): string
 {
     if (empty($orders)) {
         return '';
@@ -772,7 +772,7 @@ function query_builder_compile_order_by(array $orders): string
         $type = (string) ($order['type'] ?? '');
 
         if ('basic' === $type) {
-            $column = query_builder_quote_identifier_path((string) ($order['column'] ?? ''));
+            $column = query_builder_internal_quote_identifier_path((string) ($order['column'] ?? ''));
             $direction = strtoupper((string) ($order['direction'] ?? 'ASC'));
             if (! in_array($direction, ['ASC', 'DESC'], true)) {
                 throw new \InvalidArgumentException(sprintf('Unsupported order direction "%s".', $direction));
@@ -809,7 +809,7 @@ function query_builder_compile_order_by(array $orders): string
  *
  * @return array{statement: string, bindings: array<int, mixed>}
  */
-function query_builder_compile_upsert(array $state, string $driver): array
+function query_builder_internal_compile_upsert(array $state, string $driver): array
 {
     $table = (string) ($state['table'] ?? '');
     if (harbor_is_blank($table)) {
@@ -826,7 +826,7 @@ function query_builder_compile_upsert(array $state, string $driver): array
         throw new \InvalidArgumentException('Upsert requires at least one row.');
     }
 
-    [$columns, $normalized_rows] = query_builder_normalize_insert_rows($rows);
+    [$columns, $normalized_rows] = query_builder_internal_normalize_insert_rows($rows);
 
     $bindings = [];
     $value_chunks = [];
@@ -841,8 +841,8 @@ function query_builder_compile_upsert(array $state, string $driver): array
 
     $sql = sprintf(
         'INSERT INTO %s (%s) VALUES %s',
-        query_builder_quote_identifier_path($table),
-        implode(', ', array_map('Harbor\Database\query_builder_quote_identifier_path', $columns)),
+        query_builder_internal_quote_identifier_path($table),
+        implode(', ', array_map('Harbor\Database\query_builder_internal_quote_identifier_path', $columns)),
         implode(', ', $value_chunks)
     );
 
@@ -858,7 +858,7 @@ function query_builder_compile_upsert(array $state, string $driver): array
         }
 
         $quoted_conflict_columns = array_map(
-            'Harbor\Database\query_builder_quote_identifier_path',
+            'Harbor\Database\query_builder_internal_quote_identifier_path',
             $on_conflict
         );
         $sql .= sprintf(' ON CONFLICT (%s)', implode(', ', $quoted_conflict_columns));
@@ -875,7 +875,7 @@ function query_builder_compile_upsert(array $state, string $driver): array
                     throw new \InvalidArgumentException('SQLite upsert update columns must be non-empty strings.');
                 }
 
-                $quoted_column = query_builder_quote_identifier_path($column);
+                $quoted_column = query_builder_internal_quote_identifier_path($column);
                 $assignments[] = sprintf('%s = excluded.%s', $quoted_column, $quoted_column);
             }
 
@@ -894,14 +894,14 @@ function query_builder_compile_upsert(array $state, string $driver): array
                 throw new \InvalidArgumentException('MySQL upsert update columns must be non-empty strings.');
             }
 
-            $quoted_column = query_builder_quote_identifier_path($column);
+            $quoted_column = query_builder_internal_quote_identifier_path($column);
             $assignments[] = sprintf('%s = VALUES(%s)', $quoted_column, $quoted_column);
         }
 
         $sql .= ' ON DUPLICATE KEY UPDATE '.implode(', ', $assignments);
     }
 
-    $sql .= query_builder_compile_returning($state['returning'] ?? [], $driver);
+    $sql .= query_builder_internal_compile_returning($state['returning'] ?? [], $driver);
 
     return [
         'statement' => $sql,
@@ -912,7 +912,7 @@ function query_builder_compile_upsert(array $state, string $driver): array
 /**
  * @return array{0: array<int, string>, 1: array<int, array<string, mixed>>}
  */
-function query_builder_normalize_insert_rows(mixed $rows): array
+function query_builder_internal_normalize_insert_rows(mixed $rows): array
 {
     if (! is_array($rows) || empty($rows)) {
         throw new \InvalidArgumentException('Insert rows cannot be empty.');
@@ -932,7 +932,7 @@ function query_builder_normalize_insert_rows(mixed $rows): array
                 throw new \InvalidArgumentException('Insert row columns must be non-empty strings.');
             }
 
-            $normalized_column = query_builder_validate_identifier_path($column, 'insert column');
+            $normalized_column = query_builder_internal_validate_identifier_path($column, 'insert column');
             $normalized_row[$normalized_column] = $value;
         }
 
@@ -954,7 +954,7 @@ function query_builder_normalize_insert_rows(mixed $rows): array
 /**
  * @return array{prefix: string, suffix: string}
  */
-function query_builder_compile_lock(mixed $lock, string $driver): array
+function query_builder_internal_compile_lock(mixed $lock, string $driver): array
 {
     if (! is_array($lock)) {
         return ['prefix' => '', 'suffix' => ''];
@@ -1000,7 +1000,7 @@ function query_builder_compile_lock(mixed $lock, string $driver): array
     ];
 }
 
-function query_builder_compile_returning(mixed $returning, string $driver): string
+function query_builder_internal_compile_returning(mixed $returning, string $driver): string
 {
     if (! is_array($returning) || empty($returning)) {
         return '';
@@ -1018,7 +1018,7 @@ function query_builder_compile_returning(mixed $returning, string $driver): stri
             throw new \InvalidArgumentException('Returning columns must be non-empty strings.');
         }
 
-        $quoted_columns[] = query_builder_quote_identifier_path($column);
+        $quoted_columns[] = query_builder_internal_quote_identifier_path($column);
     }
 
     return ' RETURNING '.implode(', ', $quoted_columns);
@@ -1027,7 +1027,7 @@ function query_builder_compile_returning(mixed $returning, string $driver): stri
 /**
  * @param array<int, mixed> $bindings
  */
-function query_builder_compile_expression_sql(mixed $expression, array &$bindings): string
+function query_builder_internal_compile_expression_sql(mixed $expression, array &$bindings): string
 {
     if (! $expression instanceof QueryExpression) {
         throw new \InvalidArgumentException('Raw expression payload must be a QueryExpression instance.');
@@ -1040,7 +1040,7 @@ function query_builder_compile_expression_sql(mixed $expression, array &$binding
     return $expression->sql();
 }
 
-function query_builder_compile_column_token(string $token): string
+function query_builder_internal_compile_column_token(string $token): string
 {
     $normalized_token = trim($token);
     if (harbor_is_blank($normalized_token)) {
@@ -1055,32 +1055,32 @@ function query_builder_compile_column_token(string $token): string
             );
         }
 
-        $source = query_builder_quote_identifier_path(trim($parts[0]));
-        $alias = query_builder_quote_identifier(trim($parts[1]));
+        $source = query_builder_internal_quote_identifier_path(trim($parts[0]));
+        $alias = query_builder_internal_quote_identifier(trim($parts[1]));
 
         return sprintf('%s AS %s', $source, $alias);
     }
 
-    return query_builder_quote_identifier_path($normalized_token);
+    return query_builder_internal_quote_identifier_path($normalized_token);
 }
 
-function query_builder_resolve_driver(?string $driver = null): string
+function query_builder_internal_resolve_driver(?string $driver = null): string
 {
     if (is_string($driver) && ! harbor_is_blank(trim($driver))) {
-        return query_builder_normalize_driver($driver);
+        return query_builder_internal_normalize_driver($driver);
     }
 
     if (function_exists('Harbor\Database\db_driver')) {
         /** @var string $resolved */
         $resolved = db_driver();
 
-        return query_builder_normalize_driver($resolved);
+        return query_builder_internal_normalize_driver($resolved);
     }
 
     return 'sqlite';
 }
 
-function query_builder_normalize_driver(string $driver): string
+function query_builder_internal_normalize_driver(string $driver): string
 {
     $normalized_driver = strtolower(trim($driver));
 
@@ -1092,7 +1092,7 @@ function query_builder_normalize_driver(string $driver): string
     };
 }
 
-function query_builder_normalize_operator(string $operator): string
+function query_builder_internal_normalize_operator(string $operator): string
 {
     $normalized_operator = strtoupper(trim($operator));
     $allowed_operators = [
@@ -1108,9 +1108,9 @@ function query_builder_normalize_operator(string $operator): string
     return $normalized_operator;
 }
 
-function query_builder_quote_identifier_path(string $identifier): string
+function query_builder_internal_quote_identifier_path(string $identifier): string
 {
-    $normalized_identifier = query_builder_validate_identifier_path($identifier);
+    $normalized_identifier = query_builder_internal_validate_identifier_path($identifier);
 
     if ('*' === $normalized_identifier) {
         return '*';
@@ -1126,13 +1126,13 @@ function query_builder_quote_identifier_path(string $identifier): string
             continue;
         }
 
-        $quoted_parts[] = query_builder_quote_identifier($part);
+        $quoted_parts[] = query_builder_internal_quote_identifier($part);
     }
 
     return implode('.', $quoted_parts);
 }
 
-function query_builder_quote_identifier(string $identifier): string
+function query_builder_internal_quote_identifier(string $identifier): string
 {
     $normalized_identifier = trim($identifier);
     if (harbor_is_blank($normalized_identifier)) {
@@ -1148,7 +1148,7 @@ function query_builder_quote_identifier(string $identifier): string
     return sprintf('`%s`', str_replace('`', '``', $normalized_identifier));
 }
 
-function query_builder_validate_identifier_path(string $identifier, string $label = 'identifier'): string
+function query_builder_internal_validate_identifier_path(string $identifier, string $label = 'identifier'): string
 {
     $normalized_identifier = trim($identifier);
     if (harbor_is_blank($normalized_identifier)) {
@@ -1182,7 +1182,7 @@ function query_builder_validate_identifier_path(string $identifier, string $labe
     return $normalized_identifier;
 }
 
-function query_builder_literal(mixed $value): string
+function query_builder_internal_literal(mixed $value): string
 {
     if (harbor_is_null($value)) {
         return 'NULL';

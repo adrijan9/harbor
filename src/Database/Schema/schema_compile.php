@@ -17,14 +17,14 @@ use function Harbor\Support\harbor_is_null;
  */
 function schema_compile_statements(array $builder, string $driver, ?array $version_payload = null): array
 {
-    $normalized_builder = schema_compile_normalize_builder($builder);
-    $normalized_driver = schema_compile_normalize_driver($driver);
+    $normalized_builder = schema_compile_internal_normalize_builder($builder);
+    $normalized_driver = schema_compile_internal_normalize_driver($driver);
 
     return match ($normalized_builder['action']) {
-        'create' => schema_compile_create_statements($normalized_builder, $normalized_driver, $version_payload),
-        'alter' => schema_compile_alter_statements($normalized_builder, $normalized_driver, $version_payload),
-        'drop' => [schema_compile_drop_table_statement($normalized_builder, $normalized_driver)],
-        'rename' => [schema_compile_rename_table_statement($normalized_builder)],
+        'create' => schema_compile_internal_create_statements($normalized_builder, $normalized_driver, $version_payload),
+        'alter' => schema_compile_internal_alter_statements($normalized_builder, $normalized_driver, $version_payload),
+        'drop' => [schema_compile_internal_drop_table_statement($normalized_builder, $normalized_driver)],
+        'rename' => [schema_compile_internal_rename_table_statement($normalized_builder)],
         default => throw new \InvalidArgumentException(
             sprintf('Unsupported schema action "%s".', (string) $normalized_builder['action'])
         ),
@@ -44,14 +44,14 @@ function schema_compile_statements(array $builder, string $driver, ?array $versi
  *   operations: array<int, array<string, mixed>>
  * }
  */
-function schema_compile_normalize_builder(array $builder): array
+function schema_compile_internal_normalize_builder(array $builder): array
 {
-    $action = schema_compile_validate_identifier((string) ($builder['action'] ?? ''), 'schema action');
-    $table = schema_compile_validate_identifier((string) ($builder['table'] ?? ''), 'table name');
+    $action = schema_compile_internal_validate_identifier((string) ($builder['action'] ?? ''), 'schema action');
+    $table = schema_compile_internal_validate_identifier((string) ($builder['table'] ?? ''), 'table name');
 
     $target = null;
     if (array_key_exists('target', $builder) && is_string($builder['target'])) {
-        $target = schema_compile_validate_identifier($builder['target'], 'target table name');
+        $target = schema_compile_internal_validate_identifier($builder['target'], 'target table name');
     }
 
     $operations = $builder['operations'] ?? [];
@@ -65,7 +65,7 @@ function schema_compile_normalize_builder(array $builder): array
         'target' => $target,
         'if_exists' => (bool) ($builder['if_exists'] ?? false),
         'if_not_exists' => (bool) ($builder['if_not_exists'] ?? false),
-        'operations' => schema_compile_normalize_operations($operations),
+        'operations' => schema_compile_internal_normalize_operations($operations),
     ];
 }
 
@@ -74,7 +74,7 @@ function schema_compile_normalize_builder(array $builder): array
  *
  * @return array<int, array<string, mixed>>
  */
-function schema_compile_normalize_operations(array $operations): array
+function schema_compile_internal_normalize_operations(array $operations): array
 {
     $normalized = [];
 
@@ -83,7 +83,7 @@ function schema_compile_normalize_operations(array $operations): array
             throw new \InvalidArgumentException('Schema builder operation must be an array.');
         }
 
-        $type = schema_compile_validate_identifier((string) ($operation['type'] ?? ''), 'operation type');
+        $type = schema_compile_internal_validate_identifier((string) ($operation['type'] ?? ''), 'operation type');
         $operation['type'] = $type;
         $normalized[] = $operation;
     }
@@ -91,7 +91,7 @@ function schema_compile_normalize_operations(array $operations): array
     return $normalized;
 }
 
-function schema_compile_normalize_driver(string $driver): string
+function schema_compile_internal_normalize_driver(string $driver): string
 {
     $normalized_driver = strtolower(trim($driver));
 
@@ -116,10 +116,10 @@ function schema_compile_normalize_driver(string $driver): string
  *
  * @return array<int, string>
  */
-function schema_compile_create_statements(array $builder, string $driver, ?array $version_payload = null): array
+function schema_compile_internal_create_statements(array $builder, string $driver, ?array $version_payload = null): array
 {
     $table_name = $builder['table'];
-    $quoted_table = schema_compile_quote_identifier($table_name);
+    $quoted_table = schema_compile_internal_quote_identifier($table_name);
 
     $column_definitions = [];
     $table_constraints = [];
@@ -133,10 +133,10 @@ function schema_compile_create_statements(array $builder, string $driver, ?array
         $type = (string) $operation['type'];
 
         if ('add_column' === $type) {
-            $column_name = schema_compile_validate_identifier((string) ($operation['name'] ?? ''), 'column name');
-            $column = schema_compile_column_payload($operation['column'] ?? null);
+            $column_name = schema_compile_internal_validate_identifier((string) ($operation['name'] ?? ''), 'column name');
+            $column = schema_compile_internal_column_payload($operation['column'] ?? null);
 
-            $compiled_column = schema_compile_column_definition(
+            $compiled_column = schema_compile_internal_column_definition(
                 table_name: $table_name,
                 column_name: $column_name,
                 column: $column,
@@ -153,7 +153,7 @@ function schema_compile_create_statements(array $builder, string $driver, ?array
             }
 
             foreach ($compiled_column['implicit_index_operations'] as $implicit_index_operation) {
-                $index_statement = schema_compile_index_statement(
+                $index_statement = schema_compile_internal_index_statement(
                     operation: $implicit_index_operation,
                     table_name: $table_name,
                     driver: $driver,
@@ -170,7 +170,7 @@ function schema_compile_create_statements(array $builder, string $driver, ?array
         }
 
         if ('add_primary' === $type) {
-            $explicit_primary_columns = schema_compile_normalize_identifier_list(
+            $explicit_primary_columns = schema_compile_internal_normalize_identifier_list(
                 $operation['columns'] ?? [],
                 'primary key columns'
             );
@@ -179,8 +179,8 @@ function schema_compile_create_statements(array $builder, string $driver, ?array
         }
 
         if ('add_foreign' === $type) {
-            $foreign_key = schema_compile_foreign_key_payload($operation['foreign_key'] ?? null);
-            $table_constraints[] = schema_compile_create_table_foreign_constraint(
+            $foreign_key = schema_compile_internal_foreign_key_payload($operation['foreign_key'] ?? null);
+            $table_constraints[] = schema_compile_internal_create_table_foreign_constraint(
                 foreign_key: $foreign_key,
                 owner_table: $table_name,
                 driver: $driver
@@ -190,7 +190,7 @@ function schema_compile_create_statements(array $builder, string $driver, ?array
         }
 
         if ('add_index' === $type || 'add_unique' === $type) {
-            $index_statement = schema_compile_index_statement(
+            $index_statement = schema_compile_internal_index_statement(
                 operation: $operation,
                 table_name: $table_name,
                 driver: $driver,
@@ -211,7 +211,7 @@ function schema_compile_create_statements(array $builder, string $driver, ?array
     }
 
     if (! harbor_is_null($explicit_primary_columns) && ! empty($implicit_primary_columns)) {
-        if (schema_compile_identifier_lists_equal($explicit_primary_columns, $implicit_primary_columns)) {
+        if (schema_compile_internal_identifier_lists_equal($explicit_primary_columns, $implicit_primary_columns)) {
             $implicit_primary_columns = [];
         } else {
             throw new \InvalidArgumentException('Primary key conflict between explicit and column-defined primary keys.');
@@ -222,9 +222,9 @@ function schema_compile_create_statements(array $builder, string $driver, ?array
         ? $explicit_primary_columns
         : $implicit_primary_columns;
 
-    if (! empty($resolved_primary_columns) && ! schema_compile_primary_is_inline_single($column_definitions, $resolved_primary_columns)) {
+    if (! empty($resolved_primary_columns) && ! schema_compile_internal_primary_is_inline_single($column_definitions, $resolved_primary_columns)) {
         $quoted_primary_columns = array_map(
-            static fn (string $column): string => schema_compile_quote_identifier($column),
+            static fn (string $column): string => schema_compile_internal_quote_identifier($column),
             $resolved_primary_columns
         );
         $table_constraints[] = 'PRIMARY KEY ('.implode(', ', $quoted_primary_columns).')';
@@ -254,10 +254,10 @@ function schema_compile_create_statements(array $builder, string $driver, ?array
  *
  * @return array<int, string>
  */
-function schema_compile_alter_statements(array $builder, string $driver, ?array $version_payload = null): array
+function schema_compile_internal_alter_statements(array $builder, string $driver, ?array $version_payload = null): array
 {
     $table_name = $builder['table'];
-    $quoted_table = schema_compile_quote_identifier($table_name);
+    $quoted_table = schema_compile_internal_quote_identifier($table_name);
     $statements = [];
     $index_registry = [];
 
@@ -265,10 +265,10 @@ function schema_compile_alter_statements(array $builder, string $driver, ?array 
         $type = (string) $operation['type'];
 
         if ('add_column' === $type) {
-            $column_name = schema_compile_validate_identifier((string) ($operation['name'] ?? ''), 'column name');
-            $column = schema_compile_column_payload($operation['column'] ?? null);
+            $column_name = schema_compile_internal_validate_identifier((string) ($operation['name'] ?? ''), 'column name');
+            $column = schema_compile_internal_column_payload($operation['column'] ?? null);
 
-            $compiled_column = schema_compile_column_definition(
+            $compiled_column = schema_compile_internal_column_definition(
                 table_name: $table_name,
                 column_name: $column_name,
                 column: $column,
@@ -280,7 +280,7 @@ function schema_compile_alter_statements(array $builder, string $driver, ?array 
             $statements[] = sprintf('ALTER TABLE %s ADD COLUMN %s', $quoted_table, $compiled_column['definition']);
 
             foreach ($compiled_column['implicit_index_operations'] as $implicit_index_operation) {
-                $index_statement = schema_compile_index_statement(
+                $index_statement = schema_compile_internal_index_statement(
                     operation: $implicit_index_operation,
                     table_name: $table_name,
                     driver: $driver,
@@ -301,10 +301,10 @@ function schema_compile_alter_statements(array $builder, string $driver, ?array 
                 throw new \InvalidArgumentException('SQLite driver does not support ALTER TABLE MODIFY COLUMN.');
             }
 
-            $column_name = schema_compile_validate_identifier((string) ($operation['name'] ?? ''), 'column name');
-            $column = schema_compile_column_payload($operation['column'] ?? null);
+            $column_name = schema_compile_internal_validate_identifier((string) ($operation['name'] ?? ''), 'column name');
+            $column = schema_compile_internal_column_payload($operation['column'] ?? null);
 
-            $compiled_column = schema_compile_column_definition(
+            $compiled_column = schema_compile_internal_column_definition(
                 table_name: $table_name,
                 column_name: $column_name,
                 column: $column,
@@ -316,7 +316,7 @@ function schema_compile_alter_statements(array $builder, string $driver, ?array 
             $statements[] = sprintf('ALTER TABLE %s MODIFY COLUMN %s', $quoted_table, $compiled_column['definition']);
 
             foreach ($compiled_column['implicit_index_operations'] as $implicit_index_operation) {
-                $index_statement = schema_compile_index_statement(
+                $index_statement = schema_compile_internal_index_statement(
                     operation: $implicit_index_operation,
                     table_name: $table_name,
                     driver: $driver,
@@ -333,10 +333,10 @@ function schema_compile_alter_statements(array $builder, string $driver, ?array 
         }
 
         if ('drop_column' === $type) {
-            $column_name = schema_compile_validate_identifier((string) ($operation['name'] ?? ''), 'column name');
+            $column_name = schema_compile_internal_validate_identifier((string) ($operation['name'] ?? ''), 'column name');
 
             if ('sqlite' === $driver) {
-                schema_compile_assert_sqlite_feature_version(
+                schema_compile_internal_assert_sqlite_feature_version(
                     feature_name: 'DROP COLUMN',
                     minimum_major: 3,
                     minimum_minor: 35,
@@ -348,18 +348,18 @@ function schema_compile_alter_statements(array $builder, string $driver, ?array 
             $statements[] = sprintf(
                 'ALTER TABLE %s DROP COLUMN %s',
                 $quoted_table,
-                schema_compile_quote_identifier($column_name)
+                schema_compile_internal_quote_identifier($column_name)
             );
 
             continue;
         }
 
         if ('rename_column' === $type) {
-            $from = schema_compile_validate_identifier((string) ($operation['from'] ?? ''), 'source column name');
-            $to = schema_compile_validate_identifier((string) ($operation['to'] ?? ''), 'target column name');
+            $from = schema_compile_internal_validate_identifier((string) ($operation['from'] ?? ''), 'source column name');
+            $to = schema_compile_internal_validate_identifier((string) ($operation['to'] ?? ''), 'target column name');
 
             if ('sqlite' === $driver) {
-                schema_compile_assert_sqlite_feature_version(
+                schema_compile_internal_assert_sqlite_feature_version(
                     feature_name: 'RENAME COLUMN',
                     minimum_major: 3,
                     minimum_minor: 25,
@@ -371,8 +371,8 @@ function schema_compile_alter_statements(array $builder, string $driver, ?array 
             $statements[] = sprintf(
                 'ALTER TABLE %s RENAME COLUMN %s TO %s',
                 $quoted_table,
-                schema_compile_quote_identifier($from),
-                schema_compile_quote_identifier($to)
+                schema_compile_internal_quote_identifier($from),
+                schema_compile_internal_quote_identifier($to)
             );
 
             continue;
@@ -383,13 +383,13 @@ function schema_compile_alter_statements(array $builder, string $driver, ?array 
                 throw new \InvalidArgumentException('SQLite driver does not support ALTER TABLE ADD PRIMARY KEY.');
             }
 
-            $columns = schema_compile_normalize_identifier_list(
+            $columns = schema_compile_internal_normalize_identifier_list(
                 $operation['columns'] ?? [],
                 'primary key columns'
             );
 
             $quoted_columns = array_map(
-                static fn (string $column): string => schema_compile_quote_identifier($column),
+                static fn (string $column): string => schema_compile_internal_quote_identifier($column),
                 $columns
             );
 
@@ -398,7 +398,7 @@ function schema_compile_alter_statements(array $builder, string $driver, ?array 
                 'type' => 'add_primary',
                 'columns' => implode(',', $columns),
             ];
-            schema_compile_register_index_signature($index_registry, $key, $signature);
+            schema_compile_internal_register_index_signature($index_registry, $key, $signature);
 
             $statements[] = sprintf('ALTER TABLE %s ADD PRIMARY KEY (%s)', $quoted_table, implode(', ', $quoted_columns));
 
@@ -415,7 +415,7 @@ function schema_compile_alter_statements(array $builder, string $driver, ?array 
                 'type' => 'drop_primary',
                 'columns' => '',
             ];
-            schema_compile_register_index_signature($index_registry, $key, $signature);
+            schema_compile_internal_register_index_signature($index_registry, $key, $signature);
 
             $statements[] = sprintf('ALTER TABLE %s DROP PRIMARY KEY', $quoted_table);
 
@@ -423,13 +423,13 @@ function schema_compile_alter_statements(array $builder, string $driver, ?array 
         }
 
         if ('add_foreign' === $type) {
-            $foreign_key = schema_compile_foreign_key_payload($operation['foreign_key'] ?? null);
+            $foreign_key = schema_compile_internal_foreign_key_payload($operation['foreign_key'] ?? null);
 
             if ('sqlite' === $driver) {
                 throw new \InvalidArgumentException('SQLite driver does not support ALTER TABLE ADD CONSTRAINT FOREIGN KEY.');
             }
 
-            $statements[] = schema_compile_alter_foreign_add_statement(
+            $statements[] = schema_compile_internal_alter_foreign_add_statement(
                 table_name: $table_name,
                 foreign_key: $foreign_key,
                 driver: $driver
@@ -439,7 +439,7 @@ function schema_compile_alter_statements(array $builder, string $driver, ?array 
         }
 
         if ('drop_foreign' === $type) {
-            $foreign_name = schema_compile_validate_identifier((string) ($operation['name'] ?? ''), 'foreign key name');
+            $foreign_name = schema_compile_internal_validate_identifier((string) ($operation['name'] ?? ''), 'foreign key name');
 
             if ('sqlite' === $driver) {
                 throw new \InvalidArgumentException('SQLite driver does not support ALTER TABLE DROP FOREIGN KEY.');
@@ -448,14 +448,14 @@ function schema_compile_alter_statements(array $builder, string $driver, ?array 
             $statements[] = sprintf(
                 'ALTER TABLE %s DROP FOREIGN KEY %s',
                 $quoted_table,
-                schema_compile_quote_identifier($foreign_name)
+                schema_compile_internal_quote_identifier($foreign_name)
             );
 
             continue;
         }
 
         if ('add_unique' === $type || 'add_index' === $type) {
-            $index_statement = schema_compile_index_statement(
+            $index_statement = schema_compile_internal_index_statement(
                 operation: $operation,
                 table_name: $table_name,
                 driver: $driver,
@@ -477,7 +477,7 @@ function schema_compile_alter_statements(array $builder, string $driver, ?array 
                 'if_exists' => (bool) ($operation['if_exists'] ?? false),
             ];
 
-            $index_statement = schema_compile_index_statement(
+            $index_statement = schema_compile_internal_index_statement(
                 operation: $drop_unique_operation,
                 table_name: $table_name,
                 driver: $driver,
@@ -493,7 +493,7 @@ function schema_compile_alter_statements(array $builder, string $driver, ?array 
         }
 
         if ('drop_index' === $type) {
-            $index_statement = schema_compile_index_statement(
+            $index_statement = schema_compile_internal_index_statement(
                 operation: $operation,
                 table_name: $table_name,
                 driver: $driver,
@@ -526,9 +526,9 @@ function schema_compile_alter_statements(array $builder, string $driver, ?array 
  *   operations: array<int, array<string, mixed>>
  * } $builder
  */
-function schema_compile_drop_table_statement(array $builder, string $driver): string
+function schema_compile_internal_drop_table_statement(array $builder, string $driver): string
 {
-    $quoted_table = schema_compile_quote_identifier($builder['table']);
+    $quoted_table = schema_compile_internal_quote_identifier($builder['table']);
     $drop_keyword = $builder['if_exists'] ? 'DROP TABLE IF EXISTS' : 'DROP TABLE';
 
     if ('sqlite' !== $driver && 'mysql' !== $driver && 'mysqli' !== $driver) {
@@ -550,7 +550,7 @@ function schema_compile_drop_table_statement(array $builder, string $driver): st
  *   operations: array<int, array<string, mixed>>
  * } $builder
  */
-function schema_compile_rename_table_statement(array $builder): string
+function schema_compile_internal_rename_table_statement(array $builder): string
 {
     if (! is_string($builder['target']) || harbor_is_blank($builder['target'])) {
         throw new \InvalidArgumentException('Schema rename action requires target table name.');
@@ -558,15 +558,15 @@ function schema_compile_rename_table_statement(array $builder): string
 
     return sprintf(
         'ALTER TABLE %s RENAME TO %s',
-        schema_compile_quote_identifier($builder['table']),
-        schema_compile_quote_identifier($builder['target'])
+        schema_compile_internal_quote_identifier($builder['table']),
+        schema_compile_internal_quote_identifier($builder['target'])
     );
 }
 
 /**
  * @param null|array<string, mixed> $version_payload
  */
-function schema_compile_assert_sqlite_feature_version(
+function schema_compile_internal_assert_sqlite_feature_version(
     string $feature_name,
     int $minimum_major,
     int $minimum_minor,
@@ -613,13 +613,13 @@ function schema_compile_assert_sqlite_feature_version(
  *
  * @return array{type: string, arguments: array<int, mixed>, modifiers: array<string, mixed>}
  */
-function schema_compile_column_payload(mixed $column): array
+function schema_compile_internal_column_payload(mixed $column): array
 {
     if (! is_array($column)) {
         throw new \InvalidArgumentException('Column payload must be an array produced by Column::to_array().');
     }
 
-    $type = schema_compile_validate_identifier((string) ($column['type'] ?? ''), 'column type');
+    $type = schema_compile_internal_validate_identifier((string) ($column['type'] ?? ''), 'column type');
     $arguments = $column['arguments'] ?? [];
     $modifiers = $column['modifiers'] ?? [];
 
@@ -648,14 +648,14 @@ function schema_compile_column_payload(mixed $column): array
  *   initially_deferred: ?bool
  * }
  */
-function schema_compile_foreign_key_payload(mixed $foreign_key): array
+function schema_compile_internal_foreign_key_payload(mixed $foreign_key): array
 {
     if (! is_array($foreign_key)) {
         throw new \InvalidArgumentException('Foreign key payload must be an array produced by ForeignKey::to_array().');
     }
 
-    $columns = schema_compile_normalize_identifier_list($foreign_key['columns'] ?? [], 'foreign key columns');
-    $references = schema_compile_normalize_identifier_list(
+    $columns = schema_compile_internal_normalize_identifier_list($foreign_key['columns'] ?? [], 'foreign key columns');
+    $references = schema_compile_internal_normalize_identifier_list(
         $foreign_key['references'] ?? [],
         'foreign key reference columns'
     );
@@ -664,11 +664,11 @@ function schema_compile_foreign_key_payload(mixed $foreign_key): array
         throw new \InvalidArgumentException('Foreign key column count must match reference column count.');
     }
 
-    $table = schema_compile_validate_identifier((string) ($foreign_key['table'] ?? ''), 'foreign key target table');
+    $table = schema_compile_internal_validate_identifier((string) ($foreign_key['table'] ?? ''), 'foreign key target table');
 
     $name = $foreign_key['name'] ?? null;
     if (is_string($name) && ! harbor_is_blank($name)) {
-        $name = schema_compile_validate_identifier($name, 'foreign key name');
+        $name = schema_compile_internal_validate_identifier($name, 'foreign key name');
     } else {
         $name = null;
     }
@@ -698,7 +698,7 @@ function schema_compile_foreign_key_payload(mixed $foreign_key): array
  *   implicit_index_operations: array<int, array<string, mixed>>
  * }
  */
-function schema_compile_column_definition(
+function schema_compile_internal_column_definition(
     string $table_name,
     string $column_name,
     array $column,
@@ -706,13 +706,13 @@ function schema_compile_column_definition(
     string $operation_type,
     ?array $version_payload = null
 ): array {
-    $quoted_column = schema_compile_quote_identifier($column_name);
+    $quoted_column = schema_compile_internal_quote_identifier($column_name);
     $type = $column['type'];
     $arguments = $column['arguments'];
     $modifiers = $column['modifiers'];
 
-    schema_compile_assert_column_expression_safety($modifiers);
-    schema_compile_assert_column_driver_support($driver, $modifiers, $operation_type, $version_payload);
+    schema_compile_internal_assert_column_expression_safety($modifiers);
+    schema_compile_internal_assert_column_driver_support($driver, $modifiers, $operation_type, $version_payload);
 
     $implicit_primary = (bool) ($modifiers['primary'] ?? false);
     $auto_increment = (bool) ($modifiers['auto_increment'] ?? false);
@@ -724,7 +724,7 @@ function schema_compile_column_definition(
             throw new \InvalidArgumentException('SQLite auto_increment columns must also be primary().');
         }
 
-        if (! schema_compile_is_integer_like_type($type)) {
+        if (! schema_compile_internal_is_integer_like_type($type)) {
             throw new \InvalidArgumentException('SQLite auto_increment requires integer-like column type.');
         }
 
@@ -733,7 +733,7 @@ function schema_compile_column_definition(
         $primary_inline = true;
     } else {
         $definition_parts[] = $quoted_column;
-        $definition_parts[] = schema_compile_column_type_sql($type, $arguments, $driver);
+        $definition_parts[] = schema_compile_internal_column_type_sql($type, $arguments, $driver);
 
         $nullable = (bool) ($modifiers['nullable'] ?? false);
         $definition_parts[] = $nullable ? 'NULL' : 'NOT NULL';
@@ -761,7 +761,7 @@ function schema_compile_column_definition(
             $default_expression = (string) $modifiers['default_expression'];
             $definition_parts[] = 'DEFAULT '.$default_expression;
         } elseif ($has_default_value) {
-            $definition_parts[] = 'DEFAULT '.schema_compile_value_literal($modifiers['default']);
+            $definition_parts[] = 'DEFAULT '.schema_compile_internal_value_literal($modifiers['default']);
         } elseif ((bool) ($modifiers['use_current'] ?? false)) {
             $definition_parts[] = 'DEFAULT CURRENT_TIMESTAMP';
         }
@@ -787,7 +787,7 @@ function schema_compile_column_definition(
                 throw new \InvalidArgumentException('SQLite driver does not support column charset.');
             }
 
-            $definition_parts[] = 'CHARACTER SET '.schema_compile_validate_identifier(
+            $definition_parts[] = 'CHARACTER SET '.schema_compile_internal_validate_identifier(
                 $modifiers['charset'],
                 'column charset'
             );
@@ -798,7 +798,7 @@ function schema_compile_column_definition(
                 throw new \InvalidArgumentException('SQLite driver does not support column collation.');
             }
 
-            $definition_parts[] = 'COLLATE '.schema_compile_validate_identifier(
+            $definition_parts[] = 'COLLATE '.schema_compile_internal_validate_identifier(
                 $modifiers['collation'],
                 'column collation'
             );
@@ -844,8 +844,8 @@ function schema_compile_column_definition(
                 throw new \InvalidArgumentException('SQLite driver does not support AFTER column positioning.');
             }
 
-            $definition_parts[] = 'AFTER '.schema_compile_quote_identifier(
-                schema_compile_validate_identifier($modifiers['after'], 'column after target')
+            $definition_parts[] = 'AFTER '.schema_compile_internal_quote_identifier(
+                schema_compile_internal_validate_identifier($modifiers['after'], 'column after target')
             );
         }
     }
@@ -853,7 +853,7 @@ function schema_compile_column_definition(
     $implicit_index_operations = [];
 
     if (array_key_exists('unique', $modifiers)) {
-        $implicit_unique_name = schema_compile_resolve_column_index_name(
+        $implicit_unique_name = schema_compile_internal_resolve_column_index_name(
             table_name: $table_name,
             column_name: $column_name,
             configured_name: $modifiers['unique'],
@@ -868,7 +868,7 @@ function schema_compile_column_definition(
     }
 
     if (array_key_exists('index', $modifiers)) {
-        $implicit_index_name = schema_compile_resolve_column_index_name(
+        $implicit_index_name = schema_compile_internal_resolve_column_index_name(
             table_name: $table_name,
             column_name: $column_name,
             configured_name: $modifiers['index'],
@@ -896,7 +896,7 @@ function schema_compile_column_definition(
  * @param array<string, mixed>      $modifiers
  * @param null|array<string, mixed> $version_payload
  */
-function schema_compile_assert_column_driver_support(
+function schema_compile_internal_assert_column_driver_support(
     string $driver,
     array $modifiers,
     string $operation_type,
@@ -904,7 +904,7 @@ function schema_compile_assert_column_driver_support(
 ): void {
     if (array_key_exists('virtual_as', $modifiers) || array_key_exists('stored_as', $modifiers)) {
         if ('sqlite' === $driver) {
-            schema_compile_assert_sqlite_feature_version(
+            schema_compile_internal_assert_sqlite_feature_version(
                 feature_name: 'generated columns',
                 minimum_major: 3,
                 minimum_minor: 31,
@@ -926,7 +926,7 @@ function schema_compile_assert_column_driver_support(
 /**
  * @param array<string, mixed> $modifiers
  */
-function schema_compile_assert_column_expression_safety(array $modifiers): void
+function schema_compile_internal_assert_column_expression_safety(array $modifiers): void
 {
     foreach (['default_expression', 'check', 'virtual_as', 'stored_as'] as $expression_modifier_name) {
         $expression = $modifiers[$expression_modifier_name] ?? null;
@@ -934,11 +934,11 @@ function schema_compile_assert_column_expression_safety(array $modifiers): void
             continue;
         }
 
-        schema_compile_assert_safe_expression(trim($expression), sprintf('Column %s()', $expression_modifier_name));
+        schema_compile_internal_assert_safe_expression(trim($expression), sprintf('Column %s()', $expression_modifier_name));
     }
 }
 
-function schema_compile_assert_safe_expression(string $expression, string $context): void
+function schema_compile_internal_assert_safe_expression(string $expression, string $context): void
 {
     foreach ([';', '--', '/*', '*/'] as $unsafe_token) {
         if (str_contains($expression, $unsafe_token)) {
@@ -952,7 +952,7 @@ function schema_compile_assert_safe_expression(string $expression, string $conte
 /**
  * @param array<int, mixed> $arguments
  */
-function schema_compile_column_type_sql(string $type, array $arguments, string $driver): string
+function schema_compile_internal_column_type_sql(string $type, array $arguments, string $driver): string
 {
     return match ($type) {
         'tiny_int' => 'sqlite' === $driver ? 'INTEGER' : 'TINYINT',
@@ -961,14 +961,14 @@ function schema_compile_column_type_sql(string $type, array $arguments, string $
         'big_int' => 'sqlite' === $driver ? 'INTEGER' : 'BIGINT',
         'decimal' => sprintf(
             'DECIMAL(%d, %d)',
-            schema_compile_positive_int_argument($arguments, 0, 'decimal precision'),
-            schema_compile_non_negative_int_argument($arguments, 1, 'decimal scale')
+            schema_compile_internal_positive_int_argument($arguments, 0, 'decimal precision'),
+            schema_compile_internal_non_negative_int_argument($arguments, 1, 'decimal scale')
         ),
         'float' => 'FLOAT',
         'double' => 'DOUBLE',
         'bool' => 'sqlite' === $driver ? 'INTEGER' : 'TINYINT(1)',
-        'char' => sprintf('CHAR(%d)', schema_compile_positive_int_argument($arguments, 0, 'char length')),
-        'varchar' => sprintf('VARCHAR(%d)', schema_compile_positive_int_argument($arguments, 0, 'varchar length')),
+        'char' => sprintf('CHAR(%d)', schema_compile_internal_positive_int_argument($arguments, 0, 'char length')),
+        'varchar' => sprintf('VARCHAR(%d)', schema_compile_internal_positive_int_argument($arguments, 0, 'varchar length')),
         'text' => 'TEXT',
         'medium_text' => 'sqlite' === $driver ? 'TEXT' : 'MEDIUMTEXT',
         'long_text' => 'sqlite' === $driver ? 'TEXT' : 'LONGTEXT',
@@ -980,16 +980,16 @@ function schema_compile_column_type_sql(string $type, array $arguments, string $
         'year' => 'sqlite' === $driver ? 'INTEGER' : 'YEAR',
         'binary' => 'sqlite' === $driver
             ? 'BLOB'
-            : sprintf('BINARY(%d)', schema_compile_positive_int_argument($arguments, 0, 'binary length')),
+            : sprintf('BINARY(%d)', schema_compile_internal_positive_int_argument($arguments, 0, 'binary length')),
         'varbinary' => 'sqlite' === $driver
             ? 'BLOB'
-            : sprintf('VARBINARY(%d)', schema_compile_positive_int_argument($arguments, 0, 'varbinary length')),
+            : sprintf('VARBINARY(%d)', schema_compile_internal_positive_int_argument($arguments, 0, 'varbinary length')),
         'blob' => 'BLOB',
         'long_blob' => 'sqlite' === $driver ? 'BLOB' : 'LONGBLOB',
         'uuid' => 'CHAR(36)',
         'ulid' => 'CHAR(26)',
-        'enum' => schema_compile_enum_type($arguments, $driver),
-        'set' => schema_compile_set_type($arguments, $driver),
+        'enum' => schema_compile_internal_enum_type($arguments, $driver),
+        'set' => schema_compile_internal_set_type($arguments, $driver),
         default => throw new \InvalidArgumentException(
             sprintf('Unsupported column type "%s".', $type)
         ),
@@ -999,7 +999,7 @@ function schema_compile_column_type_sql(string $type, array $arguments, string $
 /**
  * @param array<int, mixed> $arguments
  */
-function schema_compile_enum_type(array $arguments, string $driver): string
+function schema_compile_internal_enum_type(array $arguments, string $driver): string
 {
     $values = $arguments[0] ?? null;
     if (! is_array($values) || empty($values)) {
@@ -1026,7 +1026,7 @@ function schema_compile_enum_type(array $arguments, string $driver): string
 /**
  * @param array<int, mixed> $arguments
  */
-function schema_compile_set_type(array $arguments, string $driver): string
+function schema_compile_internal_set_type(array $arguments, string $driver): string
 {
     if ('sqlite' === $driver) {
         throw new \InvalidArgumentException('SQLite driver does not support SET column type.');
@@ -1050,7 +1050,7 @@ function schema_compile_set_type(array $arguments, string $driver): string
     return sprintf('SET(%s)', implode(', ', $quoted_values));
 }
 
-function schema_compile_is_integer_like_type(string $type): bool
+function schema_compile_internal_is_integer_like_type(string $type): bool
 {
     return in_array($type, ['tiny_int', 'small_int', 'int', 'big_int'], true);
 }
@@ -1058,7 +1058,7 @@ function schema_compile_is_integer_like_type(string $type): bool
 /**
  * @param array<int, mixed> $arguments
  */
-function schema_compile_positive_int_argument(array $arguments, int $index, string $label): int
+function schema_compile_internal_positive_int_argument(array $arguments, int $index, string $label): int
 {
     $value = $arguments[$index] ?? null;
     if (! is_int($value) || $value <= 0) {
@@ -1071,7 +1071,7 @@ function schema_compile_positive_int_argument(array $arguments, int $index, stri
 /**
  * @param array<int, mixed> $arguments
  */
-function schema_compile_non_negative_int_argument(array $arguments, int $index, string $label): int
+function schema_compile_internal_non_negative_int_argument(array $arguments, int $index, string $label): int
 {
     $value = $arguments[$index] ?? null;
     if (! is_int($value) || $value < 0) {
@@ -1081,7 +1081,7 @@ function schema_compile_non_negative_int_argument(array $arguments, int $index, 
     return $value;
 }
 
-function schema_compile_value_literal(mixed $value): string
+function schema_compile_internal_value_literal(mixed $value): string
 {
     if (harbor_is_null($value)) {
         return 'NULL';
@@ -1107,7 +1107,7 @@ function schema_compile_value_literal(mixed $value): string
  * @param array<string, array{type: string, columns: string}> $index_registry
  * @param null|array<string, mixed>                           $version_payload
  */
-function schema_compile_index_statement(
+function schema_compile_internal_index_statement(
     array $operation,
     string $table_name,
     string $driver,
@@ -1115,29 +1115,29 @@ function schema_compile_index_statement(
     ?array $version_payload = null
 ): ?string {
     $type = (string) ($operation['type'] ?? '');
-    $quoted_table = schema_compile_quote_identifier($table_name);
+    $quoted_table = schema_compile_internal_quote_identifier($table_name);
 
     if ('add_unique' === $type || 'add_index' === $type) {
-        $columns = schema_compile_normalize_identifier_list($operation['columns'] ?? [], 'index columns');
+        $columns = schema_compile_internal_normalize_identifier_list($operation['columns'] ?? [], 'index columns');
         $is_unique = 'add_unique' === $type || (bool) ($operation['unique'] ?? false);
         $if_not_exists = (bool) ($operation['if_not_exists'] ?? false);
 
         $name = $operation['name'] ?? null;
         if (! is_string($name) || harbor_is_blank(trim($name))) {
-            $name = schema_compile_generate_index_name(
+            $name = schema_compile_internal_generate_index_name(
                 table_name: $table_name,
                 columns: $columns,
                 unique: $is_unique
             );
         }
 
-        $normalized_name = schema_compile_validate_identifier($name, 'index name');
+        $normalized_name = schema_compile_internal_validate_identifier($name, 'index name');
         $signature = [
             'type' => $is_unique ? 'unique' : 'index',
             'columns' => implode(',', $columns),
         ];
 
-        if (! schema_compile_register_index_signature($index_registry, $normalized_name, $signature)) {
+        if (! schema_compile_internal_register_index_signature($index_registry, $normalized_name, $signature)) {
             return null;
         }
 
@@ -1153,10 +1153,10 @@ function schema_compile_index_statement(
         }
 
         $quoted_columns = array_map(
-            static fn (string $column): string => schema_compile_quote_identifier($column),
+            static fn (string $column): string => schema_compile_internal_quote_identifier($column),
             $columns
         );
-        $quoted_name = schema_compile_quote_identifier($normalized_name);
+        $quoted_name = schema_compile_internal_quote_identifier($normalized_name);
         $index_keyword = $is_unique ? 'CREATE UNIQUE INDEX' : 'CREATE INDEX';
 
         return sprintf(
@@ -1170,18 +1170,18 @@ function schema_compile_index_statement(
     }
 
     if ('drop_index' === $type) {
-        $name = schema_compile_validate_identifier((string) ($operation['name'] ?? ''), 'index name');
+        $name = schema_compile_internal_validate_identifier((string) ($operation['name'] ?? ''), 'index name');
         $if_exists = (bool) ($operation['if_exists'] ?? false);
         $signature = [
             'type' => 'drop_index',
             'columns' => '',
         ];
-        schema_compile_register_index_signature($index_registry, 'drop:'.$name, $signature);
+        schema_compile_internal_register_index_signature($index_registry, 'drop:'.$name, $signature);
 
         if ('sqlite' === $driver) {
             $if_exists_sql = $if_exists ? ' IF EXISTS' : '';
 
-            return sprintf('DROP INDEX%s %s', $if_exists_sql, schema_compile_quote_identifier($name));
+            return sprintf('DROP INDEX%s %s', $if_exists_sql, schema_compile_internal_quote_identifier($name));
         }
 
         if ($if_exists) {
@@ -1190,7 +1190,7 @@ function schema_compile_index_statement(
             );
         }
 
-        return sprintf('DROP INDEX %s ON %s', schema_compile_quote_identifier($name), $quoted_table);
+        return sprintf('DROP INDEX %s ON %s', schema_compile_internal_quote_identifier($name), $quoted_table);
     }
 
     throw new \InvalidArgumentException(sprintf('Unsupported index operation type "%s".', $type));
@@ -1200,7 +1200,7 @@ function schema_compile_index_statement(
  * @param array<string, array{type: string, columns: string}> $index_registry
  * @param array{type: string, columns: string}                $signature
  */
-function schema_compile_register_index_signature(array &$index_registry, string $key, array $signature): bool
+function schema_compile_internal_register_index_signature(array &$index_registry, string $key, array $signature): bool
 {
     if (! array_key_exists($key, $index_registry)) {
         $index_registry[$key] = $signature;
@@ -1228,7 +1228,7 @@ function schema_compile_register_index_signature(array &$index_registry, string 
 /**
  * @param array<int, string> $columns
  */
-function schema_compile_generate_index_name(string $table_name, array $columns, bool $unique = false): string
+function schema_compile_internal_generate_index_name(string $table_name, array $columns, bool $unique = false): string
 {
     $suffix = $unique ? 'unique' : 'index';
 
@@ -1247,9 +1247,9 @@ function schema_compile_generate_index_name(string $table_name, array $columns, 
  *   initially_deferred: ?bool
  * } $foreign_key
  */
-function schema_compile_create_table_foreign_constraint(array $foreign_key, string $owner_table, string $driver): string
+function schema_compile_internal_create_table_foreign_constraint(array $foreign_key, string $owner_table, string $driver): string
 {
-    return schema_compile_foreign_constraint_sql($foreign_key, $owner_table, $driver);
+    return schema_compile_internal_foreign_constraint_sql($foreign_key, $owner_table, $driver);
 }
 
 /**
@@ -1264,12 +1264,12 @@ function schema_compile_create_table_foreign_constraint(array $foreign_key, stri
  *   initially_deferred: ?bool
  * } $foreign_key
  */
-function schema_compile_alter_foreign_add_statement(array $foreign_key, string $table_name, string $driver): string
+function schema_compile_internal_alter_foreign_add_statement(array $foreign_key, string $table_name, string $driver): string
 {
     return sprintf(
         'ALTER TABLE %s ADD %s',
-        schema_compile_quote_identifier($table_name),
-        schema_compile_foreign_constraint_sql($foreign_key, $table_name, $driver)
+        schema_compile_internal_quote_identifier($table_name),
+        schema_compile_internal_foreign_constraint_sql($foreign_key, $table_name, $driver)
     );
 }
 
@@ -1285,27 +1285,27 @@ function schema_compile_alter_foreign_add_statement(array $foreign_key, string $
  *   initially_deferred: ?bool
  * } $foreign_key
  */
-function schema_compile_foreign_constraint_sql(array $foreign_key, string $owner_table, string $driver): string
+function schema_compile_internal_foreign_constraint_sql(array $foreign_key, string $owner_table, string $driver): string
 {
-    $columns = schema_compile_normalize_identifier_list($foreign_key['columns'], 'foreign key columns');
-    $references = schema_compile_normalize_identifier_list($foreign_key['references'], 'foreign key reference columns');
+    $columns = schema_compile_internal_normalize_identifier_list($foreign_key['columns'], 'foreign key columns');
+    $references = schema_compile_internal_normalize_identifier_list($foreign_key['references'], 'foreign key reference columns');
 
     if (count($columns) !== count($references)) {
         throw new \InvalidArgumentException('Foreign key column count must match reference column count.');
     }
 
-    $reference_table = schema_compile_validate_identifier((string) $foreign_key['table'], 'foreign key reference table');
+    $reference_table = schema_compile_internal_validate_identifier((string) $foreign_key['table'], 'foreign key reference table');
     $constraint_name = is_string($foreign_key['name']) && ! harbor_is_blank(trim($foreign_key['name']))
-        ? schema_compile_validate_identifier($foreign_key['name'], 'foreign key name')
-        : schema_compile_generate_foreign_key_name($owner_table, $columns);
+        ? schema_compile_internal_validate_identifier($foreign_key['name'], 'foreign key name')
+        : schema_compile_internal_generate_foreign_key_name($owner_table, $columns);
 
-    $quoted_constraint_name = schema_compile_quote_identifier($constraint_name);
+    $quoted_constraint_name = schema_compile_internal_quote_identifier($constraint_name);
     $quoted_columns = array_map(
-        static fn (string $column): string => schema_compile_quote_identifier($column),
+        static fn (string $column): string => schema_compile_internal_quote_identifier($column),
         $columns
     );
     $quoted_references = array_map(
-        static fn (string $column): string => schema_compile_quote_identifier($column),
+        static fn (string $column): string => schema_compile_internal_quote_identifier($column),
         $references
     );
 
@@ -1314,7 +1314,7 @@ function schema_compile_foreign_constraint_sql(array $foreign_key, string $owner
             'CONSTRAINT %s FOREIGN KEY (%s) REFERENCES %s (%s)',
             $quoted_constraint_name,
             implode(', ', $quoted_columns),
-            schema_compile_quote_identifier($reference_table),
+            schema_compile_internal_quote_identifier($reference_table),
             implode(', ', $quoted_references)
         ),
     ];
@@ -1354,12 +1354,12 @@ function schema_compile_foreign_constraint_sql(array $foreign_key, string $owner
 /**
  * @param array<int, string> $columns
  */
-function schema_compile_generate_foreign_key_name(string $owner_table, array $columns): string
+function schema_compile_internal_generate_foreign_key_name(string $owner_table, array $columns): string
 {
     return strtolower($owner_table.'_'.implode('_', $columns).'_foreign');
 }
 
-function schema_compile_validate_identifier(string $identifier, string $label = 'identifier'): string
+function schema_compile_internal_validate_identifier(string $identifier, string $label = 'identifier'): string
 {
     $normalized_identifier = trim($identifier);
     if (harbor_is_blank($normalized_identifier)) {
@@ -1375,7 +1375,7 @@ function schema_compile_validate_identifier(string $identifier, string $label = 
     return $normalized_identifier;
 }
 
-function schema_compile_quote_identifier(string $identifier): string
+function schema_compile_internal_quote_identifier(string $identifier): string
 {
     return sprintf('`%s`', str_replace('`', '``', $identifier));
 }
@@ -1383,7 +1383,7 @@ function schema_compile_quote_identifier(string $identifier): string
 /**
  * @return array<int, string>
  */
-function schema_compile_normalize_identifier_list(mixed $value, string $label): array
+function schema_compile_internal_normalize_identifier_list(mixed $value, string $label): array
 {
     if (! is_array($value) || empty($value)) {
         throw new \InvalidArgumentException(sprintf('%s cannot be empty.', ucfirst($label)));
@@ -1395,7 +1395,7 @@ function schema_compile_normalize_identifier_list(mixed $value, string $label): 
             throw new \InvalidArgumentException(sprintf('%s must contain only strings.', ucfirst($label)));
         }
 
-        $normalized[] = schema_compile_validate_identifier($identifier, $label);
+        $normalized[] = schema_compile_internal_validate_identifier($identifier, $label);
     }
 
     return $normalized;
@@ -1405,7 +1405,7 @@ function schema_compile_normalize_identifier_list(mixed $value, string $label): 
  * @param array<int, string> $left
  * @param array<int, string> $right
  */
-function schema_compile_identifier_lists_equal(array $left, array $right): bool
+function schema_compile_internal_identifier_lists_equal(array $left, array $right): bool
 {
     if (count($left) !== count($right)) {
         return false;
@@ -1424,13 +1424,13 @@ function schema_compile_identifier_lists_equal(array $left, array $right): bool
  * @param array<int, string> $column_definitions
  * @param array<int, string> $primary_columns
  */
-function schema_compile_primary_is_inline_single(array $column_definitions, array $primary_columns): bool
+function schema_compile_internal_primary_is_inline_single(array $column_definitions, array $primary_columns): bool
 {
     if (1 !== count($primary_columns)) {
         return false;
     }
 
-    $primary_column = schema_compile_quote_identifier($primary_columns[0]);
+    $primary_column = schema_compile_internal_quote_identifier($primary_columns[0]);
 
     foreach ($column_definitions as $column_definition) {
         if (str_starts_with($column_definition, $primary_column.' ') && str_contains($column_definition, 'PRIMARY KEY AUTOINCREMENT')) {
@@ -1441,14 +1441,14 @@ function schema_compile_primary_is_inline_single(array $column_definitions, arra
     return false;
 }
 
-function schema_compile_resolve_column_index_name(
+function schema_compile_internal_resolve_column_index_name(
     string $table_name,
     string $column_name,
     mixed $configured_name,
     string $suffix
 ): string {
     if (is_string($configured_name) && ! harbor_is_blank(trim($configured_name))) {
-        return schema_compile_validate_identifier($configured_name, 'column index name');
+        return schema_compile_internal_validate_identifier($configured_name, 'column index name');
     }
 
     if (true !== $configured_name) {
@@ -1457,7 +1457,7 @@ function schema_compile_resolve_column_index_name(
         );
     }
 
-    return schema_compile_generate_index_name(
+    return schema_compile_internal_generate_index_name(
         table_name: $table_name,
         columns: [$column_name],
         unique: 'unique' === $suffix

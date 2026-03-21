@@ -79,7 +79,7 @@ function db_mysqli_close(\mysqli $connection): bool
 
 function db_mysqli_execute(\mysqli $connection, string $sql): bool
 {
-    $result = db_mysqli_query($connection, $sql);
+    $result = db_mysqli_internal_query($connection, $sql);
 
     if ($result instanceof \mysqli_result) {
         $result->free();
@@ -90,7 +90,7 @@ function db_mysqli_execute(\mysqli $connection, string $sql): bool
 
 function db_mysqli_array(\mysqli $connection, string $sql): array
 {
-    $result = db_mysqli_query($connection, $sql);
+    $result = db_mysqli_internal_query($connection, $sql);
     if (! $result instanceof \mysqli_result) {
         return [];
     }
@@ -119,7 +119,7 @@ function db_mysqli_last(\mysqli $connection, string $sql): array
 
 function db_mysqli_objects(\mysqli $connection, string $sql): array
 {
-    $result = db_mysqli_query($connection, $sql);
+    $result = db_mysqli_internal_query($connection, $sql);
     if (! $result instanceof \mysqli_result) {
         return [];
     }
@@ -135,7 +135,7 @@ function db_mysqli_objects(\mysqli $connection, string $sql): array
 }
 
 /** Private */
-function db_mysqli_query(\mysqli $connection, string $sql): bool|\mysqli_result
+function db_mysqli_internal_query(\mysqli $connection, string $sql): bool|\mysqli_result
 {
     $normalized_sql = trim($sql);
     if (harbor_is_blank($normalized_sql)) {

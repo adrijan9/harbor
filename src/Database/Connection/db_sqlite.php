@@ -50,25 +50,25 @@ function db_sqlite_connect_dto(SqliteDto $dto): \PDO
 
 function db_sqlite_close(\PDO $connection): bool
 {
-    db_sqlite_assert_driver($connection);
+    db_sqlite_internal_assert_driver($connection);
 
     return true;
 }
 
 function db_sqlite_execute(\PDO $connection, string $sql, array $bindings = []): bool
 {
-    db_sqlite_assert_driver($connection);
+    db_sqlite_internal_assert_driver($connection);
 
-    $statement = db_sqlite_prepare_and_execute($connection, $sql, $bindings);
+    $statement = db_sqlite_internal_prepare_and_execute($connection, $sql, $bindings);
 
     return $statement->rowCount() >= 0;
 }
 
 function db_sqlite_array(\PDO $connection, string $sql, array $bindings = []): array
 {
-    db_sqlite_assert_driver($connection);
+    db_sqlite_internal_assert_driver($connection);
 
-    $statement = db_sqlite_prepare_and_execute($connection, $sql, $bindings);
+    $statement = db_sqlite_internal_prepare_and_execute($connection, $sql, $bindings);
     $rows = $statement->fetchAll(\PDO::FETCH_ASSOC);
 
     return is_array($rows) ? $rows : [];
@@ -92,16 +92,16 @@ function db_sqlite_last(\PDO $connection, string $sql, array $bindings = []): ar
 
 function db_sqlite_objects(\PDO $connection, string $sql, array $bindings = []): array
 {
-    db_sqlite_assert_driver($connection);
+    db_sqlite_internal_assert_driver($connection);
 
-    $statement = db_sqlite_prepare_and_execute($connection, $sql, $bindings);
+    $statement = db_sqlite_internal_prepare_and_execute($connection, $sql, $bindings);
     $rows = $statement->fetchAll(\PDO::FETCH_OBJ);
 
     return is_array($rows) ? $rows : [];
 }
 
 /** Private */
-function db_sqlite_prepare_and_execute(\PDO $connection, string $sql, array $bindings = []): \PDOStatement
+function db_sqlite_internal_prepare_and_execute(\PDO $connection, string $sql, array $bindings = []): \PDOStatement
 {
     $normalized_sql = trim($sql);
     if (harbor_is_blank($normalized_sql)) {
@@ -121,7 +121,7 @@ function db_sqlite_prepare_and_execute(\PDO $connection, string $sql, array $bin
     return $statement;
 }
 
-function db_sqlite_assert_driver(\PDO $connection): void
+function db_sqlite_internal_assert_driver(\PDO $connection): void
 {
     $driver_name = (string) $connection->getAttribute(\PDO::ATTR_DRIVER_NAME);
     if ('sqlite' !== strtolower($driver_name)) {

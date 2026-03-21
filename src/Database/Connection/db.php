@@ -50,13 +50,13 @@ use function Harbor\Support\harbor_is_null;
 /** Public */
 function db_driver(DbDriver|string $default_driver = DbDriver::SQLITE): string
 {
-    $resolved_default_driver = db_resolve_driver($default_driver);
+    $resolved_default_driver = db_internal_resolve_driver($default_driver);
     if (harbor_is_null($resolved_default_driver)) {
         $resolved_default_driver = DbDriver::SQLITE;
     }
 
     $configured_driver = config_resolve('db.driver', 'database.driver', $resolved_default_driver->value);
-    $resolved_driver = db_resolve_driver($configured_driver);
+    $resolved_driver = db_internal_resolve_driver($configured_driver);
 
     if (harbor_is_null($resolved_driver)) {
         return $resolved_default_driver->value;
@@ -82,13 +82,13 @@ function db_is_mysqli(): bool
 
 function db_connect(DbDriver|string|null $driver = null, array $config = []): \mysqli|\PDO
 {
-    $resolved_driver = db_resolve_driver($driver ?? db_driver());
+    $resolved_driver = db_internal_resolve_driver($driver ?? db_driver());
     if (harbor_is_null($resolved_driver)) {
         throw new \InvalidArgumentException('Unable to resolve database driver.');
     }
 
     if (DbDriver::SQLITE === $resolved_driver) {
-        $sqlite_path = db_resolve_sqlite_path($config);
+        $sqlite_path = db_internal_resolve_sqlite_path($config);
         if (! is_string($sqlite_path) || harbor_is_blank($sqlite_path)) {
             throw new \RuntimeException('SQLite database path not configured. Set "db.sqlite.path" or provide it in db_connect() config.');
         }
@@ -96,12 +96,12 @@ function db_connect(DbDriver|string|null $driver = null, array $config = []): \m
         return db_sqlite_connect($sqlite_path);
     }
 
-    $host = db_resolve_mysql_option($config, ['host'], '127.0.0.1');
-    $user = db_resolve_mysql_option($config, ['user', 'username'], 'root');
-    $password = db_resolve_mysql_option($config, ['password', 'pass'], '');
-    $database = db_resolve_mysql_option($config, ['database', 'db'], '');
-    $port = (int) db_resolve_mysql_option($config, ['port'], 3306);
-    $charset = db_resolve_mysql_option($config, ['charset'], 'utf8mb4');
+    $host = db_internal_resolve_mysql_option($config, ['host'], '127.0.0.1');
+    $user = db_internal_resolve_mysql_option($config, ['user', 'username'], 'root');
+    $password = db_internal_resolve_mysql_option($config, ['password', 'pass'], '');
+    $database = db_internal_resolve_mysql_option($config, ['database', 'db'], '');
+    $port = (int) db_internal_resolve_mysql_option($config, ['port'], 3306);
+    $charset = db_internal_resolve_mysql_option($config, ['charset'], 'utf8mb4');
 
     if (DbDriver::MYSQLI === $resolved_driver) {
         return db_mysqli_connect($host, $user, $password, $database, $port, $charset);
@@ -129,7 +129,7 @@ function db_execute(\mysqli|\PDO $connection, string $sql, array $bindings = [])
         return db_mysql_execute($connection, $sql, $bindings);
     }
 
-    return db_pdo_execute($connection, $sql, $bindings);
+    return db_internal_pdo_execute($connection, $sql, $bindings);
 }
 
 function db_array(\mysqli|\PDO $connection, string $sql, array $bindings = []): array
@@ -151,7 +151,7 @@ function db_array(\mysqli|\PDO $connection, string $sql, array $bindings = []): 
         return db_mysql_array($connection, $sql, $bindings);
     }
 
-    return db_pdo_array($connection, $sql, $bindings);
+    return db_internal_pdo_array($connection, $sql, $bindings);
 }
 
 function db_first(\mysqli|\PDO $connection, string $sql, array $bindings = []): array
@@ -189,7 +189,7 @@ function db_objects(\mysqli|\PDO $connection, string $sql, array $bindings = [])
         return db_mysql_objects($connection, $sql, $bindings);
     }
 
-    return db_pdo_objects($connection, $sql, $bindings);
+    return db_internal_pdo_objects($connection, $sql, $bindings);
 }
 
 function db_close(\mysqli|\PDO $connection): bool
@@ -211,7 +211,7 @@ function db_close(\mysqli|\PDO $connection): bool
 }
 
 /** Private */
-function db_resolve_driver(mixed $driver): ?DbDriver
+function db_internal_resolve_driver(mixed $driver): ?DbDriver
 {
     if ($driver instanceof DbDriver) {
         return $driver;
@@ -229,9 +229,9 @@ function db_resolve_driver(mixed $driver): ?DbDriver
     return DbDriver::tryFrom($normalized_driver);
 }
 
-function db_resolve_sqlite_path(array $config = []): ?string
+function db_internal_resolve_sqlite_path(array $config = []): ?string
 {
-    $config_path = db_config_pick(
+    $config_path = db_internal_config_pick(
         $config,
         ['sqlite.path', 'path', 'database']
     );
@@ -248,10 +248,10 @@ function db_resolve_sqlite_path(array $config = []): ?string
     return null;
 }
 
-function db_resolve_mysql_option(array $config, array $keys, mixed $default = null): mixed
+function db_internal_resolve_mysql_option(array $config, array $keys, mixed $default = null): mixed
 {
     foreach ($keys as $key) {
-        $from_config = db_config_pick($config, ['mysql.'.$key, $key]);
+        $from_config = db_internal_config_pick($config, ['mysql.'.$key, $key]);
         if (! harbor_is_null($from_config) && ! (is_string($from_config) && harbor_is_blank($from_config))) {
             return $from_config;
         }
@@ -265,7 +265,7 @@ function db_resolve_mysql_option(array $config, array $keys, mixed $default = nu
     return $default;
 }
 
-function db_config_pick(array $config, array $keys): mixed
+function db_internal_config_pick(array $config, array $keys): mixed
 {
     foreach ($keys as $key) {
         $value = config_internal_array_get($config, $key);
@@ -277,30 +277,30 @@ function db_config_pick(array $config, array $keys): mixed
     return null;
 }
 
-function db_pdo_execute(\PDO $connection, string $sql, array $bindings = []): bool
+function db_internal_pdo_execute(\PDO $connection, string $sql, array $bindings = []): bool
 {
-    $statement = db_pdo_prepare_and_execute($connection, $sql, $bindings);
+    $statement = db_internal_pdo_prepare_and_execute($connection, $sql, $bindings);
 
     return $statement->rowCount() >= 0;
 }
 
-function db_pdo_array(\PDO $connection, string $sql, array $bindings = []): array
+function db_internal_pdo_array(\PDO $connection, string $sql, array $bindings = []): array
 {
-    $statement = db_pdo_prepare_and_execute($connection, $sql, $bindings);
+    $statement = db_internal_pdo_prepare_and_execute($connection, $sql, $bindings);
     $rows = $statement->fetchAll(\PDO::FETCH_ASSOC);
 
     return is_array($rows) ? $rows : [];
 }
 
-function db_pdo_objects(\PDO $connection, string $sql, array $bindings = []): array
+function db_internal_pdo_objects(\PDO $connection, string $sql, array $bindings = []): array
 {
-    $statement = db_pdo_prepare_and_execute($connection, $sql, $bindings);
+    $statement = db_internal_pdo_prepare_and_execute($connection, $sql, $bindings);
     $rows = $statement->fetchAll(\PDO::FETCH_OBJ);
 
     return is_array($rows) ? $rows : [];
 }
 
-function db_pdo_prepare_and_execute(\PDO $connection, string $sql, array $bindings = []): \PDOStatement
+function db_internal_pdo_prepare_and_execute(\PDO $connection, string $sql, array $bindings = []): \PDOStatement
 {
     $normalized_sql = trim($sql);
     if (harbor_is_blank($normalized_sql)) {

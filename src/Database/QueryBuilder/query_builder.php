@@ -18,36 +18,36 @@ use Harbor\Database\QueryBuilder\QueryFactory;
 /** Public */
 function query(): QueryFactory
 {
-    return query_builder_factory();
+    return query_builder_internal_factory();
 }
 
 function query_select(?string $table = null): QueryBuilder
 {
-    return query_builder_new('select', $table);
+    return query_builder_internal_new('select', $table);
 }
 
 function query_insert(?string $table = null): QueryBuilder
 {
-    return query_builder_new('insert', $table);
+    return query_builder_internal_new('insert', $table);
 }
 
 function query_update(?string $table = null): QueryBuilder
 {
-    return query_builder_new('update', $table);
+    return query_builder_internal_new('update', $table);
 }
 
 function query_delete(?string $table = null): QueryBuilder
 {
-    return query_builder_new('delete', $table);
+    return query_builder_internal_new('delete', $table);
 }
 
 /** Private */
-function query_builder_factory(): QueryFactory
+function query_builder_internal_factory(): QueryFactory
 {
     return new QueryFactory();
 }
 
-function query_builder_new(string $type, ?string $table = null): QueryBuilder
+function query_builder_internal_new(string $type, ?string $table = null): QueryBuilder
 {
     return match ($type) {
         'select' => QueryBuilder::select($table),

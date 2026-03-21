@@ -79,25 +79,25 @@ function db_mysql_connect_dto(MysqlDto $dto): \PDO
 
 function db_mysql_pdo_close(\PDO $connection): bool
 {
-    db_mysql_assert_driver($connection);
+    db_mysql_internal_assert_driver($connection);
 
     return true;
 }
 
 function db_mysql_execute(\PDO $connection, string $sql, array $bindings = []): bool
 {
-    db_mysql_assert_driver($connection);
+    db_mysql_internal_assert_driver($connection);
 
-    $statement = db_mysql_prepare_and_execute($connection, $sql, $bindings);
+    $statement = db_mysql_internal_prepare_and_execute($connection, $sql, $bindings);
 
     return $statement->rowCount() >= 0;
 }
 
 function db_mysql_array(\PDO $connection, string $sql, array $bindings = []): array
 {
-    db_mysql_assert_driver($connection);
+    db_mysql_internal_assert_driver($connection);
 
-    $statement = db_mysql_prepare_and_execute($connection, $sql, $bindings);
+    $statement = db_mysql_internal_prepare_and_execute($connection, $sql, $bindings);
     $rows = $statement->fetchAll(\PDO::FETCH_ASSOC);
 
     return is_array($rows) ? $rows : [];
@@ -121,16 +121,16 @@ function db_mysql_last(\PDO $connection, string $sql, array $bindings = []): arr
 
 function db_mysql_objects(\PDO $connection, string $sql, array $bindings = []): array
 {
-    db_mysql_assert_driver($connection);
+    db_mysql_internal_assert_driver($connection);
 
-    $statement = db_mysql_prepare_and_execute($connection, $sql, $bindings);
+    $statement = db_mysql_internal_prepare_and_execute($connection, $sql, $bindings);
     $rows = $statement->fetchAll(\PDO::FETCH_OBJ);
 
     return is_array($rows) ? $rows : [];
 }
 
 /** Private */
-function db_mysql_prepare_and_execute(\PDO $connection, string $sql, array $bindings = []): \PDOStatement
+function db_mysql_internal_prepare_and_execute(\PDO $connection, string $sql, array $bindings = []): \PDOStatement
 {
     $normalized_sql = trim($sql);
     if (harbor_is_blank($normalized_sql)) {
@@ -150,7 +150,7 @@ function db_mysql_prepare_and_execute(\PDO $connection, string $sql, array $bind
     return $statement;
 }
 
-function db_mysql_assert_driver(\PDO $connection): void
+function db_mysql_internal_assert_driver(\PDO $connection): void
 {
     $driver_name = (string) $connection->getAttribute(\PDO::ATTR_DRIVER_NAME);
     if ('mysql' !== strtolower($driver_name)) {
