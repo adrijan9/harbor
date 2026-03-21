@@ -18,9 +18,9 @@ function rate_limiter_hit(string $key, int $decay_seconds = 60, int $amount = 1)
 {
     $normalized_decay_seconds = max(1, $decay_seconds);
     $normalized_amount = max(1, $amount);
-    $bucket_key = rate_limiter_bucket_key($key);
+    $bucket_key = rate_limiter_internal_bucket_key($key);
     $now = time();
-    $bucket = rate_limiter_current_bucket($bucket_key);
+    $bucket = rate_limiter_internal_current_bucket($bucket_key);
 
     if (! is_array($bucket)) {
         $bucket = [
@@ -30,14 +30,14 @@ function rate_limiter_hit(string $key, int $decay_seconds = 60, int $amount = 1)
     }
 
     $bucket['attempts'] += $normalized_amount;
-    rate_limiter_store_bucket($bucket_key, $bucket);
+    rate_limiter_internal_store_bucket($bucket_key, $bucket);
 
     return $bucket['attempts'];
 }
 
 function rate_limiter_attempts(string $key): int
 {
-    $bucket = rate_limiter_current_bucket(rate_limiter_bucket_key($key));
+    $bucket = rate_limiter_internal_current_bucket(rate_limiter_internal_bucket_key($key));
     if (! is_array($bucket)) {
         return 0;
     }
@@ -62,7 +62,7 @@ function rate_limiter_remaining(string $key, int $max_attempts): int
 
 function rate_limiter_available_in(string $key): int
 {
-    $bucket = rate_limiter_current_bucket(rate_limiter_bucket_key($key));
+    $bucket = rate_limiter_internal_current_bucket(rate_limiter_internal_bucket_key($key));
     if (! is_array($bucket)) {
         return 0;
     }
@@ -72,21 +72,21 @@ function rate_limiter_available_in(string $key): int
 
 function rate_limiter_clear(string $key): bool
 {
-    return cache_delete(rate_limiter_bucket_key($key));
+    return cache_delete(rate_limiter_internal_bucket_key($key));
 }
 
 /** Private */
-function rate_limiter_bucket_key(string $key): string
+function rate_limiter_internal_bucket_key(string $key): string
 {
-    $normalized_key = rate_limiter_normalize_key($key);
+    $normalized_key = rate_limiter_internal_normalize_key($key);
 
     return 'rate_limiter:'.sha1($normalized_key);
 }
 
-function rate_limiter_current_bucket(string $bucket_key): ?array
+function rate_limiter_internal_current_bucket(string $bucket_key): ?array
 {
     $bucket = cache_get($bucket_key, null);
-    if (! rate_limiter_bucket_is_valid($bucket)) {
+    if (! rate_limiter_internal_bucket_is_valid($bucket)) {
         return null;
     }
 
@@ -103,7 +103,7 @@ function rate_limiter_current_bucket(string $bucket_key): ?array
     ];
 }
 
-function rate_limiter_bucket_is_valid(mixed $bucket): bool
+function rate_limiter_internal_bucket_is_valid(mixed $bucket): bool
 {
     if (! is_array($bucket)) {
         return false;
@@ -116,7 +116,7 @@ function rate_limiter_bucket_is_valid(mixed $bucket): bool
     return is_int($bucket['attempts']) && $bucket['attempts'] >= 0 && is_int($bucket['expires_at']);
 }
 
-function rate_limiter_store_bucket(string $bucket_key, array $bucket): void
+function rate_limiter_internal_store_bucket(string $bucket_key, array $bucket): void
 {
     $expires_at = $bucket['expires_at'] ?? 0;
     $attempts = $bucket['attempts'] ?? 0;
@@ -132,7 +132,7 @@ function rate_limiter_store_bucket(string $bucket_key, array $bucket): void
     ], $ttl_seconds);
 }
 
-function rate_limiter_normalize_key(string $key): string
+function rate_limiter_internal_normalize_key(string $key): string
 {
     $normalized_key = trim($key);
     if (harbor_is_blank($normalized_key)) {
