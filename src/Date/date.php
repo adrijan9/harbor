@@ -9,16 +9,16 @@ require_once __DIR__.'/Carbon.php';
 /** Public */
 function carbon(mixed $time = null, \DateTimeZone|string|null $timezone = null): Carbon
 {
-    return Carbon::parse($time ?? 'now', date_resolve_timezone($timezone));
+    return Carbon::parse($time ?? 'now', date_internal_resolve_timezone($timezone));
 }
 
 function date_now(\DateTimeZone|string|null $timezone = null): Carbon
 {
-    return Carbon::now(date_resolve_timezone($timezone));
+    return Carbon::now(date_internal_resolve_timezone($timezone));
 }
 
 /** Private */
-function date_resolve_timezone(\DateTimeZone|string|null $timezone = null): ?\DateTimeZone
+function date_internal_resolve_timezone(\DateTimeZone|string|null $timezone = null): ?\DateTimeZone
 {
     if ($timezone instanceof \DateTimeZone) {
         return $timezone;
