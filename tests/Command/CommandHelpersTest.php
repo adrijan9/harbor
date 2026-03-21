@@ -71,6 +71,111 @@ final class CommandHelpersTest extends TestCase
         self::assertSame(['--force', 'users'], $captured_arguments);
     }
 
+    public function test_command_run_uses_runtime_helpers_when_entry_loads_command_helper(): void
+    {
+        $this->prepare_workspace();
+
+        file_put_contents(
+            $this->site_path.'/.commands',
+            <<<'COMMANDS'
+                <command>
+                    key: users:inspect
+                    entry: commands/users_inspect.php
+                    enabled: true
+                </command>
+                COMMANDS
+        );
+
+        mkdir($this->site_path.'/commands', 0o777, true);
+        mkdir($this->site_path.'/storage', 0o777, true);
+
+        file_put_contents(
+            $this->site_path.'/commands/users_inspect.php',
+            <<<'PHP_SCRIPT'
+                <?php
+
+                declare(strict_types=1);
+
+                use Harbor\Helper;
+                use function Harbor\Command\command_arg_int;
+                use function Harbor\Command\command_arg_string;
+                use function Harbor\Command\command_arguments;
+                use function Harbor\Command\command_debug;
+                use function Harbor\Command\command_debug_enabled;
+                use function Harbor\Command\command_error;
+                use function Harbor\Command\command_has_option;
+                use function Harbor\Command\command_info;
+                use function Harbor\Command\command_option_bool;
+                use function Harbor\Command\command_option_int;
+                use function Harbor\Command\command_option_string;
+                use function Harbor\Command\command_raw_arguments;
+
+                require __DIR__."/../../vendor/autoload.php";
+
+                Helper::Command->load();
+
+                $payload = [
+                    'has_command_info' => function_exists('Harbor\Command\command_info'),
+                    'has_command_error' => function_exists('Harbor\Command\command_error'),
+                    'has_command_debug' => function_exists('Harbor\Command\command_debug'),
+                    'has_command_arg_string' => function_exists('Harbor\Command\command_arg_string'),
+                    'has_command_arg_int' => function_exists('Harbor\Command\command_arg_int'),
+                    'has_command_run' => function_exists('Harbor\Command\command_run'),
+                    'raw_arguments' => command_raw_arguments(),
+                    'arguments' => command_arguments(),
+                    'first_argument' => command_arg_string(0),
+                    'second_argument_defaulted' => command_arg_string(1, 'fallback'),
+                    'retry_count' => command_arg_int(1, 7),
+                    'option_name' => command_option_string('name'),
+                    'option_force' => command_option_bool('force', false),
+                    'option_limit' => command_option_int('limit', 0),
+                    'has_short_verbose' => command_has_option('v'),
+                    'debug_enabled' => command_debug_enabled(),
+                ];
+
+                command_info('runtime helper info');
+                command_error('runtime helper error');
+                command_debug('runtime helper debug');
+
+                file_put_contents(__DIR__.'/../storage/command-runtime.json', json_encode($payload, JSON_THROW_ON_ERROR));
+                PHP_SCRIPT
+        );
+
+        $exit_code = command_run(
+            'users:inspect',
+            ['alpha', '--name=Harbor', '--force', '--limit', '10', '-v'],
+            $this->site_path,
+            true
+        );
+
+        self::assertSame(0, $exit_code);
+        self::assertFileExists($this->site_path.'/storage/command-runtime.json');
+
+        $runtime_content = file_get_contents($this->site_path.'/storage/command-runtime.json');
+        self::assertIsString($runtime_content);
+
+        $runtime_payload = json_decode($runtime_content, true);
+        self::assertIsArray($runtime_payload);
+
+        self::assertTrue($runtime_payload['has_command_info'] ?? false);
+        self::assertTrue($runtime_payload['has_command_error'] ?? false);
+        self::assertTrue($runtime_payload['has_command_debug'] ?? false);
+        self::assertTrue($runtime_payload['has_command_arg_string'] ?? false);
+        self::assertTrue($runtime_payload['has_command_arg_int'] ?? false);
+        self::assertTrue($runtime_payload['has_command_run'] ?? false);
+
+        self::assertSame(['alpha', '--name=Harbor', '--force', '--limit', '10', '-v'], $runtime_payload['raw_arguments'] ?? null);
+        self::assertSame(['alpha'], $runtime_payload['arguments'] ?? null);
+        self::assertSame('alpha', $runtime_payload['first_argument'] ?? null);
+        self::assertSame('fallback', $runtime_payload['second_argument_defaulted'] ?? null);
+        self::assertSame(7, $runtime_payload['retry_count'] ?? null);
+        self::assertSame('Harbor', $runtime_payload['option_name'] ?? null);
+        self::assertTrue($runtime_payload['option_force'] ?? false);
+        self::assertSame(10, $runtime_payload['option_limit'] ?? null);
+        self::assertTrue($runtime_payload['has_short_verbose'] ?? false);
+        self::assertTrue($runtime_payload['debug_enabled'] ?? false);
+    }
+
     public function test_command_run_throws_when_working_directory_is_not_harbor_site(): void
     {
         $this->prepare_workspace();
@@ -115,6 +220,34 @@ final class CommandHelpersTest extends TestCase
 
         mkdir($this->site_path, 0o777, true);
         file_put_contents($this->site_path.'/.router', "# test site\n");
+
+        $this->create_workspace_autoload_bridge();
+    }
+
+    private function create_workspace_autoload_bridge(): void
+    {
+        $framework_autoload_path = realpath(dirname(__DIR__, 2).'/vendor/autoload.php');
+        if (! is_string($framework_autoload_path) || '' === trim($framework_autoload_path)) {
+            throw new \RuntimeException('Failed to resolve framework autoload path for command helper test workspace.');
+        }
+
+        $workspace_vendor_path = $this->workspace_path.'/vendor';
+        if (! is_dir($workspace_vendor_path)) {
+            mkdir($workspace_vendor_path, 0o777, true);
+        }
+
+        $autoload_bridge = <<<'PHP'
+            <?php
+
+            declare(strict_types=1);
+
+            require_once %s;
+            PHP;
+
+        file_put_contents(
+            $workspace_vendor_path.'/autoload.php',
+            sprintf($autoload_bridge, var_export($framework_autoload_path, true)).PHP_EOL
+        );
     }
 
     private function delete_directory_tree(string $directory_path): void

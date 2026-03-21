@@ -61,7 +61,6 @@ final class RunCommand extends BaseCommand
         }
 
         $timeout_seconds = $this->normalize_timeout_seconds($command_definition['timeout_seconds'] ?? null);
-
         $process_command = array_merge([$this->resolve_php_binary_path(), $resolved_entry_path], $forwarded_arguments);
         $this->debug(sprintf('Executing command key: %s', $key));
         $this->debug(sprintf('Resolved entry path: %s', $resolved_entry_path));
@@ -131,7 +130,20 @@ final class RunCommand extends BaseCommand
             2 => ['file', 'php://stderr', 'w'],
         ];
 
-        $process = proc_open($command, $descriptors, $pipes, $working_directory);
+        $previous_debug_environment = getenv('HARBOR_COMMAND_DEBUG');
+        $had_previous_debug_environment = false !== $previous_debug_environment;
+        putenv(sprintf('HARBOR_COMMAND_DEBUG=%s', $this->is_debug_mode() ? '1' : '0'));
+
+        try {
+            $process = proc_open($command, $descriptors, $pipes, $working_directory);
+        } finally {
+            if ($had_previous_debug_environment) {
+                putenv(sprintf('HARBOR_COMMAND_DEBUG=%s', $previous_debug_environment));
+            } else {
+                putenv('HARBOR_COMMAND_DEBUG');
+            }
+        }
+
         if (! is_resource($process)) {
             throw new CommandException('Failed to execute command process.', 1);
         }

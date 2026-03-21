@@ -35,6 +35,14 @@ final class HarborCommandCommandTest extends TestCase
         self::assertFileExists($this->site_path.'/commands/commands.php');
         self::assertFileExists($this->site_path.'/commands/my_command.php');
 
+        $entry_content = file_get_contents($this->site_path.'/commands/my_command.php');
+        self::assertIsString($entry_content);
+        self::assertStringContainsString('require __DIR__."/../../vendor/autoload.php";', $entry_content);
+        self::assertStringContainsString('use Harbor\Helper;', $entry_content);
+        self::assertStringContainsString('use function Harbor\Command\command_info;', $entry_content);
+        self::assertStringContainsString('Helper::Command->load();', $entry_content);
+        self::assertStringContainsString('command_info(', $entry_content);
+
         $source_content = file_get_contents($this->site_path.'/.commands');
         self::assertIsString($source_content);
         self::assertStringContainsString('key: my:command', $source_content);
@@ -104,6 +112,25 @@ final class HarborCommandCommandTest extends TestCase
         $captured_arguments = json_decode($captured_arguments_content, true);
         self::assertIsArray($captured_arguments);
         self::assertSame(['--force', 'users'], $captured_arguments);
+    }
+
+    public function test_run_executes_generated_stub_with_runtime_helpers_loaded_by_default(): void
+    {
+        $this->prepare_workspace();
+        chdir($this->site_path);
+
+        self::assertSame(0, $this->run_harbor_command(['harbor-command', 'create', 'greet:user']));
+
+        $exit_code = $this->run_harbor_command([
+            'harbor-command',
+            'run',
+            'greet:user',
+            '--',
+            'Harbor',
+            '--force',
+        ]);
+
+        self::assertSame(0, $exit_code);
     }
 
     public function test_run_returns_missing_key_exit_code_when_command_does_not_exist(): void
@@ -189,6 +216,8 @@ final class HarborCommandCommandTest extends TestCase
 
         mkdir($this->site_path, 0o777, true);
         file_put_contents($this->site_path.'/.router', "# test site\n");
+
+        $this->create_workspace_autoload_bridge();
     }
 
     /**
@@ -203,6 +232,32 @@ final class HarborCommandCommandTest extends TestCase
         } finally {
             ob_end_clean();
         }
+    }
+
+    private function create_workspace_autoload_bridge(): void
+    {
+        $framework_autoload_path = realpath(dirname(__DIR__, 2).'/vendor/autoload.php');
+        if (! is_string($framework_autoload_path) || harbor_is_blank($framework_autoload_path)) {
+            throw new \RuntimeException('Failed to resolve framework autoload path for command test workspace.');
+        }
+
+        $workspace_vendor_path = $this->workspace_path.'/vendor';
+        if (! is_dir($workspace_vendor_path)) {
+            mkdir($workspace_vendor_path, 0o777, true);
+        }
+
+        $autoload_bridge = <<<'PHP'
+            <?php
+
+            declare(strict_types=1);
+
+            require_once %s;
+            PHP;
+
+        file_put_contents(
+            $workspace_vendor_path.'/autoload.php',
+            sprintf($autoload_bridge, var_export($framework_autoload_path, true)).PHP_EOL
+        );
     }
 
     private function delete_directory_tree(string $directory_path): void

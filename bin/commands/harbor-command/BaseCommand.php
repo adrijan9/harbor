@@ -45,6 +45,11 @@ abstract class BaseCommand
         fwrite(STDERR, sprintf('[debug] %s%s', $message, PHP_EOL));
     }
 
+    protected function is_debug_mode(): bool
+    {
+        return $this->debug_mode;
+    }
+
     protected function source_path(string $working_directory): string
     {
         return $working_directory.'/.commands';

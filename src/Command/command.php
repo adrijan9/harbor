@@ -6,6 +6,8 @@ namespace Harbor\Command;
 
 require_once __DIR__.'/../Support/value.php';
 
+require_once __DIR__.'/command_entry_helpers.php';
+
 require_once __DIR__.'/../../bin/commands/harbor-command/CommandException.php';
 
 require_once __DIR__.'/../../bin/commands/harbor-command/BaseCommand.php';
@@ -33,9 +35,7 @@ function command_run(
     $normalized_arguments = command_internal_normalize_forwarded_arguments($forwarded_arguments);
 
     $compiler = new CommandCompiler();
-    $run_command = new RunCommand($debug_mode, $compiler);
-
-    return $run_command->execute($key, $normalized_arguments, $resolved_working_directory);
+    return new RunCommand($debug_mode, $compiler)->execute($key, $normalized_arguments, $resolved_working_directory);
 }
 
 /** Private */
