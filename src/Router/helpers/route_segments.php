@@ -104,7 +104,7 @@ function route_segment_arr(int $index, array $default = []): array
     }
 
     if (is_string($value)) {
-        $decoded = route_segment_decode_json($value, true);
+        $decoded = route_segments_internal_decode_json($value, true);
 
         if (is_array($decoded)) {
             return $decoded;
@@ -135,7 +135,7 @@ function route_segment_obj(int $index, ?object $default = null): ?object
     }
 
     if (is_string($value)) {
-        $decoded = route_segment_decode_json($value, false);
+        $decoded = route_segments_internal_decode_json($value, false);
 
         if (is_object($decoded)) {
             return $decoded;
@@ -157,7 +157,7 @@ function route_segment_json(int $index, mixed $default = null): mixed
         return $default;
     }
 
-    $decoded = route_segment_decode_json($value, true);
+    $decoded = route_segments_internal_decode_json($value, true);
 
     return harbor_is_null($decoded) ? $default : $decoded;
 }
@@ -184,7 +184,7 @@ function route_segment_exists(int $index): bool
 }
 
 /** Private */
-function route_segment_decode_json(string $value, bool $assoc): mixed
+function route_segments_internal_decode_json(string $value, bool $assoc): mixed
 {
     try {
         return json_decode(rawurldecode($value), $assoc, 512, JSON_THROW_ON_ERROR);
