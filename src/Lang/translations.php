@@ -23,7 +23,7 @@ use function Harbor\Support\harbor_is_blank;
 function translation_init(array $translations): void
 {
     if (empty($translations)) {
-        translation_write_global([]);
+        translation_internal_write_global([]);
 
         return;
     }
@@ -31,19 +31,19 @@ function translation_init(array $translations): void
     $loaded_translations = [];
 
     foreach ($translations as $locale => $locale_files) {
-        $normalized_locale = translation_normalize_locale($locale);
-        $normalized_files = translation_normalize_locale_files($locale_files, $normalized_locale);
+        $normalized_locale = translation_internal_normalize_locale($locale);
+        $normalized_files = translation_internal_normalize_locale_files($locale_files, $normalized_locale);
         $locale_translations = [];
 
         foreach ($normalized_files as $translation_file) {
-            $loaded_file_translations = translation_load_file($translation_file);
+            $loaded_file_translations = translation_internal_load_file($translation_file);
             $locale_translations = array_replace_recursive($locale_translations, $loaded_file_translations);
         }
 
         $loaded_translations[$normalized_locale] = $locale_translations;
     }
 
-    translation_write_global($loaded_translations);
+    translation_internal_write_global($loaded_translations);
 }
 
 function translations_all(): array
@@ -72,7 +72,7 @@ function translation_exists(string $key, ?string $locale = null): bool
         return false;
     }
 
-    return translation_array_has(translation_locale_translations($locale), $key);
+    return translation_internal_array_has(translation_locale_translations($locale), $key);
 }
 
 function translation_get(string $key, array $replace = [], ?string $locale = null): string
@@ -81,10 +81,10 @@ function translation_get(string $key, array $replace = [], ?string $locale = nul
         return $key;
     }
 
-    $translation_value = translation_array_get(translation_locale_translations($locale), $key, $key);
-    $translation = translation_value_to_string($translation_value, $key);
+    $translation_value = translation_internal_array_get(translation_locale_translations($locale), $key, $key);
+    $translation = translation_internal_value_to_string($translation_value, $key);
 
-    return translation_apply_replacements($translation, $replace);
+    return translation_internal_apply_replacements($translation, $replace);
 }
 
 function t(string $key, array $replace = [], ?string $locale = null): string
@@ -102,7 +102,7 @@ function translation_locale_translations(?string $locale = null): array
 }
 
 /** Private */
-function translation_normalize_locale(mixed $locale): string
+function translation_internal_normalize_locale(mixed $locale): string
 {
     if (! is_string($locale)) {
         throw new \InvalidArgumentException('Translation locale key must be a non-empty string.');
@@ -116,10 +116,10 @@ function translation_normalize_locale(mixed $locale): string
     return $normalized_locale;
 }
 
-function translation_normalize_locale_files(mixed $locale_files, string $locale): array
+function translation_internal_normalize_locale_files(mixed $locale_files, string $locale): array
 {
     if (is_string($locale_files)) {
-        return [translation_normalize_file_path($locale_files, $locale)];
+        return [translation_internal_normalize_file_path($locale_files, $locale)];
     }
 
     if (! is_array($locale_files)) {
@@ -135,13 +135,13 @@ function translation_normalize_locale_files(mixed $locale_files, string $locale)
     $normalized_files = [];
 
     foreach ($locale_files as $locale_file) {
-        $normalized_files[] = translation_normalize_file_path($locale_file, $locale);
+        $normalized_files[] = translation_internal_normalize_file_path($locale_file, $locale);
     }
 
     return $normalized_files;
 }
 
-function translation_normalize_file_path(mixed $file_path, string $locale): string
+function translation_internal_normalize_file_path(mixed $file_path, string $locale): string
 {
     if (! is_string($file_path)) {
         throw new \InvalidArgumentException(
@@ -159,7 +159,7 @@ function translation_normalize_file_path(mixed $file_path, string $locale): stri
     return $normalized_file_path;
 }
 
-function translation_load_file(string $translation_file): array
+function translation_internal_load_file(string $translation_file): array
 {
     if (! is_file($translation_file)) {
         throw new \RuntimeException(sprintf('Translation file not found: %s', $translation_file));
@@ -175,12 +175,12 @@ function translation_load_file(string $translation_file): array
     return $loaded_translations;
 }
 
-function translation_write_global(array $translations): void
+function translation_internal_write_global(array $translations): void
 {
     $GLOBALS['translations'] = $translations;
 }
 
-function translation_array_get(array $array, string $key, mixed $default = null): mixed
+function translation_internal_array_get(array $array, string $key, mixed $default = null): mixed
 {
     if (array_key_exists($key, $array)) {
         return $array[$key];
@@ -200,7 +200,7 @@ function translation_array_get(array $array, string $key, mixed $default = null)
     return $current;
 }
 
-function translation_array_has(array $array, string $key): bool
+function translation_internal_array_has(array $array, string $key): bool
 {
     if (array_key_exists($key, $array)) {
         return true;
@@ -220,7 +220,7 @@ function translation_array_has(array $array, string $key): bool
     return true;
 }
 
-function translation_value_to_string(mixed $value, string $default): string
+function translation_internal_value_to_string(mixed $value, string $default): string
 {
     if (is_string($value)) {
         return $value;
@@ -237,11 +237,11 @@ function translation_value_to_string(mixed $value, string $default): string
     return $default;
 }
 
-function translation_apply_replacements(string $translation, array $replace): string
+function translation_internal_apply_replacements(string $translation, array $replace): string
 {
     foreach ($replace as $replace_key => $replace_value) {
         $key = (string) $replace_key;
-        $value = translation_replacement_value_to_string($replace_value);
+        $value = translation_internal_replacement_value_to_string($replace_value);
         $placeholder = ':'.$key;
         $uppercase_placeholder = ':'.strtoupper($key);
         $capitalized_placeholder = ':'.ucfirst($key);
@@ -254,7 +254,7 @@ function translation_apply_replacements(string $translation, array $replace): st
     return $translation;
 }
 
-function translation_replacement_value_to_string(mixed $value): string
+function translation_internal_replacement_value_to_string(mixed $value): string
 {
     if (is_string($value)) {
         return $value;
