@@ -1,5 +1,5 @@
 {
-    "generated_at": "2026-03-22T14:15:54+00:00",
+    "generated_at": "2026-03-22T14:29:59+00:00",
     "source": "documentation/.router",
     "items": [
         {
@@ -107,7 +107,7 @@
                 "Editor Integration",
                 "Private Methods"
             ],
-            "content": "Conventions Code Use these conventions in your Harbor site project after Harbor is installed. Style Publish Fixer Preset cd my-site ../bin/harbor-fixer From your site root, publish Harbor's .php-cs-fixer.dist.php preset into that same project. Existing .php-cs-fixer.dist.php content is replaced without a confirmation prompt. Run Fixer For Project Files ./vendor/bin/php-cs-fixer fix --using-cache=no --sequential Run this from your site root to apply style fixes across the project files that match the active preset. Editor Integration VS Code and PhpStorm setup guidance can be added later in this section, including watcher configuration such as a downloadable .xml profile. Private Methods Private methods are helper functions Harbor uses behind the scenes. You can find them in each helper module under the /** Private */ section. Private method names follow the module_internal_* pattern (for example, config_internal_*). Warning You may call private methods, but they can change or be deprecated in future updates. If you need stable behavior in your project, copy the logic into your own helper and rename it for your use case."
+            "content": "Conventions Code Use these conventions in your Harbor site project after Harbor is installed. Style Publish Fixer Preset cd my-site ../bin/harbor-fixer From your site root, publish Harbor's .php-cs-fixer.dist.php preset into that same project. Existing .php-cs-fixer.dist.php content is replaced without a confirmation prompt. Run Fixer For Project Files ./vendor/bin/php-cs-fixer fix --using-cache=no --sequential Run this from your site root to apply style fixes across the project files that match the active preset. Editor Integration PhpStorm PhpStorm already has built-in support for php-cs-fixer. In many projects, it detects the tool and preset automatically when .php-cs-fixer.dist.php exists in the project root. If it is not detected, open Settings and enable/configure it manually under PHP > Quality Tools > PHP CS Fixer. VS Code Install a php-cs-fixer extension (for example, PHP CS Fixer by junstyle). Then configure the extension to use your project preset file: { \"php-cs-fixer.config\": \"${workspaceFolder}/.php-cs-fixer.dist.php\" } This points VS Code to the same fixer rules used by Harbor in your site root. Private Methods Private methods are helper functions Harbor uses internally. You can find them in each helper module under the /** Private */ section. Private method names use the module_internal_* pattern (for example, config_internal_*). Warning You can call private methods, but they are not considered stable public API. They may change, be renamed, or be removed in future updates. If you need stable behavior in your project, it is better to copy the logic into your own helper and rename it for your use case."
         },
         {
             "path": "/commands",

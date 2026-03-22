@@ -28,7 +28,18 @@ require __DIR__.'/../shared/header.php';
     <p>Run this from your site root to apply style fixes across the project files that match the active preset.</p>
 
     <h3>Editor Integration</h3>
-    <p>VS Code and PhpStorm setup guidance can be added later in this section, including watcher configuration such as a downloadable <code>.xml</code> profile.</p>
+    <h4>PhpStorm</h4>
+    <p>PhpStorm already has built-in support for <code>php-cs-fixer</code>.</p>
+    <p>In many projects, it detects the tool and preset automatically when <code>.php-cs-fixer.dist.php</code> exists in the project root.</p>
+    <p>If it is not detected, open <code>Settings</code> and enable/configure it manually under <code>PHP &gt; Quality Tools &gt; PHP CS Fixer</code>.</p>
+
+    <h4>VS Code</h4>
+    <p>Install a <code>php-cs-fixer</code> extension (for example, <code>PHP CS Fixer</code> by junstyle).</p>
+    <p>Then configure the extension to use your project preset file:</p>
+    <pre><code class="language-json">{
+  "php-cs-fixer.config": "${workspaceFolder}/.php-cs-fixer.dist.php"
+}</code></pre>
+    <p>This points VS Code to the same fixer rules used by Harbor in your site root.</p>
 </section>
 
 <section class="docs-section">
