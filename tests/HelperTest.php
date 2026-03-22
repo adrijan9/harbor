@@ -140,6 +140,10 @@ final class HelperTest extends TestCase
 
         self::assertTrue(function_exists('Harbor\Request\request'));
         self::assertTrue(function_exists('Harbor\Request\request_method'));
+        self::assertTrue(function_exists('Harbor\Request\request_flash_old_input'));
+        self::assertTrue(function_exists('Harbor\Request\request_old'));
+        self::assertTrue(function_exists('Harbor\Request\request_has_old'));
+        self::assertTrue(function_exists('Harbor\Request\request_clear_old_input'));
     }
 
     public function test_load_cookie_helper_registers_namespaced_functions(): void
@@ -244,6 +248,12 @@ final class HelperTest extends TestCase
         self::assertTrue(function_exists('Harbor\Validation\validation_validate'));
         self::assertTrue(function_exists('Harbor\Validation\validation_errors'));
         self::assertTrue(function_exists('Harbor\Validation\validation_has_errors'));
+        self::assertTrue(function_exists('Harbor\Validation\validation_form_flash'));
+        self::assertTrue(function_exists('Harbor\Validation\validation_form_errors'));
+        self::assertTrue(function_exists('Harbor\Validation\validation_form_has_errors'));
+        self::assertTrue(function_exists('Harbor\Validation\validation_form_field_errors'));
+        self::assertTrue(function_exists('Harbor\Validation\validation_form_first_error'));
+        self::assertTrue(function_exists('Harbor\Validation\validation_form_clear'));
         self::assertFalse(function_exists('Harbor\Validation\validator_has_error'));
     }
 

@@ -60,6 +60,7 @@ session_flash_set('notice', 'Profile updated');
 $notice = session_flash_get('notice');</code></pre>
     <h3>What it does</h3>
     <p>Flash values are designed for redirect-style messaging between requests. Harbor keeps flash payloads for the next request cycle and then expires them automatically.</p>
+    <p>Validation form-flow helpers use this same flash layer under the hood for error bags and old input.</p>
 </section>
 
 <section class="docs-section">

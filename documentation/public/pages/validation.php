@@ -105,6 +105,59 @@ validated(): array</code></pre>
 </section>
 
 <section class="docs-section">
+    <h2>Form Error Bags (Redirect Flow)</h2>
+    <h3>Example</h3>
+    <pre><code class="language-php">use function Harbor\Validation\validation_form_first_error;
+use function Harbor\Validation\validation_form_flash;
+use function Harbor\Validation\validation_form_has_errors;
+use function Harbor\Validation\validation_has_errors;
+
+// request A (failed validation before redirect)
+if (validation_has_errors($result)) {
+    validation_form_flash($result); // default bag
+}
+
+// request B (after redirect)
+$has_errors = validation_form_has_errors();
+$email_error = validation_form_first_error('email', 'default', '');</code></pre>
+    <h3>What it does</h3>
+    <p>Flashes validation errors to session for the next request so forms can display per-field messages after redirects.</p>
+
+    <h3>API</h3>
+    <details class="api-details">
+        <summary class="api-summary">
+            <span>Form Error Bag API</span>
+            <span class="api-state"><span class="api-state-closed">Hidden - click to open</span><span class="api-state-open">Open</span></span>
+        </summary>
+        <div class="api-body">
+            <pre><code class="language-php">function validation_form_flash(ValidationResult $result, string $bag = 'default'): bool
+// Flashes validation errors for one redirect cycle.
+validation_form_flash($result);
+
+function validation_form_errors(string $bag = 'default'): array
+// Returns error map: [field => [message1, message2]].
+$errors = validation_form_errors();
+
+function validation_form_has_errors(string $bag = 'default'): bool
+// Checks if bag has any errors.
+$has_errors = validation_form_has_errors();
+
+function validation_form_field_errors(string $field, string $bag = 'default'): array
+// Returns all messages for one field.
+$email_errors = validation_form_field_errors('email');
+
+function validation_form_first_error(string $field, string $bag = 'default', ?string $default = null): ?string
+// Returns first message for one field.
+$email_error = validation_form_first_error('email', 'default', '');
+
+function validation_form_clear(string $bag = 'default'): bool
+// Clears one flashed error bag.
+validation_form_clear();</code></pre>
+        </div>
+    </details>
+</section>
+
+<section class="docs-section">
     <h2>Direct Rule Validation</h2>
     <h3>Example</h3>
     <pre><code class="language-php">use function Harbor\Validation\validation_rule;

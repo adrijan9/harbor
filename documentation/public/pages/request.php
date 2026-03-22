@@ -385,4 +385,52 @@ $request_time = request_server('REQUEST_TIME', 0);</code></pre>
     </details>
 </section>
 
+<section class="docs-section">
+    <h2>Old Input For Form Redirects</h2>
+    <h3>Example</h3>
+    <pre><code class="language-php">use function Harbor\Request\request_flash_old_input;
+use function Harbor\Request\request_has_old;
+use function Harbor\Request\request_old;
+
+// request A (failed validation before redirect)
+request_flash_old_input(); // uses request body and excludes sensitive keys by default
+
+// request B (after redirect)
+$email_value = request_old('email', '');
+$has_email = request_has_old('email');</code></pre>
+    <h3>What it does</h3>
+    <p>Stores previous form input in session flash for the next request so templates can repopulate fields.</p>
+
+    <h3>API</h3>
+    <details class="api-details">
+        <summary class="api-summary">
+            <span>Old Input API</span>
+            <span class="api-state"><span class="api-state-closed">Hidden - click to open</span><span class="api-state-open">Open</span></span>
+        </summary>
+        <div class="api-body">
+            <pre><code class="language-php">function request_flash_old_input(
+    ?array $input = null,
+    array $except = ['password', 'password_confirmation', 'current_password', '_token'],
+    string $bag = 'default',
+): bool
+// Flashes old input for one redirect cycle.
+// Uses request_body_all() when input is null.
+request_flash_old_input();
+
+function request_old(?string $key = null, mixed $default = null, string $bag = 'default'): mixed
+// Reads flashed old input. Null key returns full old input array.
+$old_email = request_old('email', '');
+$all_old = request_old();
+
+function request_has_old(string $key, string $bag = 'default'): bool
+// Checks if old input key exists (supports dot notation).
+$has_profile_name = request_has_old('profile.name');
+
+function request_clear_old_input(string $bag = 'default'): bool
+// Removes old input bag from flash storage.
+request_clear_old_input();</code></pre>
+        </div>
+    </details>
+</section>
+
 <?php require __DIR__.'/../shared/footer.php'; ?>

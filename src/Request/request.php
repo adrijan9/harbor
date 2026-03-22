@@ -8,6 +8,11 @@ require_once __DIR__.'/../Support/array.php';
 
 require_once __DIR__.'/../Support/value.php';
 
+require_once __DIR__.'/../Session/session.php';
+
+use function Harbor\Session\session_flash_forget;
+use function Harbor\Session\session_flash_get;
+use function Harbor\Session\session_flash_set;
 use function Harbor\Support\array_forget;
 use function Harbor\Support\harbor_is_blank;
 
@@ -521,6 +526,69 @@ function request_input_json(string $key, mixed $default = null): mixed
 }
 
 /**
+ * Old input helpers.
+ */
+function request_flash_old_input(
+    ?array $input = null,
+    array $except = ['password', 'password_confirmation', 'current_password', '_token'],
+    string $bag = 'default',
+): bool {
+    $resolved_input = is_array($input) ? $input : request_body_all();
+    $normalized_input = request_internal_old_input_normalize($resolved_input, $except);
+
+    if (empty($normalized_input)) {
+        return request_clear_old_input($bag);
+    }
+
+    return session_flash_set(
+        request_internal_old_input_flash_key($bag),
+        $normalized_input
+    );
+}
+
+function request_old(?string $key = null, mixed $default = null, string $bag = 'default'): mixed
+{
+    $old_input = session_flash_get(
+        request_internal_old_input_flash_key($bag),
+        []
+    );
+
+    if (! is_array($old_input)) {
+        $old_input = [];
+    }
+
+    if (harbor_is_blank($key)) {
+        return $old_input;
+    }
+
+    return request_internal_array_get($old_input, $key, $default);
+}
+
+function request_has_old(string $key, string $bag = 'default'): bool
+{
+    $normalized_key = trim($key);
+    if (harbor_is_blank($normalized_key)) {
+        return false;
+    }
+
+    $old_input = session_flash_get(
+        request_internal_old_input_flash_key($bag),
+        []
+    );
+
+    if (! is_array($old_input)) {
+        return false;
+    }
+
+    return request_internal_array_has($old_input, $normalized_key);
+}
+
+function request_clear_old_input(string $bag = 'default'): bool
+{
+    return session_flash_forget(request_internal_old_input_flash_key($bag));
+}
+
+/**
  * Cookie and file helpers.
  */
 function request_cookie(?string $key = null, mixed $default = null): mixed
@@ -581,6 +649,41 @@ function request_server(?string $key = null, mixed $default = null): mixed
  * Internal helpers.
  */
 /** Private */
+function request_internal_old_input_bag_name(string $bag): string
+{
+    $normalized_bag = strtolower(trim($bag));
+    if (harbor_is_blank($normalized_bag)) {
+        return 'default';
+    }
+
+    return $normalized_bag;
+}
+
+function request_internal_old_input_flash_key(string $bag): string
+{
+    return '__validation_form_old_input_'.rawurlencode(
+        request_internal_old_input_bag_name($bag)
+    );
+}
+
+function request_internal_old_input_normalize(array $input, array $except): array
+{
+    foreach ($except as $except_key) {
+        if (! is_string($except_key)) {
+            continue;
+        }
+
+        $normalized_except_key = trim($except_key);
+        if (harbor_is_blank($normalized_except_key)) {
+            continue;
+        }
+
+        array_forget($input, $normalized_except_key);
+    }
+
+    return $input;
+}
+
 function request_internal_body_data(): mixed
 {
     static $parsed_body = null;
