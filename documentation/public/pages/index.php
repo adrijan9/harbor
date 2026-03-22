@@ -35,6 +35,10 @@ require __DIR__.'/../shared/header.php';
             <h3>Load Helpers</h3>
             <p>One place to see all helper module keys and how to load them.</p>
         </a>
+        <a class="card" href="/code">
+            <h3>Code Conventions</h3>
+            <p>Style workflow and private helper method rules.</p>
+        </a>
         <a class="card" href="/cli">
             <h3>CLI Tooling</h3>
             <p>Scaffold sites and compile `.router` files.</p>

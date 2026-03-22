@@ -24,6 +24,12 @@ return [
             'entry' => 'pages/creating-new-site.php',
         ],
         [
+            'path' => '/code',
+            'method' => 'GET',
+            'name' => 'docs.code',
+            'entry' => 'pages/code.php',
+        ],
+        [
             'path' => '/cli',
             'method' => 'GET',
             'name' => 'docs.cli',

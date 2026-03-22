@@ -19,6 +19,11 @@ require __DIR__.'/../shared/header.php';
 </section>
 
 <section class="docs-section">
+    <h2>Code Conventions</h2>
+    <p>For coding style workflow and private helper method conventions, open <a href="/code"><code>/code</code></a>.</p>
+</section>
+
+<section class="docs-section">
     <h2><code>bin/harbor-command</code></h2>
     <h3>Example</h3>
     <pre><code class="language-bash">cd my-site
@@ -152,31 +157,6 @@ cd ..
 </section>
 
 <section class="docs-section">
-    <h2><code>bin/harbor-fixer</code></h2>
-    <h3>Example</h3>
-    <pre><code class="language-bash">cd my-site
-../bin/harbor-fixer</code></pre>
-    <h3>What it does</h3>
-    <p>Publishes Harbor's root <code>.php-cs-fixer.dist.php</code> preset into the current site root. It does not ask for confirmation and overwrites existing file content.</p>
-    <h3>API</h3>
-    <details class="api-details">
-        <summary class="api-summary">
-            <span>Fixer Publisher CLI API</span>
-            <span class="api-state"><span class="api-state-closed">Hidden - click to open</span><span class="api-state-open">Open</span></span>
-        </summary>
-        <div class="api-body">
-            <ul class="api-method-list">
-                <li><code>cd my-site &amp;&amp; ../bin/harbor-fixer</code> Publish Harbor style preset into current site root.</li>
-                <li><code>./.php-cs-fixer.dist.php</code> Target file path.</li>
-                <li><code>.router</code> Required in current working directory (selected site check).</li>
-                <li><code>Overwrite behavior</code> Existing <code>.php-cs-fixer.dist.php</code> is replaced without prompt.</li>
-                <li><code>-h</code> Show command usage.</li>
-            </ul>
-        </div>
-    </details>
-</section>
-
-<section class="docs-section">
     <h2><code>bin/harbor-migration</code></h2>
     <h3>Example</h3>
     <pre><code class="language-bash">cd my-site
@@ -280,17 +260,15 @@ cd ..
     <h2>Dev Workflow</h2>
     <h3>Example</h3>
     <pre><code class="language-bash">composer test
-./vendor/bin/php-cs-fixer fix --using-cache=no --sequential
 ./bin/harbor documentation/.router
 ./bin/harbor-docs-index
 cd my-site && ../bin/harbor-config
 cd my-site && ../bin/harbor-test
-cd my-site && ../bin/harbor-fixer
 cd my-site && ../bin/harbor-migration
 cd my-site && ../bin/harbor-seed
 ./bin/harbor-docs</code></pre>
     <h3>What it does</h3>
-    <p>Runs tests, formats code, compiles routes, and starts docs.</p>
+    <p>Runs tests, compiles routes, and starts docs.</p>
     <h3>API</h3>
     <details class="api-details">
         <summary class="api-summary">
@@ -300,15 +278,14 @@ cd my-site && ../bin/harbor-seed
         <div class="api-body">
             <ul class="api-method-list">
                 <li><code>composer test</code> Run PHPUnit suite.</li>
-                <li><code>./vendor/bin/php-cs-fixer fix --using-cache=no --sequential</code> Apply coding style fixes.</li>
                 <li><code>./bin/harbor documentation/.router</code> Compile docs route file.</li>
                 <li><code>./bin/harbor-docs-index</code> Rebuild docs search index JSON after docs updates.</li>
                 <li><code>cd my-site &amp;&amp; ../bin/harbor-config</code> Publish selected runtime config templates into that site <code>config/</code>.</li>
                 <li><code>cd my-site &amp;&amp; ../bin/harbor-test</code> Run site PHPUnit suite using that site's <code>phpunit.xml</code>.</li>
-                <li><code>cd my-site &amp;&amp; ../bin/harbor-fixer</code> Publish Harbor <code>.php-cs-fixer.dist.php</code> preset into that site root.</li>
                 <li><code>cd my-site &amp;&amp; ../bin/harbor-migration</code> Run pending migrations.</li>
                 <li><code>cd my-site &amp;&amp; ../bin/harbor-seed</code> Run pending seeders.</li>
                 <li><code>/migrations</code> Full guide for migrations + seeders setup and workflow.</li>
+                <li><code>/code</code> Style conventions, fixer publishing, and private helper method guidance.</li>
                 <li><code>./bin/harbor-docs</code> Run local docs server.</li>
             </ul>
         </div>
