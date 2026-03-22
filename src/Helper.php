@@ -27,6 +27,7 @@ enum Helper: string
     case AuthApi = 'auth_api';
     case Auth = 'auth';
     case Response = 'response';
+    case View = 'view';
     case Command = 'command';
     case Database = 'database';
     case DbSqlite = 'db_sqlite';
@@ -137,6 +138,7 @@ enum Helper: string
                 __DIR__.'/Auth/auth_api.php',
             ],
             self::Response => [__DIR__.'/Response/response.php'],
+            self::View => [__DIR__.'/View/view.php'],
             self::Command => [__DIR__.'/Command/command.php'],
             self::Database => [__DIR__.'/Database/Connection/db.php'],
             self::DbSqlite => [__DIR__.'/Database/Connection/db_sqlite.php'],

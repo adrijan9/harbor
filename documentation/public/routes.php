@@ -84,6 +84,12 @@ return [
             'entry' => 'pages/response.php',
         ],
         [
+            'path' => '/view',
+            'method' => 'GET',
+            'name' => 'docs.view',
+            'entry' => 'pages/view.php',
+        ],
+        [
             'path' => '/validation',
             'method' => 'GET',
             'name' => 'docs.validation',

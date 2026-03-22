@@ -92,6 +92,13 @@
 </route>
 
 <route>
+  path: /view
+  method: GET
+  name: docs.view
+  entry: pages/view.php
+</route>
+
+<route>
   path: /validation
   method: GET
   name: docs.validation

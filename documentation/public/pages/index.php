@@ -51,6 +51,10 @@ require __DIR__.'/../shared/header.php';
             <h3>Request Helpers</h3>
             <p>Typed access to method, URL, headers, body, files, and cookies.</p>
         </a>
+        <a class="card" href="/view">
+            <h3>View Helpers</h3>
+            <p>Native PHP views with layouts, partials, and shared data helpers.</p>
+        </a>
         <a class="card" href="/cookie">
             <h3>Cookie Helpers</h3>
             <p>Set, read, and forget cookies with one helper module.</p>

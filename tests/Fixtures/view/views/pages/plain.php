@@ -1,0 +1,1 @@
+Plain view for <?= $name ?>.

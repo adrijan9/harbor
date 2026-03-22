@@ -27,6 +27,7 @@ $docs_navigation_groups = [
             ['id' => 'environment', 'label' => 'Environment', 'href' => '/environment'],
             ['id' => 'request', 'label' => 'Request', 'href' => '/request'],
             ['id' => 'response', 'label' => 'Response', 'href' => '/response'],
+            ['id' => 'view', 'label' => 'View', 'href' => '/view'],
             ['id' => 'validation', 'label' => 'Validation', 'href' => '/validation'],
             ['id' => 'middleware', 'label' => 'Middleware', 'href' => '/middleware'],
             ['id' => 'support', 'label' => 'Support', 'href' => '/support'],

@@ -25,6 +25,7 @@ Helper::Cookie->load();
 Helper::Session->load();
 Helper::Validation->load();
 Helper::Response->load();
+Helper::View->load();
 Helper::Command->load();
 Helper::Database->load();</code></pre>
     <h3>What it does</h3>
@@ -39,6 +40,7 @@ Helper::Database->load();</code></pre>
 Helper::load_many('request');
 Helper::load_many('cookie', 'session');
 Helper::load_many('validation', 'response');
+Helper::load_many('view');
 Helper::load_many('db'); // alias supported, resolves to Helper::Database
 Helper::load_many(Helper::Cache, Helper::Log);</code></pre>
     <h3>What it does</h3>
@@ -116,6 +118,11 @@ Helper::load_many(Helper::Cache, Helper::Log);</code></pre>
                 <td><code>response</code></td>
                 <td><code>Harbor\Response</code></td>
                 <td>HTTP response helpers, full official <code>ResponseStatus</code> enum set, and <code>abort()</code>.</td>
+            </tr>
+            <tr>
+                <td><code>view</code></td>
+                <td><code>Harbor\View</code></td>
+                <td>Native PHP view renderer with layouts, partials, shared data, and HTML escaping helper.</td>
             </tr>
             <tr>
                 <td><code>command</code></td>

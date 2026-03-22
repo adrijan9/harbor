@@ -41,6 +41,7 @@ final class HelperTest extends TestCase
         self::assertContains('auth_api', $helpers);
         self::assertContains('auth', $helpers);
         self::assertContains('response', $helpers);
+        self::assertContains('view', $helpers);
         self::assertContains('command', $helpers);
         self::assertContains('db', $helpers);
         self::assertContains('database', $helpers);
@@ -231,6 +232,26 @@ final class HelperTest extends TestCase
         self::assertTrue(function_exists('Harbor\Response\response_validation'));
         self::assertTrue(function_exists('Harbor\Response\abort'));
         self::assertTrue(class_exists('Harbor\Response\ResponseStatus'));
+    }
+
+    public function test_load_view_helper_registers_namespaced_functions(): void
+    {
+        Helper::load_many('view');
+
+        self::assertTrue(function_exists('Harbor\View\view'));
+        self::assertTrue(function_exists('Harbor\View\view_render'));
+        self::assertTrue(function_exists('Harbor\View\view_partial'));
+        self::assertTrue(function_exists('Harbor\View\view_partial_render'));
+        self::assertTrue(function_exists('Harbor\View\view_exists'));
+        self::assertTrue(function_exists('Harbor\View\view_share'));
+        self::assertTrue(function_exists('Harbor\View\view_shared'));
+        self::assertTrue(function_exists('Harbor\View\view_clear_shared'));
+        self::assertTrue(function_exists('Harbor\View\view_set_path'));
+        self::assertTrue(function_exists('Harbor\View\view_reset_path'));
+        self::assertTrue(function_exists('Harbor\View\view_path'));
+        self::assertTrue(function_exists('Harbor\View\view_e'));
+        self::assertTrue(class_exists('Harbor\View\ViewRenderer'));
+        self::assertTrue(class_exists('Harbor\View\ViewException'));
     }
 
     public function test_load_command_helper_registers_namespaced_functions(): void
