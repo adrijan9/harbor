@@ -43,6 +43,7 @@ final class HelperTest extends TestCase
         self::assertContains('response', $helpers);
         self::assertContains('view', $helpers);
         self::assertContains('command', $helpers);
+        self::assertContains('command_flags', $helpers);
         self::assertContains('db', $helpers);
         self::assertContains('database', $helpers);
         self::assertContains('db_sqlite', $helpers);
@@ -259,6 +260,18 @@ final class HelperTest extends TestCase
         Helper::load_many('command');
 
         self::assertTrue(function_exists('Harbor\Command\command_run'));
+        self::assertTrue(function_exists('Harbor\Command\command_flags_init'));
+        self::assertTrue(function_exists('Harbor\Command\command_flag'));
+        self::assertTrue(function_exists('Harbor\Command\command_flags_print_usage'));
+    }
+
+    public function test_load_command_flags_helper_registers_namespaced_functions(): void
+    {
+        Helper::load_many('command_flags');
+
+        self::assertTrue(function_exists('Harbor\Command\command_flags_init'));
+        self::assertTrue(function_exists('Harbor\Command\command_flag'));
+        self::assertTrue(function_exists('Harbor\Command\command_flags_print_usage'));
     }
 
     public function test_load_validation_helper_registers_namespaced_functions(): void

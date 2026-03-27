@@ -27,6 +27,7 @@ Helper::Validation->load();
 Helper::Response->load();
 Helper::View->load();
 Helper::Command->load();
+Helper::CommandFlags->load();
 Helper::Database->load();</code></pre>
     <h3>What it does</h3>
     <p>Loads helper modules through typed enum cases, so keys are discoverable and typo-safe.</p>
@@ -41,6 +42,7 @@ Helper::load_many('request');
 Helper::load_many('cookie', 'session');
 Helper::load_many('validation', 'response');
 Helper::load_many('view');
+Helper::load_many('command_flags');
 Helper::load_many('db'); // alias supported, resolves to Helper::Database
 Helper::load_many(Helper::Cache, Helper::Log);</code></pre>
     <h3>What it does</h3>
@@ -128,6 +130,11 @@ Helper::load_many(Helper::Cache, Helper::Log);</code></pre>
                 <td><code>command</code></td>
                 <td><code>Harbor\Command</code></td>
                 <td>Run custom <code>harbor-command</code> keys from application code with <code>command_run()</code>.</td>
+            </tr>
+            <tr>
+                <td><code>command_flags</code></td>
+                <td><code>Harbor\Command</code></td>
+                <td>Loads standalone command flag helpers (<code>command_flags_init()</code>, <code>command_flag()</code>, <code>command_flags_print_usage()</code>).</td>
             </tr>
             <tr>
                 <td><code>db</code>, <code>database</code>, <code>db_sqlite</code>, <code>db_mysql_pdo</code>, <code>db_mysqli</code></td>

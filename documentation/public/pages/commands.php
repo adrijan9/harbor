@@ -151,6 +151,53 @@ if ($dry_run) {
 </section>
 
 <section class="docs-section">
+    <h2>Command Flag API</h2>
+    <h3>Example</h3>
+    <pre><code class="language-php">&lt;?php
+
+declare(strict_types=1);
+
+use Harbor\Helper;
+use function Harbor\Command\command_flag;
+use function Harbor\Command\command_flags_init;
+use function Harbor\Command\command_flags_print_usage;
+use function Harbor\Command\command_info;
+
+require __DIR__."/../../vendor/autoload.php";
+Helper::Command->load();
+
+$command = command_flags_init('users:sync', $argc ?? 0, $argv ?? []);
+$help = command_flag($command, '--help', 'Display command usage', default_value: false);
+$name = command_flag($command, '--name', 'User name', default_value: 'world');
+$force = command_flag($command, '--force', 'Enable force mode', default_value: false);
+
+if ($help) {
+    command_flags_print_usage($command);
+    exit(0);
+}
+
+command_info(sprintf('Running users:sync for %s (force=%s)', $name, $force ? 'true' : 'false'));</code></pre>
+    <h3>What it does</h3>
+    <p>Provides a dedicated flag-definition API for command entry scripts. Any user-created command can use it after loading <code>Helper::Command-&gt;load()</code> (generated command stubs already include this).</p>
+    <h3>API</h3>
+    <details class="api-details">
+        <summary class="api-summary">
+            <span>Flag Helper API</span>
+            <span class="api-state"><span class="api-state-closed">Hidden - click to open</span><span class="api-state-open">Open</span></span>
+        </summary>
+        <div class="api-body">
+            <ul class="api-method-list">
+                <li><code>command_flags_init(string $name, int $argc, array $argv): array</code> Initializes command flag context.</li>
+                <li><code>command_flag(array &$command, string $flag, string $description, bool|Closure $required = false, mixed $default_value = null): mixed</code> Registers and resolves one flag value.</li>
+                <li><code>command_flags_print_usage(array $command): void</code> Prints usage text with all registered flags and defaults.</li>
+                <li><code>Accepted formats</code> Use <code>--name=value</code>, <code>--name value</code>, or boolean switches like <code>--force</code>.</li>
+                <li><code>Required values</code> Set <code>required: true</code> or pass a validator closure; missing or invalid values throw <code>Harbor\Command\CommandValueRequiredException</code>.</li>
+            </ul>
+        </div>
+    </details>
+</section>
+
+<section class="docs-section">
     <h2>Run Commands From Code</h2>
     <h3>Example</h3>
     <pre><code class="language-php">use Harbor\Helper;

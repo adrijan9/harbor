@@ -120,6 +120,9 @@ final class CommandHelpersTest extends TestCase
                     'has_command_debug' => function_exists('Harbor\Command\command_debug'),
                     'has_command_arg_string' => function_exists('Harbor\Command\command_arg_string'),
                     'has_command_arg_int' => function_exists('Harbor\Command\command_arg_int'),
+                    'has_command_flags_init' => function_exists('Harbor\Command\command_flags_init'),
+                    'has_command_flag' => function_exists('Harbor\Command\command_flag'),
+                    'has_command_flags_print_usage' => function_exists('Harbor\Command\command_flags_print_usage'),
                     'has_command_run' => function_exists('Harbor\Command\command_run'),
                     'raw_arguments' => command_raw_arguments(),
                     'arguments' => command_arguments(),
@@ -162,6 +165,9 @@ final class CommandHelpersTest extends TestCase
         self::assertTrue($runtime_payload['has_command_debug'] ?? false);
         self::assertTrue($runtime_payload['has_command_arg_string'] ?? false);
         self::assertTrue($runtime_payload['has_command_arg_int'] ?? false);
+        self::assertTrue($runtime_payload['has_command_flags_init'] ?? false);
+        self::assertTrue($runtime_payload['has_command_flag'] ?? false);
+        self::assertTrue($runtime_payload['has_command_flags_print_usage'] ?? false);
         self::assertTrue($runtime_payload['has_command_run'] ?? false);
 
         self::assertSame(['alpha', '--name=Harbor', '--force', '--limit', '10', '-v'], $runtime_payload['raw_arguments'] ?? null);

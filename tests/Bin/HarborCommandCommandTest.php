@@ -39,8 +39,13 @@ final class HarborCommandCommandTest extends TestCase
         self::assertIsString($entry_content);
         self::assertStringContainsString('require __DIR__."/../../vendor/autoload.php";', $entry_content);
         self::assertStringContainsString('use Harbor\Helper;', $entry_content);
+        self::assertStringContainsString('use function Harbor\Command\command_flag;', $entry_content);
+        self::assertStringContainsString('use function Harbor\Command\command_flags_init;', $entry_content);
+        self::assertStringContainsString('use function Harbor\Command\command_flags_print_usage;', $entry_content);
         self::assertStringContainsString('use function Harbor\Command\command_info;', $entry_content);
         self::assertStringContainsString('Helper::Command->load();', $entry_content);
+        self::assertStringContainsString('command_flags_init(', $entry_content);
+        self::assertStringContainsString('command_flags_print_usage(', $entry_content);
         self::assertStringContainsString('command_info(', $entry_content);
 
         $source_content = file_get_contents($this->site_path.'/.commands');
@@ -131,6 +136,70 @@ final class HarborCommandCommandTest extends TestCase
         ]);
 
         self::assertSame(0, $exit_code);
+    }
+
+    public function test_run_executes_command_using_command_flags_helpers(): void
+    {
+        $this->prepare_workspace();
+        chdir($this->site_path);
+
+        self::assertSame(0, $this->run_harbor_command(['harbor-command', 'create', 'flags:demo']));
+
+        if (! is_dir($this->site_path.'/storage')) {
+            mkdir($this->site_path.'/storage', 0o777, true);
+        }
+
+        file_put_contents(
+            $this->site_path.'/commands/flags_demo.php',
+            <<<'PHP_SCRIPT'
+                <?php
+
+                declare(strict_types=1);
+
+                require __DIR__."/../../vendor/autoload.php";
+
+                use Harbor\Helper;
+                use function Harbor\Command\command_flag;
+                use function Harbor\Command\command_flags_init;
+
+                Helper::Command->load();
+
+                $command = command_flags_init('flags:demo', $argc ?? 0, $argv ?? []);
+                $name = command_flag($command, '--name', 'User name', required: true);
+                $dry_run = command_flag($command, '--dry-run', 'Dry run mode', default_value: false);
+                $help = command_flag($command, '--help', 'Display command usage', default_value: false);
+
+                file_put_contents(
+                    __DIR__.'/../storage/command-flags.json',
+                    json_encode([
+                        'name' => $name,
+                        'dry_run' => $dry_run,
+                        'help' => $help,
+                    ], JSON_THROW_ON_ERROR)
+                );
+                PHP_SCRIPT
+        );
+
+        $exit_code = $this->run_harbor_command([
+            'harbor-command',
+            'run',
+            'flags:demo',
+            '--',
+            '--name=Harbor',
+            '--dry-run',
+        ]);
+
+        self::assertSame(0, $exit_code);
+        self::assertFileExists($this->site_path.'/storage/command-flags.json');
+
+        $payload_content = file_get_contents($this->site_path.'/storage/command-flags.json');
+        self::assertIsString($payload_content);
+
+        $payload = json_decode($payload_content, true);
+        self::assertIsArray($payload);
+        self::assertSame('Harbor', $payload['name'] ?? null);
+        self::assertTrue($payload['dry_run'] ?? false);
+        self::assertFalse($payload['help'] ?? true);
     }
 
     public function test_run_returns_missing_key_exit_code_when_command_does_not_exist(): void
