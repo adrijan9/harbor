@@ -15,6 +15,7 @@ return (new Config())
         'php_unit_internal_class' => false,
         'php_unit_method_casing' => ['case' => 'snake_case'],
         'php_unit_test_class_requires_covers' => false,
+        'no_unneeded_braces' => true,
     ])
     // 💡 by default, Fixer looks for `*.php` files excluding `./vendor/` - here, you can groom this config
     ->setFinder(

@@ -19,9 +19,9 @@ use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use PHPUnit\Framework\TestCase;
 
-use function Harbor\Cache\cache_array_clear;
 use function Harbor\Auth\auth_token_issue;
 use function Harbor\Auth\auth_web_login;
+use function Harbor\Cache\cache_array_clear;
 use function Harbor\Middleware\middleware;
 use function Harbor\Pipeline\pipeline_get;
 use function Harbor\RateLimiter\rate_limiter_hit;

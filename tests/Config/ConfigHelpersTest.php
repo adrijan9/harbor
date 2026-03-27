@@ -38,13 +38,6 @@ final class ConfigHelpersTest extends TestCase
     /** @var array<int, string> */
     private array $temporary_directories = [];
 
-    #[Before]
-    protected function load_helper_and_capture_env(): void
-    {
-        $this->original_env = is_array($_ENV) ? $_ENV : [];
-        Helper::load_many('config');
-    }
-
     public function test_config_init_registers_each_file_under_its_filename_key(): void
     {
         $app_file = $this->create_temp_config_file('app.php', [
@@ -141,6 +134,13 @@ final class ConfigHelpersTest extends TestCase
         $this->expectExceptionMessage('must return an array');
 
         config_init($invalid_file);
+    }
+
+    #[Before]
+    protected function load_helper_and_capture_env(): void
+    {
+        $this->original_env = is_array($_ENV) ? $_ENV : [];
+        Helper::load_many('config');
     }
 
     #[After]

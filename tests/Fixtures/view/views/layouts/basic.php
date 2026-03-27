@@ -1,4 +1,4 @@
 <div class="layout-basic">
-    <main><?= $content ?></main>
-    <footer><?= $footer ?? '' ?></footer>
+    <main><?php echo $content; ?></main>
+    <footer><?php echo $footer ?? ''; ?></footer>
 </div>

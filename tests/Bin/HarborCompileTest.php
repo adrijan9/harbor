@@ -25,34 +25,40 @@ final class HarborCompileTest extends TestCase
         $extra_routes_path = $workspace_path.'/extra.router';
         $main_routes_path = $workspace_path.'/.router';
 
-        file_put_contents($shared_routes_path, <<<'ROUTER'
-<route>
-  path: /posts/$
-  method: GET
-  entry: pages/post.php
-</route>
-ROUTER
+        file_put_contents(
+            $shared_routes_path,
+            <<<'ROUTER'
+                <route>
+                  path: /posts/$
+                  method: GET
+                  entry: pages/post.php
+                </route>
+                ROUTER
         );
 
-        file_put_contents($extra_routes_path, <<<'ROUTER'
-#include "shared.router"
-<route>
-  path: /health
-  method: GET
-  entry: pages/health.php
-</route>
-ROUTER
+        file_put_contents(
+            $extra_routes_path,
+            <<<'ROUTER'
+                #include "shared.router"
+                <route>
+                  path: /health
+                  method: GET
+                  entry: pages/health.php
+                </route>
+                ROUTER
         );
 
-        file_put_contents($main_routes_path, <<<'ROUTER'
-<route>
-  path: /
-  method: GET
-  entry: pages/home.php
-</route>
+        file_put_contents(
+            $main_routes_path,
+            <<<'ROUTER'
+                <route>
+                  path: /
+                  method: GET
+                  entry: pages/home.php
+                </route>
 
-#include "extra.router"
-ROUTER
+                #include "extra.router"
+                ROUTER
         );
 
         $preprocessed = harbor_pre_process_routes_file($main_routes_path);
@@ -78,13 +84,15 @@ ROUTER
         $included_routes_path = $workspace_path.'/included.router';
         $main_routes_path = $workspace_path.'/.router';
 
-        file_put_contents($included_routes_path, <<<'ROUTER'
-<route>
-  path: /about
-  method: GET
-  entry: pages/about.php
-</route>
-ROUTER
+        file_put_contents(
+            $included_routes_path,
+            <<<'ROUTER'
+                <route>
+                  path: /about
+                  method: GET
+                  entry: pages/about.php
+                </route>
+                ROUTER
         );
 
         file_put_contents($main_routes_path, sprintf('#include "%s"', $included_routes_path));
@@ -99,14 +107,15 @@ ROUTER
 
     public function test_compile_router_from_content_extracts_assets_path_and_routes(): void
     {
-        $compiled_router = harbor_compile_router_from_content(<<<'ROUTER'
-<assets>/assets</assets>
-<route>
-  path: /
-  method: GET
-  entry: pages/home.php
-</route>
-ROUTER
+        $compiled_router = harbor_compile_router_from_content(
+            <<<'ROUTER'
+                <assets>/assets</assets>
+                <route>
+                  path: /
+                  method: GET
+                  entry: pages/home.php
+                </route>
+                ROUTER
         );
 
         self::assertSame('/assets', $compiled_router['assets']);
@@ -121,14 +130,16 @@ ROUTER
         $workspace_path = $this->create_workspace();
         $router_path = $workspace_path.'/.router';
 
-        file_put_contents($router_path, <<<'ROUTER'
-<assets>/assets</assets>
-<route>
-  path: /
-  method: GET
-  entry: pages/home.php
-</route>
-ROUTER
+        file_put_contents(
+            $router_path,
+            <<<'ROUTER'
+                <assets>/assets</assets>
+                <route>
+                  path: /
+                  method: GET
+                  entry: pages/home.php
+                </route>
+                ROUTER
         );
 
         harbor_run_compile($router_path);
@@ -153,13 +164,15 @@ ROUTER
         $router_path = $workspace_path.'/.router';
         mkdir($workspace_path.'/public', 0o777, true);
 
-        file_put_contents($router_path, <<<'ROUTER'
-<route>
-  path: /
-  method: GET
-  entry: pages/home.php
-</route>
-ROUTER
+        file_put_contents(
+            $router_path,
+            <<<'ROUTER'
+                <route>
+                  path: /
+                  method: GET
+                  entry: pages/home.php
+                </route>
+                ROUTER
         );
 
         harbor_run_compile($router_path);
@@ -179,13 +192,15 @@ ROUTER
         $router_path = $workspace_path.'/.router';
         mkdir($workspace_path.'/public', 0o777, true);
 
-        file_put_contents($router_path, <<<'ROUTER'
-<route>
-  path: /
-  method: GET
-  entry: pages/home.php
-</route>
-ROUTER
+        file_put_contents(
+            $router_path,
+            <<<'ROUTER'
+                <route>
+                  path: /
+                  method: GET
+                  entry: pages/home.php
+                </route>
+                ROUTER
         );
 
         $original_working_directory = getcwd();

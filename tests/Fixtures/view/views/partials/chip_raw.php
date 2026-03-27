@@ -1,1 +1,1 @@
-[<?= $text ?>]
+[<?php echo $text; ?>]

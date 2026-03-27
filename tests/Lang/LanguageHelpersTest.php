@@ -20,16 +20,6 @@ final class LanguageHelpersTest extends TestCase
 {
     private array $original_env = [];
 
-    #[Before]
-    protected function prepare_environment(): void
-    {
-        $this->original_env = is_array($_ENV) ? $_ENV : [];
-        $_ENV = $this->original_env;
-        $GLOBALS['_ENV'] = $_ENV;
-
-        Helper::load_many('lang');
-    }
-
     public function test_lang_get_reads_lang_from_environment(): void
     {
         $_ENV['lang'] = 'es';
@@ -71,6 +61,16 @@ final class LanguageHelpersTest extends TestCase
 
         self::assertTrue(lang_is('en'));
         self::assertFalse(lang_is('es'));
+    }
+
+    #[Before]
+    protected function prepare_environment(): void
+    {
+        $this->original_env = is_array($_ENV) ? $_ENV : [];
+        $_ENV = $this->original_env;
+        $GLOBALS['_ENV'] = $_ENV;
+
+        Helper::load_many('lang');
     }
 
     #[After]

@@ -10,12 +10,15 @@ use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\Attributes\BeforeClass;
 use PHPUnit\Framework\TestCase;
 
+use function Harbor\Router\route as route_path;
+use function Harbor\Router\route_exists;
+use function Harbor\Router\route_name_is;
 use function Harbor\Router\route_queries_count;
 use function Harbor\Router\route_query;
 use function Harbor\Router\route_query_arr;
 use function Harbor\Router\route_query_bool;
-use function Harbor\Router\route_query_exists;
 use function Harbor\Router\route_query_except;
+use function Harbor\Router\route_query_exists;
 use function Harbor\Router\route_query_int;
 use function Harbor\Router\route_query_json;
 use function Harbor\Router\route_query_obj;
@@ -29,9 +32,6 @@ use function Harbor\Router\route_segment_int;
 use function Harbor\Router\route_segment_json;
 use function Harbor\Router\route_segment_obj;
 use function Harbor\Router\route_segments_count;
-use function Harbor\Router\route as route_path;
-use function Harbor\Router\route_exists;
-use function Harbor\Router\route_name_is;
 
 /**
  * Class RouteHelpersTest.

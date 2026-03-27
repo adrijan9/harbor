@@ -4,6 +4,7 @@
 declare(strict_types=1);
 
 require_once __DIR__.'/harbor_compile.php';
+
 require_once __DIR__.'/../shared/harbor_site.php';
 
 /**

@@ -1,1 +1,1 @@
-Right: <?= $label ?? 'none' ?>
+Right: <?php echo $label ?? 'none'; ?>

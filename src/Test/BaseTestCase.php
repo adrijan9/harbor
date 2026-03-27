@@ -5,10 +5,9 @@ declare(strict_types=1);
 namespace Harbor\Test;
 
 use Harbor\Router\Router;
-use ReflectionClass;
-use RuntimeException;
+use PHPUnit\Framework\TestCase;
 
-abstract class BaseTestCase extends \PHPUnit\Framework\TestCase
+abstract class BaseTestCase extends TestCase
 {
     private array $original_server = [];
     private array $original_get = [];
@@ -91,10 +90,10 @@ abstract class BaseTestCase extends \PHPUnit\Framework\TestCase
         http_response_code(200);
 
         ob_start();
-        (new Router(
+        new Router(
             $this->site_path('public/routes.php'),
             $this->site_path('global.php'),
-        ))->render();
+        )->render();
         $content = ob_get_clean();
 
         return [
@@ -109,13 +108,13 @@ abstract class BaseTestCase extends \PHPUnit\Framework\TestCase
             return $this->resolved_site_root_path;
         }
 
-        $reflection_class = new ReflectionClass(static::class);
+        $reflection_class = new \ReflectionClass(static::class);
         $test_file_path = $reflection_class->getFileName();
 
         if (is_string($test_file_path) && '' !== trim($test_file_path)) {
             $search_path = dirname($test_file_path);
 
-            for ($level = 0; $level < 8; $level++) {
+            for ($level = 0; $level < 8; ++$level) {
                 if (is_file($search_path.'/.router')) {
                     $this->resolved_site_root_path = $search_path;
 
@@ -138,6 +137,6 @@ abstract class BaseTestCase extends \PHPUnit\Framework\TestCase
             return $working_directory;
         }
 
-        throw new RuntimeException('Unable to resolve site root path for tests.');
+        throw new \RuntimeException('Unable to resolve site root path for tests.');
     }
 }

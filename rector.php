@@ -20,4 +20,5 @@ return RectorConfig::configure()
         __DIR__.'/tests/Fixtures/*',
         __DIR__.'/public/routes.php',
         __DIR__.'/documentation/public/routes.php',
-    ]);
+    ])
+;

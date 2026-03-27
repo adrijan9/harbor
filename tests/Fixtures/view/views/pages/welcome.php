@@ -1,2 +1,2 @@
-<h1><?= $title ?></h1>
-<p><?= $message ?></p>
+<h1><?php echo $title; ?></h1>
+<p><?php echo $message; ?></p>

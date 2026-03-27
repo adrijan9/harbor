@@ -79,12 +79,12 @@ final class ValidationRule
         return $this->add_constraint('email');
     }
 
-    public function min(int|float $value): self
+    public function min(float|int $value): self
     {
         return $this->add_constraint('min', $value);
     }
 
-    public function max(int|float $value): self
+    public function max(float|int $value): self
     {
         return $this->add_constraint('max', $value);
     }

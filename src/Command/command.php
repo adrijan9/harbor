@@ -35,6 +35,7 @@ function command_run(
     $normalized_arguments = command_internal_normalize_forwarded_arguments($forwarded_arguments);
 
     $compiler = new CommandCompiler();
+
     return new RunCommand($debug_mode, $compiler)->execute($key, $normalized_arguments, $resolved_working_directory);
 }
 

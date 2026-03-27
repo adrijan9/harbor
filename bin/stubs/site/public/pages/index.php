@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Harbor\Helper;
+
 use function Harbor\Config\config;
 use function Harbor\Lang\t;
 use function Harbor\Lang\translation_init;

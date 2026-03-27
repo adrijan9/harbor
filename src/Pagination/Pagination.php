@@ -11,6 +11,7 @@ require_once __DIR__.'/../Database/QueryBuilder/QueryBuilder.php';
 require_once __DIR__.'/PaginationOptionsBag.php';
 
 require_once __DIR__.'/../Support/value.php';
+
 require_once __DIR__.'/../Router/helpers/route_query.php';
 
 use Harbor\Database\QueryBuilder\QueryBuilder;

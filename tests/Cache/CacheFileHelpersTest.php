@@ -10,7 +10,6 @@ use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\Attributes\BeforeClass;
 use PHPUnit\Framework\TestCase;
 
-use function Harbor\Config\config_init_global;
 use function Harbor\Cache\cache_file_all;
 use function Harbor\Cache\cache_file_clear;
 use function Harbor\Cache\cache_file_count;
@@ -20,6 +19,7 @@ use function Harbor\Cache\cache_file_has;
 use function Harbor\Cache\cache_file_reset_path;
 use function Harbor\Cache\cache_file_set;
 use function Harbor\Cache\cache_file_set_path;
+use function Harbor\Config\config_init_global;
 
 /**
  * Class CacheFileHelpersTest.
@@ -116,14 +116,14 @@ final class CacheFileHelpersTest extends TestCase
         file_put_contents(
             $global_config_path,
             <<<'PHP'
-<?php
+                <?php
 
-declare(strict_types=1);
+                declare(strict_types=1);
 
-return [
-    'app_name' => 'Example Site',
-];
-PHP
+                return [
+                    'app_name' => 'Example Site',
+                ];
+                PHP
         );
 
         config_init_global($global_config_path);

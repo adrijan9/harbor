@@ -1,19 +1,21 @@
-<?php use function Harbor\View\view_partial; ?>
+<?php use function Harbor\View\view_partial;
+
+?>
 
 <div class="layout-app">
     <header>
-        <?php if (($is_production ?? false) === true): ?>
+        <?php if (($is_production ?? false) === true) { ?>
             <?php view_partial('partials/header_prod'); ?>
-        <?php else: ?>
+        <?php } else { ?>
             <?php view_partial('partials/header_dev'); ?>
-        <?php endif; ?>
+        <?php } ?>
     </header>
 
-    <main><?= $content ?></main>
+    <main><?php echo $content; ?></main>
 
     <aside>
-        <?php if (! empty($right_partial ?? '')): ?>
+        <?php if (! empty($right_partial ?? '')) { ?>
             <?php view_partial($right_partial, $right_data ?? []); ?>
-        <?php endif; ?>
+        <?php } ?>
     </aside>
 </div>

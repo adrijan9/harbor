@@ -31,19 +31,6 @@ final class TranslationsHelpersTest extends TestCase
     /** @var array<int, string> */
     private array $temporary_directories = [];
 
-    #[Before]
-    protected function prepare_environment(): void
-    {
-        $this->original_env = is_array($_ENV) ? $_ENV : [];
-        $_ENV = $this->original_env;
-        $GLOBALS['_ENV'] = $_ENV;
-
-        $this->had_translations = array_key_exists('translations', $GLOBALS);
-        $this->original_translations = $this->had_translations ? $GLOBALS['translations'] : null;
-
-        Helper::load_many('translation');
-    }
-
     public function test_translation_init_loads_and_merges_files_per_locale(): void
     {
         $en_common = $this->create_temp_translation_file('en_common.php', [
@@ -167,6 +154,19 @@ final class TranslationsHelpersTest extends TestCase
         translation_init([
             'en' => [$invalid_file],
         ]);
+    }
+
+    #[Before]
+    protected function prepare_environment(): void
+    {
+        $this->original_env = is_array($_ENV) ? $_ENV : [];
+        $_ENV = $this->original_env;
+        $GLOBALS['_ENV'] = $_ENV;
+
+        $this->had_translations = array_key_exists('translations', $GLOBALS);
+        $this->original_translations = $this->had_translations ? $GLOBALS['translations'] : null;
+
+        Helper::load_many('translation');
     }
 
     #[After]

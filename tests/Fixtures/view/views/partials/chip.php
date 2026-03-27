@@ -1,3 +1,5 @@
-<?php use function Harbor\View\view_e; ?>
+<?php use function Harbor\View\view_e;
 
-[<?= view_e($text ?? '') ?>]
+?>
+
+[<?php echo view_e($text ?? ''); ?>]

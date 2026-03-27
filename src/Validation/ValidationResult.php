@@ -11,14 +11,13 @@ final class ValidationResult
 {
     /**
      * @param array<string, array<int, string>> $errors
-     * @param array<string, mixed> $validated
+     * @param array<string, mixed>              $validated
      */
     private function __construct(
         private readonly bool $ok,
         private readonly array $errors = [],
         private readonly array $validated = [],
-    ) {
-    }
+    ) {}
 
     /**
      * @param array<string, mixed> $validated
@@ -30,7 +29,7 @@ final class ValidationResult
 
     /**
      * @param array<string, array<int, string>> $errors
-     * @param array<string, mixed> $validated
+     * @param array<string, mixed>              $validated
      */
     public static function failed(array $errors, array $validated = []): self
     {
@@ -44,7 +43,7 @@ final class ValidationResult
 
     public function has_errors(): bool
     {
-        return empty($this->errors) === false;
+        return false === empty($this->errors);
     }
 
     /**

@@ -125,7 +125,7 @@ function harbor_test_resolve_site_path(?string $site_path_argument = null): stri
         return $working_directory;
     }
 
-    if (str_starts_with($normalized_site_path_argument, '/') || preg_match('/^[A-Za-z]:[\/\\\\]/', $normalized_site_path_argument)) {
+    if (str_starts_with($normalized_site_path_argument, '/') || preg_match('/^[A-Za-z]:[\/\\\]/', $normalized_site_path_argument)) {
         return $normalized_site_path_argument;
     }
 
@@ -148,7 +148,7 @@ function harbor_test_resolve_phpunit_binary_path(string $site_path): ?string
 
     $search_path = $site_path;
 
-    for ($level = 0; $level < 8; $level++) {
+    for ($level = 0; $level < 8; ++$level) {
         $candidate_binary_paths[] = $search_path.'/vendor/bin/phpunit';
 
         $parent_search_path = dirname($search_path);

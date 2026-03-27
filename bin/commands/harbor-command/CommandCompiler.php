@@ -317,7 +317,7 @@ final class CommandCompiler
 
     private function is_absolute_path(string $path): bool
     {
-        return 1 === preg_match('#^([a-zA-Z]:[\\\\/]|/)#', $path);
+        return 1 === preg_match('#^([a-zA-Z]:[\\\/]|/)#', $path);
     }
 
     /**

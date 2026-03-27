@@ -1,1 +1,1 @@
-Plain view for <?= $name ?>.
+Plain view for <?php echo $name; ?>.

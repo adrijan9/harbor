@@ -58,10 +58,10 @@ $escape = static fn (mixed $value): string => htmlspecialchars((string) $value, 
 <body>
 <main>
     <h1><span class="accent">500</span> Internal Server Error</h1>
-    <p class="meta"><span class="label">Message:</span> <?= $escape($error_data['message'] ?? 'Unknown error'); ?></p>
-    <p class="meta"><span class="label">File:</span> <?= $escape($error_data['file'] ?? 'unknown'); ?></p>
-    <p class="meta"><span class="label">Line:</span> <?= $escape($error_data['line'] ?? 0); ?></p>
-    <pre><?php foreach ($trace as $frame) : ?>#<?= $escape($frame['index'] ?? 0); ?> <?= $escape($frame['file'] ?? '[internal]'); ?>:<?= $escape($frame['line'] ?? 0); ?> <?= $escape($frame['call'] ?? '{main}') . PHP_EOL; ?><?php endforeach; ?></pre>
+    <p class="meta"><span class="label">Message:</span> <?php echo $escape($error_data['message'] ?? 'Unknown error'); ?></p>
+    <p class="meta"><span class="label">File:</span> <?php echo $escape($error_data['file'] ?? 'unknown'); ?></p>
+    <p class="meta"><span class="label">Line:</span> <?php echo $escape($error_data['line'] ?? 0); ?></p>
+    <pre><?php foreach ($trace as $frame) { ?>#<?php echo $escape($frame['index'] ?? 0); ?> <?php echo $escape($frame['file'] ?? '[internal]'); ?>:<?php echo $escape($frame['line'] ?? 0); ?> <?php echo $escape($frame['call'] ?? '{main}').PHP_EOL; ?><?php } ?></pre>
 </main>
 </body>
 </html>

@@ -12,13 +12,13 @@ use PHPUnit\Framework\Attributes\BeforeClass;
 use PHPUnit\Framework\TestCase;
 
 use function Harbor\Cache\cache_all;
+use function Harbor\Cache\cache_apc_available;
+use function Harbor\Cache\cache_apc_clear;
 use function Harbor\Cache\cache_array_clear;
 use function Harbor\Cache\cache_clear;
 use function Harbor\Cache\cache_count;
 use function Harbor\Cache\cache_delete;
 use function Harbor\Cache\cache_driver;
-use function Harbor\Cache\cache_apc_available;
-use function Harbor\Cache\cache_apc_clear;
 use function Harbor\Cache\cache_file_clear;
 use function Harbor\Cache\cache_file_reset_path;
 use function Harbor\Cache\cache_get;
