@@ -185,15 +185,23 @@ final class CreateCommand extends BaseCommand
             require __DIR__."/../../vendor/autoload.php";
 
             use Harbor\\Helper;
-            use function Harbor\\Command\\command_arg_string;
             use function Harbor\\Command\\command_debug;
+            use function Harbor\\Command\\command_flag;
+            use function Harbor\\Command\\command_flags_init;
+            use function Harbor\\Command\\command_flags_print_usage;
             use function Harbor\\Command\\command_info;
-            use function Harbor\\Command\\command_option_bool;
 
             Helper::Command->load();
 
-            \$name = command_arg_string(0, 'world');
-            \$is_force_mode = command_option_bool('force', false);
+            \$command = command_flags_init('{$key}', \$argc ?? 0, \$argv ?? []);
+            \$show_help = command_flag(\$command, '--help', 'Display command usage', default_value: false);
+            \$name = command_flag(\$command, '--name', 'Name used by the command', default_value: 'world');
+            \$is_force_mode = command_flag(\$command, '--force', 'Enable force mode', default_value: false);
+
+            if (\$show_help) {
+                command_flags_print_usage(\$command);
+                exit(0);
+            }
 
             // Implement command logic for key: {$key}
             command_info(sprintf('Command "{$key}" executed for %s.', \$name));
