@@ -87,7 +87,7 @@ require __DIR__.'/../shared/header.php';
                 <li><code>run &lt;key&gt;</code> Executes one compiled command definition by key.</li>
                 <li><code>Registry auto-rebuild</code> If <code>commands/commands.php</code> is missing and <code>.commands</code> exists, Harbor recompiles automatically before running.</li>
                 <li><code>Disabled command</code> Commands with <code>enabled: false</code> are blocked from execution.</li>
-                <li><code>Runtime helpers</code> Command entry files can import helpers like <code>command_info()</code>, <code>command_arg_string()</code>, and <code>command_option_bool()</code> from <code>Harbor\Command</code> after autoload + <code>Helper::Command-&gt;load()</code> (included in generated stubs).</li>
+                <li><code>Runtime helpers</code> Command entry files can import helpers like <code>command_info()</code>, <code>command_arg_string()</code>, and <code>command_flag()</code> from <code>Harbor\Command</code> after autoload + <code>Helper::Command-&gt;load()</code> (included in generated stubs).</li>
                 <li><code>Exit codes</code> Missing key or missing registry returns specific non-zero exits; process errors and timeouts fail execution.</li>
                 <li><code>--debug</code> or <code>-v</code> Prints debug diagnostics (paths, execution context, timeout).</li>
             </ul>
@@ -107,24 +107,17 @@ use function Harbor\Command\command_arg_string;
 use function Harbor\Command\command_debug;
 use function Harbor\Command\command_error;
 use function Harbor\Command\command_info;
-use function Harbor\Command\command_option_bool;
-use function Harbor\Command\command_option_int;
 
 require __DIR__."/../../vendor/autoload.php";
 Helper::Command->load();
 
 $name = command_arg_string(0, 'world');
-$limit = command_option_int('limit', 100);
-$dry_run = command_option_bool('dry-run', false);
 
 command_info(sprintf('Hello %s', $name));
-command_debug(sprintf('limit=%d dry_run=%s', $limit, $dry_run ? 'true' : 'false'));
-
-if ($dry_run) {
-    command_error('Dry-run mode enabled.');
-}</code></pre>
+command_debug('Ready to execute command logic.');
+command_error('Example STDERR message.');</code></pre>
     <h3>What it does</h3>
-    <p>Gives command entry scripts reusable runtime helpers for output, debug logging, positional arguments, and options after loading autoload and calling <code>Helper::Command-&gt;load()</code>.</p>
+    <p>Gives command entry scripts reusable runtime helpers for output, debug logging, and positional arguments after loading autoload and calling <code>Helper::Command-&gt;load()</code>.</p>
     <h3>API</h3>
     <details class="api-details">
         <summary class="api-summary">
@@ -140,10 +133,6 @@ if ($dry_run) {
                 <li><code>command_arguments(): array</code> Positional arguments only (options excluded).</li>
                 <li><code>command_arg(int $index, mixed $default = null): mixed</code> Positional argument by index.</li>
                 <li><code>command_arg_string|command_arg_int|command_arg_float|command_arg_bool(...)</code> Typed positional argument helpers.</li>
-                <li><code>command_options(): array</code> Parsed options map (supports <code>--key=value</code>, <code>--key value</code>, and short flags like <code>-v</code>).</li>
-                <li><code>command_option(string $name, mixed $default = null): mixed</code> Option value by name.</li>
-                <li><code>command_option_string|command_option_int|command_option_float|command_option_bool(...)</code> Typed option helpers.</li>
-                <li><code>command_has_option(string $name): bool</code> Checks if option exists.</li>
                 <li><code>Namespace</code> Import these functions from <code>Harbor\Command</code> using <code>use function Harbor\Command\...</code>.</li>
             </ul>
         </div>
@@ -258,14 +247,16 @@ declare(strict_types=1);
 // File: my-site/commands/users_export.php
 use Harbor\Helper;
 use function Harbor\Command\command_arguments;
+use function Harbor\Command\command_flag;
+use function Harbor\Command\command_flags_init;
 use function Harbor\Command\command_info;
-use function Harbor\Command\command_option_string;
 
 require __DIR__."/../../vendor/autoload.php";
 Helper::Command->load();
 
+$command = command_flags_init('users:export', $argc ?? 0, $argv ?? []);
 $arguments = command_arguments();
-$format = command_option_string('format', 'csv');
+$format = command_flag($command, '--format', 'Export format', default_value: 'csv');
 
 command_info(sprintf('users:export format=%s args=%s', $format, json_encode($arguments)));</code></pre>
     <pre><code class="language-bash">cd my-site

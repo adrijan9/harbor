@@ -129,6 +129,7 @@ function command_flags_print_usage(array $command): void
  * @param array<int, string> $argv
  *
  * @return array{present: bool, has_value: bool, value: null|bool|float|int|string}
+ *
  * @throws EmptyStringException
  */
 function command_flags_internal_find_flag_payload(array $argv, string $flag): array

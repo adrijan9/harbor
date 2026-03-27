@@ -263,6 +263,13 @@ final class HelperTest extends TestCase
         self::assertTrue(function_exists('Harbor\Command\command_flags_init'));
         self::assertTrue(function_exists('Harbor\Command\command_flag'));
         self::assertTrue(function_exists('Harbor\Command\command_flags_print_usage'));
+        self::assertFalse(function_exists('Harbor\Command\command_option'));
+        self::assertFalse(function_exists('Harbor\Command\command_option_string'));
+        self::assertFalse(function_exists('Harbor\Command\command_option_int'));
+        self::assertFalse(function_exists('Harbor\Command\command_option_float'));
+        self::assertFalse(function_exists('Harbor\Command\command_option_bool'));
+        self::assertFalse(function_exists('Harbor\Command\command_options'));
+        self::assertFalse(function_exists('Harbor\Command\command_has_option'));
     }
 
     public function test_load_command_flags_helper_registers_namespaced_functions(): void
