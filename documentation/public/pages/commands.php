@@ -159,13 +159,28 @@ $command = command_flags_init('users:sync', $argc ?? 0, $argv ?? []);
 $help = command_flag($command, '--help', 'Display command usage', default_value: false);
 $name = command_flag($command, '--name', 'User name', default_value: 'world');
 $force = command_flag($command, '--force', 'Enable force mode', default_value: false);
+$player = command_flag($command, '--player', 'Player name', required: true);
+$environment = command_flag(
+    $command,
+    '--env',
+    'Environment',
+    required: static fn (mixed $value): bool => is_string($value) && in_array($value, ['dev', 'stage', 'prod'], true)
+);
 
 if ($help) {
     command_flags_print_usage($command);
     exit(0);
 }
 
-command_info(sprintf('Running users:sync for %s (force=%s)', $name, $force ? 'true' : 'false'));</code></pre>
+command_info(
+    sprintf(
+        'Running users:sync for %s (force=%s player=%s env=%s)',
+        $name,
+        $force ? 'true' : 'false',
+        $player,
+        $environment
+    )
+);</code></pre>
     <h3>What it does</h3>
     <p>Provides a dedicated flag-definition API for command entry scripts. Any user-created command can use it after loading <code>Helper::Command-&gt;load()</code> (generated command stubs already include this).</p>
     <h3>API</h3>
@@ -180,6 +195,8 @@ command_info(sprintf('Running users:sync for %s (force=%s)', $name, $force ? 'tr
                 <li><code>command_flag(array &$command, string $flag, string $description, bool|Closure $required = false, mixed $default_value = null): mixed</code> Registers and resolves one flag value.</li>
                 <li><code>command_flags_print_usage(array $command): void</code> Prints usage text with all registered flags and defaults.</li>
                 <li><code>Accepted formats</code> Use <code>--name=value</code>, <code>--name value</code>, or boolean switches like <code>--force</code>.</li>
+                <li><code>required: true</code> Example: <code>command_flag($command, '--player', 'Player name', required: true)</code>.</li>
+                <li><code>required: closure</code> Example: <code>command_flag($command, '--env', 'Environment', required: static fn (mixed $value): bool =&gt; is_string($value) &amp;&amp; in_array($value, ['dev', 'stage', 'prod'], true))</code>.</li>
                 <li><code>Required values</code> Set <code>required: true</code> or pass a validator closure; missing or invalid values throw <code>Harbor\Command\CommandValueRequiredException</code>.</li>
             </ul>
         </div>
