@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace Harbor\Support;
 
+/** Public */
+
 /**
  * Remove one key from an array by exact key or dot notation path.
  */
-/** Public */
 function array_forget(array &$array, string $key): void
 {
     if (array_key_exists($key, $array)) {
