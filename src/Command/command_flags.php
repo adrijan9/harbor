@@ -7,6 +7,7 @@ namespace Harbor\Command;
 require_once __DIR__.'/../Support/value.php';
 
 use Harbor\Exceptions\EmptyStringException;
+use Harbor\Validation\ValidationRule;
 
 use function Harbor\Support\harbor_is_blank;
 
@@ -21,15 +22,15 @@ use function Harbor\Support\harbor_is_blank;
  *     options: array<int, array{
  *         flag: string,
  *         description: string,
- *         default_value: null|bool|float|int|string
+ *         default_value: null|array<int, bool|float|int|string>|bool|float|int|string
  *     }>
  * }
  */
-function command_flags_init(string $name, int $argc, array $argv): array
+function command_init(string $name, int $argc, array $argv): array
 {
     $normalized_arguments = [];
 
-    foreach (array_values($argv) as $argument) {
+    foreach ($argv as $argument) {
         if (! is_string($argument)) {
             continue;
         }
@@ -47,13 +48,13 @@ function command_flags_init(string $name, int $argc, array $argv): array
 
 /**
  * @throws EmptyStringException
- * @throws CommandValueRequiredException
+ * @throws CommandInvalidFlagException
  */
 function command_flag(
     array &$command,
     string $flag,
     string $description,
-    bool|\Closure $required = false,
+    ?ValidationRule $validator = null,
     bool|float|int|string|null $default_value = null
 ): bool|float|int|string|null {
     $normalized_flag = command_flags_internal_normalize_flag($flag);
@@ -74,31 +75,217 @@ function command_flag(
     );
 
     if (! $flag_payload['present']) {
-        return $default_value;
+        command_flags_internal_assert_validated_value($normalized_flag, null, $validator);
+
+        return null;
     }
 
     if (! $flag_payload['has_value']) {
-        if (true === $required || is_callable($required)) {
-            throw new CommandValueRequiredException(sprintf('%s: value is required.', $normalized_flag));
+        if (command_flags_internal_validator_is_required($validator)) {
+            command_flags_internal_assert_validated_value($normalized_flag, null, $validator);
         }
 
         if (is_bool($default_value)) {
-            return true;
+            $resolved_value = true;
+            command_flags_internal_assert_validated_value($normalized_flag, $resolved_value, $validator);
+
+            return $resolved_value;
         }
 
-        return null === $default_value ? true : $default_value;
+        $resolved_value = null === $default_value ? true : $default_value;
+        command_flags_internal_assert_validated_value($normalized_flag, $resolved_value, $validator);
+
+        return $resolved_value;
     }
 
     $value = $flag_payload['value'];
-    command_flags_internal_assert_required_value($normalized_flag, $value, $required);
+    command_flags_internal_assert_validated_value($normalized_flag, $value, $validator);
 
     return $value;
 }
 
 /**
+ * @throws EmptyStringException
+ * @throws CommandInvalidFlagException
+ */
+function command_flag_string(
+    array &$command,
+    string $flag,
+    string $description,
+    ?ValidationRule $validator = null,
+    ?string $default_value = null
+): ?string {
+    $resolved_default_value = $default_value;
+    $raw_value = command_flag(
+        $command,
+        $flag,
+        $description,
+        $validator,
+        $resolved_default_value
+    );
+
+    return command_flags_internal_value_to_string($raw_value, $resolved_default_value);
+}
+
+/**
+ * @throws EmptyStringException
+ * @throws CommandInvalidFlagException
+ */
+function command_flag_int(
+    array &$command,
+    string $flag,
+    string $description,
+    ?ValidationRule $validator = null,
+    int $default_value = 0
+): int {
+    $resolved_default_value = $default_value;
+    $raw_value = command_flag(
+        $command,
+        $flag,
+        $description,
+        $validator,
+        null
+    );
+
+    if (null === $raw_value || true === $raw_value) {
+        return $resolved_default_value;
+    }
+
+    $is_valid = false;
+    $typed_value = command_flags_internal_value_to_int($raw_value, $resolved_default_value, $is_valid);
+
+    return $is_valid ? $typed_value : $resolved_default_value;
+}
+
+/**
+ * @throws EmptyStringException
+ * @throws CommandInvalidFlagException
+ */
+function command_flag_float(
+    array &$command,
+    string $flag,
+    string $description,
+    ?ValidationRule $validator = null,
+    float $default_value = 0.0
+): float {
+    $resolved_default_value = $default_value;
+    $raw_value = command_flag(
+        $command,
+        $flag,
+        $description,
+        $validator,
+        null
+    );
+
+    if (null === $raw_value || true === $raw_value) {
+        return $resolved_default_value;
+    }
+
+    $is_valid = false;
+    $typed_value = command_flags_internal_value_to_float($raw_value, $resolved_default_value, $is_valid);
+
+    return $is_valid ? $typed_value : $resolved_default_value;
+}
+
+/**
+ * @throws EmptyStringException
+ * @throws CommandInvalidFlagException
+ */
+function command_flag_bool(
+    array &$command,
+    string $flag,
+    string $description,
+    ?ValidationRule $validator = null,
+    bool $default_value = false
+): bool {
+    $resolved_default_value = $default_value;
+    $raw_value = command_flag(
+        $command,
+        $flag,
+        $description,
+        $validator,
+        null
+    );
+
+    if (null === $raw_value) {
+        return $resolved_default_value;
+    }
+
+    if (true === $raw_value) {
+        return true;
+    }
+
+    $is_valid = false;
+    $typed_value = command_flags_internal_value_to_bool($raw_value, $resolved_default_value, $is_valid);
+
+    return $is_valid ? $typed_value : $resolved_default_value;
+}
+
+/**
+ * Arrays should be passed as comma-separated values: --ids=1,2,3.
+ *
+ * @param array<int, bool|float|int|string> $default_value
+ *
+ * @return array<int, bool|float|int|string>
+ *
+ * @throws EmptyStringException
+ * @throws CommandInvalidFlagException
+ */
+function command_flag_array(
+    array &$command,
+    string $flag,
+    string $description,
+    ?ValidationRule $validator = null,
+    array $default_value = []
+): array {
+    $resolved_default_value = command_flags_internal_normalize_array_value(
+        $default_value,
+        $default_value
+    );
+    $normalized_flag = command_flags_internal_normalize_flag($flag);
+    if (harbor_is_blank($normalized_flag)) {
+        throw new EmptyStringException('Flag cannot be empty.');
+    }
+
+    command_flags_internal_register_option(
+        $command,
+        $normalized_flag,
+        $description,
+        $resolved_default_value
+    );
+
+    $raw_value = command_flag(
+        $command,
+        $normalized_flag,
+        $description,
+        null,
+        null
+    );
+
+    if (null === $raw_value || true === $raw_value) {
+        if (command_flags_internal_validator_is_required($validator)) {
+            command_flags_internal_assert_validated_value($normalized_flag, null, $validator);
+        }
+
+        command_flags_internal_assert_validated_value(
+            $normalized_flag,
+            $resolved_default_value,
+            $validator
+        );
+
+        return $resolved_default_value;
+    }
+
+    $typed_value = command_flags_internal_parse_csv_array_value($raw_value, $resolved_default_value);
+    command_flags_internal_assert_validated_value($normalized_flag, $typed_value, $validator);
+
+    return $typed_value;
+}
+
+/**
  * @param array{
  *     name?: string,
- *     options?: array<int, array{flag?: string, description?: string, default_value?: null|bool|float|int|string}>
+ *     options?: array<int, array{flag?: string, description?: string, default_value?: null|array<int, bool|float|int|string>|bool|float|int|string}>
  * } $command
  */
 function command_flags_print_usage(array $command): void
@@ -135,10 +322,8 @@ function command_flags_print_usage(array $command): void
 function command_flags_internal_find_flag_payload(array $argv, string $flag): array
 {
     $arguments = array_values($argv);
-    $arguments_count = count($arguments);
 
-    for ($index = 0; $index < $arguments_count; ++$index) {
-        $argument = $arguments[$index];
+    foreach ($arguments as $index => $argument) {
         if (! is_string($argument)) {
             continue;
         }
@@ -265,22 +450,72 @@ function command_flags_internal_normalize_flag(string $flag): string
     return $normalized_flag;
 }
 
-function command_flags_internal_assert_required_value(string $flag, mixed $value, bool|\Closure $required): void
+/**
+ * @throws CommandInvalidFlagException
+ */
+function command_flags_internal_assert_validated_value(string $flag, mixed $value, ?ValidationRule $validator): void
 {
-    if (is_bool($required) && $required && harbor_is_blank($value)) {
-        throw new CommandValueRequiredException(sprintf('%s: value is required.', $flag));
+    if (! $validator instanceof ValidationRule) {
+        return;
     }
 
-    if (is_callable($required) && ! $required($value)) {
-        throw new CommandValueRequiredException(sprintf('%s: value is required.', $flag));
+    $validation_result = $validator->validate_value($value);
+    if (! $validation_result->has_errors()) {
+        return;
     }
+
+    $validation_messages = command_flags_internal_validation_error_messages(
+        $validation_result->errors()
+    );
+    $validation_message = implode(PHP_EOL, $validation_messages);
+
+    if (harbor_is_blank($validation_message)) {
+        $validation_message = sprintf('%s: value is invalid.', $flag);
+    }
+
+    throw new CommandInvalidFlagException($validation_message);
+}
+
+function command_flags_internal_validator_is_required(?ValidationRule $validator): bool
+{
+    if (! $validator instanceof ValidationRule) {
+        return false;
+    }
+
+    return array_any($validator->constraints(), static fn ($constraint) => 'required' === ($constraint['name'] ?? null));
+}
+
+/**
+ * @param array<string, array<int, string>> $errors
+ *
+ * @return array<int, string>
+ */
+function command_flags_internal_validation_error_messages(array $errors): array
+{
+    $messages = [];
+
+    foreach ($errors as $field_errors) {
+        if (! is_array($field_errors)) {
+            continue;
+        }
+
+        foreach ($field_errors as $field_error) {
+            if (! is_string($field_error) || harbor_is_blank($field_error)) {
+                continue;
+            }
+
+            $messages[] = trim($field_error);
+        }
+    }
+
+    return $messages;
 }
 
 function command_flags_internal_register_option(
     array &$command,
     string $flag,
     string $description,
-    bool|float|int|string|null $default_value
+    array|bool|float|int|string|null $default_value
 ): void {
     if (! is_array($command['options'] ?? null)) {
         $command['options'] = [];
@@ -303,8 +538,30 @@ function command_flags_internal_register_option(
     ];
 }
 
-function command_flags_internal_default_label(bool|float|int|string|null $default_value): string
+function command_flags_internal_default_label(array|bool|float|int|string|null $default_value): string
 {
+    if (is_array($default_value)) {
+        if (empty($default_value)) {
+            return '';
+        }
+
+        $segments = [];
+
+        foreach ($default_value as $segment) {
+            if (is_bool($segment)) {
+                $segments[] = $segment ? 'true' : 'false';
+
+                continue;
+            }
+
+            if (is_float($segment) || is_int($segment) || is_string($segment)) {
+                $segments[] = (string) $segment;
+            }
+        }
+
+        return implode(',', $segments);
+    }
+
     if (null === $default_value) {
         return '';
     }
@@ -318,4 +575,188 @@ function command_flags_internal_default_label(bool|float|int|string|null $defaul
     }
 
     return '';
+}
+
+function command_flags_internal_value_to_string(mixed $value, ?string $default_value = null): ?string
+{
+    if (is_null($value)) {
+        return $default_value;
+    }
+
+    return (string) $value;
+
+}
+
+function command_flags_internal_value_to_int(mixed $value, int $default_value, ?bool &$is_valid = null): int
+{
+    $is_valid = false;
+
+    if (is_int($value)) {
+        $is_valid = true;
+
+        return $value;
+    }
+
+    if (is_bool($value)) {
+        $is_valid = true;
+
+        return $value ? 1 : 0;
+    }
+
+    if (is_float($value)) {
+        $is_valid = true;
+
+        return (int) $value;
+    }
+
+    if (is_string($value) && is_numeric(trim($value))) {
+        $is_valid = true;
+
+        return (int) $value;
+    }
+
+    return $default_value;
+}
+
+function command_flags_internal_value_to_float(mixed $value, float $default_value, ?bool &$is_valid = null): float
+{
+    $is_valid = false;
+
+    if (is_float($value) || is_int($value)) {
+        $is_valid = true;
+
+        return (float) $value;
+    }
+
+    if (is_bool($value)) {
+        $is_valid = true;
+
+        return $value ? 1.0 : 0.0;
+    }
+
+    if (is_string($value) && is_numeric(trim($value))) {
+        $is_valid = true;
+
+        return (float) $value;
+    }
+
+    return $default_value;
+}
+
+function command_flags_internal_value_to_bool(mixed $value, bool $default_value, ?bool &$is_valid = null): bool
+{
+    $is_valid = false;
+
+    if (is_bool($value)) {
+        $is_valid = true;
+
+        return $value;
+    }
+
+    if (is_int($value) || is_float($value)) {
+        $is_valid = true;
+
+        return 0.0 !== (float) $value;
+    }
+
+    if (is_string($value)) {
+        $normalized_value = strtolower(trim($value));
+
+        if (in_array($normalized_value, ['1', 'true', 'yes', 'on', 'y'], true)) {
+            $is_valid = true;
+
+            return true;
+        }
+
+        if (in_array($normalized_value, ['0', 'false', 'no', 'off', 'n'], true)) {
+            $is_valid = true;
+
+            return false;
+        }
+    }
+
+    return $default_value;
+}
+
+/**
+ * @param array<int, mixed>                 $value
+ * @param array<int, bool|float|int|string> $default_value
+ *
+ * @return array<int, bool|float|int|string>
+ */
+function command_flags_internal_normalize_array_value(mixed $value, array $default_value = []): array
+{
+    if (! is_array($value)) {
+        return $default_value;
+    }
+
+    $normalized_values = [];
+
+    foreach (array_values($value) as $segment) {
+        if (is_bool($segment) || is_float($segment) || is_int($segment) || is_string($segment)) {
+            $normalized_values[] = $segment;
+        }
+    }
+
+    return $normalized_values;
+}
+
+/**
+ * @param array<int, bool|float|int|string> $default_value
+ *
+ * @return array<int, bool|float|int|string>
+ */
+function command_flags_internal_parse_csv_array_value(
+    mixed $value,
+    array $default_value = []
+): array {
+    if (is_array($value)) {
+        return command_flags_internal_normalize_array_value($value, $default_value);
+    }
+
+    $string_value = command_flags_internal_value_to_string($value, null);
+    if (! is_string($string_value) || harbor_is_blank($string_value)) {
+        return $default_value;
+    }
+
+    $segments = explode(',', $string_value);
+    $parsed_values = [];
+
+    foreach ($segments as $segment) {
+        $normalized_segment = trim($segment);
+        if (harbor_is_blank($normalized_segment)) {
+            continue;
+        }
+
+        $parsed_values[] = command_flags_internal_parse_csv_segment($normalized_segment);
+    }
+
+    if (empty($parsed_values)) {
+        return $default_value;
+    }
+
+    return $parsed_values;
+}
+
+function command_flags_internal_parse_csv_segment(string $segment): bool|float|int|string
+{
+    if (1 === preg_match('/^-?[0-9]+$/', $segment)) {
+        return (int) $segment;
+    }
+
+    if (is_numeric($segment)) {
+        return (float) $segment;
+    }
+
+    $normalized_segment = strtolower(trim($segment));
+
+    if (in_array($normalized_segment, ['true', 'yes', 'on', 'y'], true)) {
+        return true;
+    }
+
+    if (in_array($normalized_segment, ['false', 'no', 'off', 'n'], true)) {
+        return false;
+    }
+
+    return $segment;
 }

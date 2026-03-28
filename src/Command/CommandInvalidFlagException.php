@@ -7,4 +7,4 @@ namespace Harbor\Command;
 /**
  * Class CommandValueRequiredException.
  */
-class CommandValueRequiredException extends \Exception {}
+class CommandInvalidFlagException extends \Exception {}

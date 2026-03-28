@@ -260,8 +260,13 @@ final class HelperTest extends TestCase
         Helper::load_many('command');
 
         self::assertTrue(function_exists('Harbor\Command\command_run'));
-        self::assertTrue(function_exists('Harbor\Command\command_flags_init'));
+        self::assertTrue(function_exists('Harbor\Command\command_init'));
         self::assertTrue(function_exists('Harbor\Command\command_flag'));
+        self::assertTrue(function_exists('Harbor\Command\command_flag_string'));
+        self::assertTrue(function_exists('Harbor\Command\command_flag_int'));
+        self::assertTrue(function_exists('Harbor\Command\command_flag_float'));
+        self::assertTrue(function_exists('Harbor\Command\command_flag_bool'));
+        self::assertTrue(function_exists('Harbor\Command\command_flag_array'));
         self::assertTrue(function_exists('Harbor\Command\command_flags_print_usage'));
         self::assertFalse(function_exists('Harbor\Command\command_option'));
         self::assertFalse(function_exists('Harbor\Command\command_option_string'));
@@ -276,8 +281,13 @@ final class HelperTest extends TestCase
     {
         Helper::load_many('command_flags');
 
-        self::assertTrue(function_exists('Harbor\Command\command_flags_init'));
+        self::assertTrue(function_exists('Harbor\Command\command_init'));
         self::assertTrue(function_exists('Harbor\Command\command_flag'));
+        self::assertTrue(function_exists('Harbor\Command\command_flag_string'));
+        self::assertTrue(function_exists('Harbor\Command\command_flag_int'));
+        self::assertTrue(function_exists('Harbor\Command\command_flag_float'));
+        self::assertTrue(function_exists('Harbor\Command\command_flag_bool'));
+        self::assertTrue(function_exists('Harbor\Command\command_flag_array'));
         self::assertTrue(function_exists('Harbor\Command\command_flags_print_usage'));
     }
 

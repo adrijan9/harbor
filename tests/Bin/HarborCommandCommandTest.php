@@ -39,12 +39,13 @@ final class HarborCommandCommandTest extends TestCase
         self::assertIsString($entry_content);
         self::assertStringContainsString('require __DIR__."/../../vendor/autoload.php";', $entry_content);
         self::assertStringContainsString('use Harbor\Helper;', $entry_content);
-        self::assertStringContainsString('use function Harbor\Command\command_flag;', $entry_content);
-        self::assertStringContainsString('use function Harbor\Command\command_flags_init;', $entry_content);
+        self::assertStringContainsString('use function Harbor\Command\command_flag_bool;', $entry_content);
+        self::assertStringContainsString('use function Harbor\Command\command_flag_string;', $entry_content);
+        self::assertStringContainsString('use function Harbor\Command\command_init;', $entry_content);
         self::assertStringContainsString('use function Harbor\Command\command_flags_print_usage;', $entry_content);
         self::assertStringContainsString('use function Harbor\Command\command_info;', $entry_content);
         self::assertStringContainsString('Helper::Command->load();', $entry_content);
-        self::assertStringContainsString('command_flags_init(', $entry_content);
+        self::assertStringContainsString('command_init(', $entry_content);
         self::assertStringContainsString('command_flags_print_usage(', $entry_content);
         self::assertStringContainsString('command_info(', $entry_content);
 
@@ -159,13 +160,19 @@ final class HarborCommandCommandTest extends TestCase
                 require __DIR__."/../../vendor/autoload.php";
 
                 use Harbor\Helper;
+                use Harbor\Validation\ValidationRule;
                 use function Harbor\Command\command_flag;
-                use function Harbor\Command\command_flags_init;
+                use function Harbor\Command\command_init;
 
                 Helper::Command->load();
 
-                $command = command_flags_init('flags:demo', $argc ?? 0, $argv ?? []);
-                $name = command_flag($command, '--name', 'User name', required: true);
+                $command = command_init('flags:demo', $argc ?? 0, $argv ?? []);
+                $name = command_flag(
+                    $command,
+                    '--name',
+                    'User name',
+                    validator: (new ValidationRule('name'))->required()->string()
+                );
                 $dry_run = command_flag($command, '--dry-run', 'Dry run mode', default_value: false);
                 $help = command_flag($command, '--help', 'Display command usage', default_value: false);
 
@@ -199,7 +206,7 @@ final class HarborCommandCommandTest extends TestCase
         self::assertIsArray($payload);
         self::assertSame('Harbor', $payload['name'] ?? null);
         self::assertTrue($payload['dry_run'] ?? false);
-        self::assertFalse($payload['help'] ?? true);
+        self::assertNull($payload['help'] ?? null);
     }
 
     public function test_run_returns_missing_key_exit_code_when_command_does_not_exist(): void

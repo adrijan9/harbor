@@ -186,17 +186,18 @@ final class CreateCommand extends BaseCommand
 
             use Harbor\\Helper;
             use function Harbor\\Command\\command_debug;
-            use function Harbor\\Command\\command_flag;
-            use function Harbor\\Command\\command_flags_init;
+            use function Harbor\\Command\\command_flag_bool;
+            use function Harbor\\Command\\command_flag_string;
+            use function Harbor\\Command\\command_init;
             use function Harbor\\Command\\command_flags_print_usage;
             use function Harbor\\Command\\command_info;
 
             Helper::Command->load();
 
-            \$command = command_flags_init('{$key}', \$argc ?? 0, \$argv ?? []);
-            \$show_help = command_flag(\$command, '--help', 'Display command usage', default_value: false);
-            \$name = command_flag(\$command, '--name', 'Name used by the command', default_value: 'world');
-            \$is_force_mode = command_flag(\$command, '--force', 'Enable force mode', default_value: false);
+            \$command = command_init('{$key}', \$argc ?? 0, \$argv ?? []);
+            \$show_help = command_flag_bool(\$command, '--help', 'Display command usage', default_value: false);
+            \$name = command_flag_string(\$command, '--name', 'Name used by the command', default_value: 'world');
+            \$is_force_mode = command_flag_bool(\$command, '--force', 'Enable force mode', default_value: false);
 
             if (\$show_help) {
                 command_flags_print_usage(\$command);

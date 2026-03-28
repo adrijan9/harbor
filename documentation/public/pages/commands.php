@@ -147,24 +147,43 @@ command_error('Example STDERR message.');</code></pre>
 declare(strict_types=1);
 
 use Harbor\Helper;
+use Harbor\Validation\ValidationRule;
 use function Harbor\Command\command_flag;
-use function Harbor\Command\command_flags_init;
+use function Harbor\Command\command_flag_array;
+use function Harbor\Command\command_flag_bool;
+use function Harbor\Command\command_flag_float;
+use function Harbor\Command\command_flag_int;
+use function Harbor\Command\command_flag_string;
+use function Harbor\Command\command_init;
 use function Harbor\Command\command_flags_print_usage;
 use function Harbor\Command\command_info;
 
 require __DIR__."/../../vendor/autoload.php";
 Helper::Command->load();
 
-$command = command_flags_init('users:sync', $argc ?? 0, $argv ?? []);
-$help = command_flag($command, '--help', 'Display command usage', default_value: false);
-$name = command_flag($command, '--name', 'User name', default_value: 'world');
-$force = command_flag($command, '--force', 'Enable force mode', default_value: false);
-$player = command_flag($command, '--player', 'Player name', required: true);
-$environment = command_flag(
+$command = command_init('users:sync', $argc ?? 0, $argv ?? []);
+$help = command_flag_bool($command, '--help', 'Display command usage', default_value: false);
+$probe = command_flag($command, '--probe', 'Presence-only flag');
+$name = command_flag_string($command, '--name', 'User name', default_value: 'world');
+$force = command_flag_bool($command, '--force', 'Enable force mode', default_value: false);
+$limit = command_flag_int($command, '--limit', 'Chunk size', default_value: 100);
+$ratio = command_flag_float($command, '--ratio', 'Ratio value', default_value: 1.5);
+$ids = command_flag_array($command, '-p', 'Player ids', default_value: [1, 2, 3, 4]);
+
+// validator with required constraint
+$player = command_flag_string(
+    $command,
+    '--player',
+    'Player name',
+    validator: (new ValidationRule('player'))->required()->string()->min(2)
+);
+
+// validator with in-list constraint
+$environment = command_flag_string(
     $command,
     '--env',
     'Environment',
-    required: static fn (mixed $value): bool => is_string($value) && in_array($value, ['dev', 'stage', 'prod'], true)
+    validator: (new ValidationRule('environment'))->required()->string()->in(['dev', 'stage', 'prod'])
 );
 
 if ($help) {
@@ -174,9 +193,10 @@ if ($help) {
 
 command_info(
     sprintf(
-        'Running users:sync for %s (force=%s player=%s env=%s)',
+        'Running users:sync for %s (force=%s probe=%s player=%s env=%s)',
         $name,
         $force ? 'true' : 'false',
+        true === $probe ? 'present' : 'missing',
         $player,
         $environment
     )
@@ -191,13 +211,15 @@ command_info(
         </summary>
         <div class="api-body">
             <ul class="api-method-list">
-                <li><code>command_flags_init(string $name, int $argc, array $argv): array</code> Initializes command flag context.</li>
-                <li><code>command_flag(array &$command, string $flag, string $description, bool|Closure $required = false, mixed $default_value = null): mixed</code> Registers and resolves one flag value.</li>
+                <li><code>command_init(string $name, int $argc, array $argv): array</code> Initializes command flag context.</li>
+                <li><code>command_flag(array &$command, string $flag, string $description, ?ValidationRule $validator = null, mixed $default_value = null): mixed</code> Presence helper. Returns <code>true</code> or a parsed value when present, and <code>null</code> when the flag token is not passed.</li>
+                <li><code>command_flag_string|command_flag_int|command_flag_float|command_flag_bool(...)</code> Typed scalar flag helpers.</li>
+                <li><code>command_flag_array(...)</code> Array flag helper using comma-separated input, for example <code>--ids=1,2,3,4</code>.</li>
                 <li><code>command_flags_print_usage(array $command): void</code> Prints usage text with all registered flags and defaults.</li>
                 <li><code>Accepted formats</code> Use <code>--name=value</code>, <code>--name value</code>, or boolean switches like <code>--force</code>.</li>
-                <li><code>required: true</code> Example: <code>command_flag($command, '--player', 'Player name', required: true)</code>.</li>
-                <li><code>required: closure</code> Example: <code>command_flag($command, '--env', 'Environment', required: static fn (mixed $value): bool =&gt; is_string($value) &amp;&amp; in_array($value, ['dev', 'stage', 'prod'], true))</code>.</li>
-                <li><code>Required values</code> Set <code>required: true</code> or pass a validator closure; missing or invalid values throw <code>Harbor\Command\CommandValueRequiredException</code>.</li>
+                <li><code>validator</code> Build with <code>new ValidationRule('field')</code> and pass using <code>validator:</code> (for example <code>required()-&gt;string()-&gt;min(2)</code>).</li>
+                <li><code>default_value</code> Example: <code>command_flag_array($command, '-p', 'My command', default_value: [1, 2, 3, 4])</code>.</li>
+                <li><code>Validation errors</code> If validator rules fail, <code>Harbor\Command\CommandValueRequiredException</code> is thrown with validator error messages.</li>
             </ul>
         </div>
     </details>
@@ -264,16 +286,16 @@ declare(strict_types=1);
 // File: my-site/commands/users_export.php
 use Harbor\Helper;
 use function Harbor\Command\command_arguments;
-use function Harbor\Command\command_flag;
-use function Harbor\Command\command_flags_init;
+use function Harbor\Command\command_flag_string;
+use function Harbor\Command\command_init;
 use function Harbor\Command\command_info;
 
 require __DIR__."/../../vendor/autoload.php";
 Helper::Command->load();
 
-$command = command_flags_init('users:export', $argc ?? 0, $argv ?? []);
+$command = command_init('users:export', $argc ?? 0, $argv ?? []);
 $arguments = command_arguments();
-$format = command_flag($command, '--format', 'Export format', default_value: 'csv');
+$format = command_flag_string($command, '--format', 'Export format', default_value: 'csv');
 
 command_info(sprintf('users:export format=%s args=%s', $format, json_encode($arguments)));</code></pre>
     <pre><code class="language-bash">cd my-site

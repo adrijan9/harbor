@@ -104,7 +104,7 @@ final class CommandHelpersTest extends TestCase
                 use function Harbor\Command\command_debug_enabled;
                 use function Harbor\Command\command_error;
                 use function Harbor\Command\command_flag;
-                use function Harbor\Command\command_flags_init;
+                use function Harbor\Command\command_init;
                 use function Harbor\Command\command_info;
                 use function Harbor\Command\command_raw_arguments;
 
@@ -112,7 +112,7 @@ final class CommandHelpersTest extends TestCase
 
                 Helper::Command->load();
 
-                $command = command_flags_init('users:inspect', $argc ?? 0, $argv ?? []);
+                $command = command_init('users:inspect', $argc ?? 0, $argv ?? []);
 
                 $payload = [
                     'has_command_info' => function_exists('Harbor\Command\command_info'),
@@ -120,8 +120,13 @@ final class CommandHelpersTest extends TestCase
                     'has_command_debug' => function_exists('Harbor\Command\command_debug'),
                     'has_command_arg_string' => function_exists('Harbor\Command\command_arg_string'),
                     'has_command_arg_int' => function_exists('Harbor\Command\command_arg_int'),
-                    'has_command_flags_init' => function_exists('Harbor\Command\command_flags_init'),
+                    'has_command_init' => function_exists('Harbor\Command\command_init'),
                     'has_command_flag' => function_exists('Harbor\Command\command_flag'),
+                    'has_command_flag_string' => function_exists('Harbor\Command\command_flag_string'),
+                    'has_command_flag_int' => function_exists('Harbor\Command\command_flag_int'),
+                    'has_command_flag_float' => function_exists('Harbor\Command\command_flag_float'),
+                    'has_command_flag_bool' => function_exists('Harbor\Command\command_flag_bool'),
+                    'has_command_flag_array' => function_exists('Harbor\Command\command_flag_array'),
                     'has_command_flags_print_usage' => function_exists('Harbor\Command\command_flags_print_usage'),
                     'has_command_option_string' => function_exists('Harbor\Command\command_option_string'),
                     'has_command_run' => function_exists('Harbor\Command\command_run'),
@@ -166,8 +171,13 @@ final class CommandHelpersTest extends TestCase
         self::assertTrue($runtime_payload['has_command_debug'] ?? false);
         self::assertTrue($runtime_payload['has_command_arg_string'] ?? false);
         self::assertTrue($runtime_payload['has_command_arg_int'] ?? false);
-        self::assertTrue($runtime_payload['has_command_flags_init'] ?? false);
+        self::assertTrue($runtime_payload['has_command_init'] ?? false);
         self::assertTrue($runtime_payload['has_command_flag'] ?? false);
+        self::assertTrue($runtime_payload['has_command_flag_string'] ?? false);
+        self::assertTrue($runtime_payload['has_command_flag_int'] ?? false);
+        self::assertTrue($runtime_payload['has_command_flag_float'] ?? false);
+        self::assertTrue($runtime_payload['has_command_flag_bool'] ?? false);
+        self::assertTrue($runtime_payload['has_command_flag_array'] ?? false);
         self::assertTrue($runtime_payload['has_command_flags_print_usage'] ?? false);
         self::assertFalse($runtime_payload['has_command_option_string'] ?? true);
         self::assertTrue($runtime_payload['has_command_run'] ?? false);
