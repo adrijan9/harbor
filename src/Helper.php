@@ -143,7 +143,7 @@ enum Helper: string
             self::Response => [__DIR__.'/Response/response.php'],
             self::View => [__DIR__.'/View/view.php'],
             self::Command => [__DIR__.'/Command/command.php'],
-            self::CommandFlags => [__DIR__ . '/Command/flags/command_flags.php'],
+            self::CommandFlags => [__DIR__.'/Command/flags/command_flags.php'],
             self::Database => [__DIR__.'/Database/Connection/db.php'],
             self::DbSqlite => [__DIR__.'/Database/Connection/db_sqlite.php'],
             self::DbMysqlPdo => [__DIR__.'/Database/Connection/db_mysql_pdo.php'],
