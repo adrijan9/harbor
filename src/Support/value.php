@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace Harbor\Support;
 
+/** Public */
+
 /**
  * Treat null, empty string, and empty array as blank while preserving "0".
  */
-/** Public */
 function harbor_is_blank(mixed $value): bool
 {
     if (is_string($value)) {
