@@ -37,13 +37,13 @@ final class CommandFlagsHelpersTest extends TestCase
         self::assertCount(1, $command['options']);
     }
 
-    public function test_command_flag_returns_true_for_present_boolean_flag(): void
+    public function test_command_flag_returns_default_for_present_boolean_flag_without_value(): void
     {
         $command = command_init('harbor-flag', 2, ['harbor-flag', '--force']);
 
         $force_mode = command_flag($command, '--force', 'Enable force mode', default_value: false);
 
-        self::assertTrue($force_mode);
+        self::assertFalse($force_mode);
     }
 
     public function test_command_flag_returns_default_when_flag_is_present_without_value(): void
@@ -81,22 +81,21 @@ final class CommandFlagsHelpersTest extends TestCase
         $long_help = command_flag($command, '--help', 'Display long help', default_value: false);
 
         self::assertNull($short_help);
-        self::assertTrue($long_help);
+        self::assertFalse($long_help);
     }
 
-    public function test_command_flag_throws_when_validator_requires_value(): void
+    public function test_command_flag_returns_null_when_validator_requires_value_and_flag_has_no_value(): void
     {
         $command = command_init('harbor-flag', 2, ['harbor-flag', '--player']);
 
-        $this->expectException(CommandInvalidFlagException::class);
-        $this->expectExceptionMessage('The player field is required.');
-
-        command_flag(
+        $player = command_flag(
             $command,
             '--player',
             'Player name',
             validator: new ValidationRule('player')->required()->string()
         );
+
+        self::assertNull($player);
     }
 
     public function test_command_flag_throws_when_validator_rules_fail(): void

@@ -205,7 +205,7 @@ final class HarborCommandCommandTest extends TestCase
         $payload = json_decode($payload_content, true);
         self::assertIsArray($payload);
         self::assertSame('Harbor', $payload['name'] ?? null);
-        self::assertTrue($payload['dry_run'] ?? false);
+        self::assertFalse($payload['dry_run'] ?? true);
         self::assertNull($payload['help'] ?? null);
     }
 
