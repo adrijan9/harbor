@@ -206,46 +206,21 @@ function command_flag_array(
     ?ValidationRule $validator = null,
     array $default_value = []
 ): array {
-    $resolved_default_value = command_flags_internal_normalize_array_value(
-        $default_value,
-        $default_value
-    );
-    $normalized_flag = command_flags_internal_normalize_flag($flag);
-    if (harbor_is_blank($normalized_flag)) {
-        throw new EmptyStringException('Flag cannot be empty.');
-    }
-
     command_flags_internal_register_option(
         $command,
-        $normalized_flag,
+        $flag,
         $description,
-        $resolved_default_value
+        $default_value
     );
 
     $raw_value = command_flag(
         $command,
-        $normalized_flag,
-        $description,
-        null,
-        null
+        $flag,
+        $description
     );
 
-    if (null === $raw_value || true === $raw_value) {
-        if (command_flags_internal_validator_is_required($validator)) {
-            command_flags_internal_assert_validated_value($normalized_flag, null, $validator);
-        }
-
-        command_flags_internal_assert_validated_value(
-            $normalized_flag,
-            $resolved_default_value,
-            $validator
-        );
-
-        return $resolved_default_value;
-    }
-
-    $typed_value = command_flags_internal_parse_csv_array_value($raw_value, $resolved_default_value);
-    command_flags_internal_assert_validated_value($normalized_flag, $typed_value, $validator);
+    $typed_value = command_flags_internal_parse_csv_array_value($raw_value, $default_value);
+    command_flags_internal_assert_validated_value($flag, $typed_value, $validator);
 
     return $typed_value;
 }
@@ -448,15 +423,6 @@ function command_flags_internal_assert_validated_value(string $flag, mixed $valu
     throw new CommandInvalidFlagException($validation_message);
 }
 
-function command_flags_internal_validator_is_required(?ValidationRule $validator): bool
-{
-    if (! $validator instanceof ValidationRule) {
-        return false;
-    }
-
-    return array_any($validator->constraints(), static fn ($constraint) => 'required' === ($constraint['name'] ?? null));
-}
-
 /**
  * @param array<string, array<int, string>> $errors
  *
@@ -627,11 +593,15 @@ function command_flags_internal_parse_csv_array_value(
     mixed $value,
     array $default_value = []
 ): array {
+    if (is_null($value)) {
+        return $default_value;
+    }
+
     if (is_array($value)) {
         return command_flags_internal_normalize_array_value($value, $default_value);
     }
 
-    $string_value = command_flags_internal_value_to_string($value, null);
+    $string_value = command_flags_internal_value_to_string($value);
     if (! is_string($string_value) || harbor_is_blank($string_value)) {
         return $default_value;
     }
