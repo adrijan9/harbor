@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Harbor\Command;
 
-require_once __DIR__.'/../Support/value.php';
+require_once __DIR__.'/../../Support/value.php';
 
-require_once __DIR__.'/../Support/string.php';
+require_once __DIR__.'/../../Support/string.php';
 
 use Harbor\Exceptions\EmptyStringException;
 use Harbor\Validation\ValidationRule;
