@@ -39,13 +39,13 @@ final class HarborCommandCommandTest extends TestCase
         self::assertIsString($entry_content);
         self::assertStringContainsString('require __DIR__."/../../vendor/autoload.php";', $entry_content);
         self::assertStringContainsString('use Harbor\Helper;', $entry_content);
-        self::assertStringContainsString('use function Harbor\Command\command_flag_bool;', $entry_content);
-        self::assertStringContainsString('use function Harbor\Command\command_flag_string;', $entry_content);
-        self::assertStringContainsString('use function Harbor\Command\command_init;', $entry_content);
-        self::assertStringContainsString('use function Harbor\Command\command_flags_print_usage;', $entry_content);
+        self::assertStringContainsString('use function Harbor\Command\Flags\command_flag_bool;', $entry_content);
+        self::assertStringContainsString('use function Harbor\Command\Flags\command_flag_string;', $entry_content);
+        self::assertStringContainsString('use function Harbor\Command\Flags\command_flags_init;', $entry_content);
+        self::assertStringContainsString('use function Harbor\Command\Flags\command_flags_print_usage;', $entry_content);
         self::assertStringContainsString('use function Harbor\Command\command_info;', $entry_content);
         self::assertStringContainsString('Helper::Command->load();', $entry_content);
-        self::assertStringContainsString('command_init(', $entry_content);
+        self::assertStringContainsString('command_flags_init(', $entry_content);
         self::assertStringContainsString('command_flags_print_usage(', $entry_content);
         self::assertStringContainsString('command_info(', $entry_content);
 
@@ -161,12 +161,12 @@ final class HarborCommandCommandTest extends TestCase
 
                 use Harbor\Helper;
                 use Harbor\Validation\ValidationRule;
-                use function Harbor\Command\command_flag;
-                use function Harbor\Command\command_init;
+                use function Harbor\Command\Flags\command_flag;
+                use function Harbor\Command\Flags\command_flags_init;
 
                 Helper::Command->load();
 
-                $command = command_init('flags:demo', $argc ?? 0, $argv ?? []);
+                $command = command_flags_init('flags:demo', $argc ?? 0, $argv ?? []);
                 $name = command_flag(
                     $command,
                     '--name',

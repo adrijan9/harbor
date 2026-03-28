@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Harbor\Command;
+namespace Harbor\Command\Flags;
 
 use Harbor\Command\CommandInvalidFlagException;
 use Harbor\Validation\ValidationRule;
@@ -27,7 +27,7 @@ function command_flags_internal_assert_validated_value(string $flag, mixed $valu
         return;
     }
 
-    $validation_messages = \Harbor\Command\command_flags_internal_validation_error_messages($validation_result->errors());
+    $validation_messages = command_flags_internal_validation_error_messages($validation_result->errors());
     $validation_message = implode(PHP_EOL, $validation_messages);
 
     if (harbor_is_blank($validation_message)) {

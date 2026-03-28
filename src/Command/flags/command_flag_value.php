@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Harbor\Command;
+namespace Harbor\Command\Flags;
 
 use function Harbor\Support\harbor_is_blank;
 

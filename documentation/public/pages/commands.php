@@ -148,20 +148,20 @@ declare(strict_types=1);
 
 use Harbor\Helper;
 use Harbor\Validation\ValidationRule;
-use function Harbor\Command\command_flag;
-use function Harbor\Command\command_flag_array;
-use function Harbor\Command\command_flag_bool;
-use function Harbor\Command\command_flag_float;
-use function Harbor\Command\command_flag_int;
-use function Harbor\Command\command_flag_string;
-use function Harbor\Command\command_init;
-use function Harbor\Command\command_flags_print_usage;
+use function Harbor\Command\Flags\command_flag;
+use function Harbor\Command\Flags\command_flag_array;
+use function Harbor\Command\Flags\command_flag_bool;
+use function Harbor\Command\Flags\command_flag_float;
+use function Harbor\Command\Flags\command_flag_int;
+use function Harbor\Command\Flags\command_flag_string;
+use function Harbor\Command\Flags\command_flags_init;
+use function Harbor\Command\Flags\command_flags_print_usage;
 use function Harbor\Command\command_info;
 
 require __DIR__."/../../vendor/autoload.php";
 Helper::Command->load();
 
-$command = command_init('users:sync', $argc ?? 0, $argv ?? []);
+$command = command_flags_init('users:sync', $argc ?? 0, $argv ?? []);
 $help = command_flag_bool($command, '--help', 'Display command usage', default_value: false);
 $probe = command_flag($command, '--probe', 'Presence-only flag');
 $name = command_flag_string($command, '--name', 'User name', default_value: 'world');
@@ -211,7 +211,7 @@ command_info(
         </summary>
         <div class="api-body">
             <ul class="api-method-list">
-                <li><code>command_init(string $name, int $argc, array $argv): array</code> Initializes command flag context.</li>
+                <li><code>command_flags_init(string $name, int $argc, array $argv): array</code> Initializes command flag context.</li>
                 <li><code>command_flag(array &$command, string $flag, string $description, ?ValidationRule $validator = null, mixed $default_value = null): mixed</code> Presence helper. Returns <code>true</code> or a parsed value when present, and <code>null</code> when the flag token is not passed.</li>
                 <li><code>command_flag_string|command_flag_int|command_flag_float|command_flag_bool(...)</code> Typed scalar flag helpers.</li>
                 <li><code>command_flag_array(...)</code> Array flag helper using comma-separated input, for example <code>--ids=1,2,3,4</code>.</li>
@@ -286,14 +286,14 @@ declare(strict_types=1);
 // File: my-site/commands/users_export.php
 use Harbor\Helper;
 use function Harbor\Command\command_arguments;
-use function Harbor\Command\command_flag_string;
-use function Harbor\Command\command_init;
+use function Harbor\Command\Flags\command_flag_string;
+use function Harbor\Command\Flags\command_flags_init;
 use function Harbor\Command\command_info;
 
 require __DIR__."/../../vendor/autoload.php";
 Helper::Command->load();
 
-$command = command_init('users:export', $argc ?? 0, $argv ?? []);
+$command = command_flags_init('users:export', $argc ?? 0, $argv ?? []);
 $arguments = command_arguments();
 $format = command_flag_string($command, '--format', 'Export format', default_value: 'csv');
 

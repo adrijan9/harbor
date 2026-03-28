@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Harbor\Command;
+namespace Harbor\Command\Flags;
 
 require_once __DIR__.'/../../Support/value.php';
 require_once __DIR__.'/../../Support/string.php';
@@ -11,7 +11,6 @@ require_once __DIR__.'/command_flag.php';
 require_once __DIR__.'/command_flag_casts.php';
 require_once __DIR__.'/command_flag_validation.php';
 require_once __DIR__.'/command_flag_value.php';
-require_once __DIR__.'/command_flags_aliases.php';
 
 use Harbor\Exceptions\EmptyStringException;
 use Harbor\Validation\ValidationRule;
@@ -33,7 +32,7 @@ use function Harbor\Support\harbor_is_blank;
  *     }>
  * }
  */
-function command_init(string $name, int $argc, array $argv): array
+function command_flags_init(string $name, int $argc, array $argv): array
 {
     $normalized_arguments = [];
 
