@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Harbor\Tests\Command;
 
 use Harbor\Command\CommandInvalidFlagException;
-use Harbor\Exceptions\EmptyStringException;
 use Harbor\Helper;
 use Harbor\Validation\ValidationRule;
 use PHPUnit\Framework\Attributes\BeforeClass;
@@ -64,13 +63,13 @@ final class CommandFlagsHelpersTest extends TestCase
         self::assertSame('Harbor', $name);
     }
 
-    public function test_command_flag_parses_value_from_next_token(): void
+    public function test_command_flag_does_not_parse_value_from_next_token(): void
     {
         $command = command_init('harbor-flag', 3, ['harbor-flag', '-p', 'Alexander']);
 
         $player = command_flag($command, '-p', 'Player value');
 
-        self::assertSame('Alexander', $player);
+        self::assertNull($player);
     }
 
     public function test_command_flag_does_not_match_partial_flag_tokens(): void
@@ -208,13 +207,12 @@ final class CommandFlagsHelpersTest extends TestCase
         );
     }
 
-    public function test_command_flag_throws_when_flag_value_is_empty(): void
+    public function test_command_flag_returns_empty_string_when_flag_value_is_empty(): void
     {
         $command = command_init('harbor-flag', 2, ['harbor-flag', '--player=   ']);
 
-        $this->expectException(EmptyStringException::class);
-        $this->expectExceptionMessage('Flag cannot be empty.');
+        $player = command_flag($command, '--player', 'Player name');
 
-        command_flag($command, '--player', 'Player name');
+        self::assertSame('', $player);
     }
 }

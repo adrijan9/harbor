@@ -189,7 +189,7 @@ final class CommandHelpersTest extends TestCase
         self::assertSame(7, $runtime_payload['retry_count'] ?? null);
         self::assertSame('Harbor', $runtime_payload['flag_name'] ?? null);
         self::assertFalse($runtime_payload['flag_force'] ?? true);
-        self::assertSame('10', $runtime_payload['flag_limit'] ?? null);
+        self::assertSame('0', $runtime_payload['flag_limit'] ?? null);
         self::assertFalse($runtime_payload['flag_verbose'] ?? true);
         self::assertTrue($runtime_payload['debug_enabled'] ?? false);
     }

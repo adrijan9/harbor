@@ -216,7 +216,7 @@ command_info(
                 <li><code>command_flag_string|command_flag_int|command_flag_float|command_flag_bool(...)</code> Typed scalar flag helpers.</li>
                 <li><code>command_flag_array(...)</code> Array flag helper using comma-separated input, for example <code>--ids=1,2,3,4</code>.</li>
                 <li><code>command_flags_print_usage(array $command): void</code> Prints usage text with all registered flags and defaults.</li>
-                <li><code>Accepted formats</code> Use <code>--name=value</code>, <code>--name value</code>, or boolean switches like <code>--force</code>.</li>
+                <li><code>Accepted formats</code> Use <code>--name=value</code> (including quoted values like <code>--name="Ada Lovelace"</code>) or boolean switches like <code>--force</code>.</li>
                 <li><code>validator</code> Build with <code>new ValidationRule('field')</code> and pass using <code>validator:</code> (for example <code>required()-&gt;string()-&gt;min(2)</code>).</li>
                 <li><code>default_value</code> Example: <code>command_flag_array($command, '-p', 'My command', default_value: [1, 2, 3, 4])</code>.</li>
                 <li><code>Validation errors</code> If validator rules fail, <code>Harbor\Command\CommandValueRequiredException</code> is thrown with validator error messages.</li>

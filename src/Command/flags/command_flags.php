@@ -259,14 +259,10 @@ function command_flags_print_usage(array $command): void
  * @param array<int, string> $argv
  *
  * @return array{present: bool, has_value: bool, value: null|bool|float|int|string}
- *
- * @throws EmptyStringException
  */
 function command_flags_internal_find_flag_payload(array $argv, string $flag): array
 {
-    $arguments = array_values($argv);
-
-    foreach ($arguments as $index => $argument) {
+    foreach ($argv as $argument) {
         if (! is_string($argument)) {
             continue;
         }
@@ -277,31 +273,11 @@ function command_flags_internal_find_flag_payload(array $argv, string $flag): ar
         }
 
         $inline_value = command_flags_internal_inline_value($normalized_argument, $flag);
-        if (is_string($inline_value)) {
-            $normalized_value = command_flags_internal_normalize_flag_value($inline_value);
-
-            return [
-                'present' => true,
-                'has_value' => true,
-                'value' => $normalized_value,
-            ];
-        }
-
-        if (command_flags_internal_next_token_represents_value($arguments, $index)) {
-            $next_value = (string) $arguments[$index + 1];
-            $normalized_value = command_flags_internal_normalize_flag_value($next_value);
-
-            return [
-                'present' => true,
-                'has_value' => true,
-                'value' => $normalized_value,
-            ];
-        }
 
         return [
             'present' => true,
-            'has_value' => false,
-            'value' => null,
+            'has_value' => is_string($inline_value),
+            'value' => $inline_value,
         ];
     }
 
@@ -346,37 +322,6 @@ function command_flags_internal_inline_value(string $token, string $flag): ?stri
     }
 
     return $value;
-}
-
-/**
- * @param array<int, string> $argv
- */
-function command_flags_internal_next_token_represents_value(array $argv, int $index): bool
-{
-    $next_token = $argv[$index + 1] ?? null;
-    if (! is_string($next_token)) {
-        return false;
-    }
-
-    $normalized_next_token = trim($next_token);
-    if ('--' === $normalized_next_token) {
-        return false;
-    }
-
-    return ! command_flags_internal_is_option_token($normalized_next_token);
-}
-
-function command_flags_internal_is_option_token(string $token): bool
-{
-    if ('-' === $token || harbor_is_blank($token)) {
-        return false;
-    }
-
-    if (1 === preg_match('/^-[0-9]+(?:\.[0-9]+)?$/', $token)) {
-        return false;
-    }
-
-    return str_starts_with($token, '-');
 }
 
 function command_flags_internal_normalize_flag(string $flag): string
