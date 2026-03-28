@@ -10,13 +10,13 @@ use Harbor\Validation\ValidationRule;
 use PHPUnit\Framework\Attributes\BeforeClass;
 use PHPUnit\Framework\TestCase;
 
-use function Harbor\Command\command_flag;
-use function Harbor\Command\command_flag_array;
-use function Harbor\Command\command_flag_bool;
-use function Harbor\Command\command_flag_float;
-use function Harbor\Command\command_flag_int;
-use function Harbor\Command\command_flag_string;
-use function Harbor\Command\command_init;
+use function Harbor\Command\Flags\command_flag;
+use function Harbor\Command\Flags\command_flag_array;
+use function Harbor\Command\Flags\command_flag_bool;
+use function Harbor\Command\Flags\command_flag_float;
+use function Harbor\Command\Flags\command_flag_int;
+use function Harbor\Command\Flags\command_flag_string;
+use function Harbor\Command\Flags\command_init;
 
 final class CommandFlagsHelpersTest extends TestCase
 {
