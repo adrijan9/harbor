@@ -37,7 +37,7 @@ function command_debug_enabled(): bool
         return command_entry_internal_value_to_bool($debug_environment, false);
     }
 
-    return command_option_bool('debug', command_has_option('v') || command_has_option('verbose'));
+    return command_entry_internal_debug_enabled_from_arguments();
 }
 
 /**
@@ -107,65 +107,6 @@ function command_arg_float(int $index, float $default = 0.0): float
 function command_arg_bool(int $index, bool $default = false): bool
 {
     return command_entry_internal_value_to_bool(command_arg($index, $default), $default);
-}
-
-/**
- * @return array<string, bool|string>
- */
-function command_options(): array
-{
-    $parsed_payload = command_entry_internal_parsed_payload();
-
-    return $parsed_payload['options'];
-}
-
-function command_option(string $name, mixed $default = null): mixed
-{
-    $normalized_option_name = command_entry_internal_normalize_option_name($name);
-    if (harbor_is_blank($normalized_option_name)) {
-        return $default;
-    }
-
-    $options = command_options();
-
-    return array_key_exists($normalized_option_name, $options)
-        ? $options[$normalized_option_name]
-        : $default;
-}
-
-function command_option_string(string $name, ?string $default = null): ?string
-{
-    $value = command_option($name, $default);
-    $normalized_value = command_entry_internal_value_to_string($value);
-
-    return is_string($normalized_value) ? $normalized_value : $default;
-}
-
-function command_option_int(string $name, int $default = 0): int
-{
-    return command_entry_internal_value_to_int(command_option($name, $default), $default);
-}
-
-function command_option_float(string $name, float $default = 0.0): float
-{
-    return command_entry_internal_value_to_float(command_option($name, $default), $default);
-}
-
-function command_option_bool(string $name, bool $default = false): bool
-{
-    return command_entry_internal_value_to_bool(command_option($name, $default), $default);
-}
-
-function command_has_option(string $name): bool
-{
-    $normalized_option_name = command_entry_internal_normalize_option_name($name);
-    if (harbor_is_blank($normalized_option_name)) {
-        return false;
-    }
-
-    $options = command_options();
-
-    return array_key_exists($normalized_option_name, $options);
 }
 
 /** Private */
@@ -284,6 +225,19 @@ function command_entry_internal_parse_raw_arguments(array $raw_arguments): array
         'arguments' => $arguments,
         'options' => $options,
     ];
+}
+
+function command_entry_internal_debug_enabled_from_arguments(): bool
+{
+    $parsed_payload = command_entry_internal_parsed_payload();
+    $options = $parsed_payload['options'];
+    $is_verbose_mode = array_key_exists('v', $options) || array_key_exists('verbose', $options);
+
+    if (! array_key_exists('debug', $options)) {
+        return $is_verbose_mode;
+    }
+
+    return command_entry_internal_value_to_bool($options['debug'], $is_verbose_mode);
 }
 
 /**

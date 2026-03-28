@@ -15,6 +15,7 @@ enum Helper: string
     case Route = 'route';
     case Config = 'config';
     case Value = 'value';
+    case Str = 'string';
     case SupportArray = 'array';
     case Carbon = 'carbon';
     case Pipeline = 'pipeline';
@@ -29,6 +30,7 @@ enum Helper: string
     case Response = 'response';
     case View = 'view';
     case Command = 'command';
+    case CommandFlags = 'command_flags';
     case Database = 'database';
     case DbSqlite = 'db_sqlite';
     case DbMysqlPdo = 'db_mysql_pdo';
@@ -123,6 +125,7 @@ enum Helper: string
             ],
             self::Config => [__DIR__.'/Config/config.php'],
             self::Value => [__DIR__.'/Support/value.php'],
+            self::Str => [__DIR__.'/Support/string.php'],
             self::SupportArray => [__DIR__.'/Support/array.php'],
             self::Carbon => [__DIR__.'/Date/date.php'],
             self::Pipeline => [__DIR__.'/Pipeline/pipeline.php'],
@@ -140,6 +143,7 @@ enum Helper: string
             self::Response => [__DIR__.'/Response/response.php'],
             self::View => [__DIR__.'/View/view.php'],
             self::Command => [__DIR__.'/Command/command.php'],
+            self::CommandFlags => [__DIR__.'/Command/flags/command_flags.php'],
             self::Database => [__DIR__.'/Database/Connection/db.php'],
             self::DbSqlite => [__DIR__.'/Database/Connection/db_sqlite.php'],
             self::DbMysqlPdo => [__DIR__.'/Database/Connection/db_mysql_pdo.php'],

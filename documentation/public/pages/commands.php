@@ -87,7 +87,7 @@ require __DIR__.'/../shared/header.php';
                 <li><code>run &lt;key&gt;</code> Executes one compiled command definition by key.</li>
                 <li><code>Registry auto-rebuild</code> If <code>commands/commands.php</code> is missing and <code>.commands</code> exists, Harbor recompiles automatically before running.</li>
                 <li><code>Disabled command</code> Commands with <code>enabled: false</code> are blocked from execution.</li>
-                <li><code>Runtime helpers</code> Command entry files can import helpers like <code>command_info()</code>, <code>command_arg_string()</code>, and <code>command_option_bool()</code> from <code>Harbor\Command</code> after autoload + <code>Helper::Command-&gt;load()</code> (included in generated stubs).</li>
+                <li><code>Runtime helpers</code> Command entry files can import helpers like <code>command_info()</code>, <code>command_arg_string()</code>, and <code>command_flag()</code> from <code>Harbor\Command</code> after autoload + <code>Helper::Command-&gt;load()</code> (included in generated stubs).</li>
                 <li><code>Exit codes</code> Missing key or missing registry returns specific non-zero exits; process errors and timeouts fail execution.</li>
                 <li><code>--debug</code> or <code>-v</code> Prints debug diagnostics (paths, execution context, timeout).</li>
             </ul>
@@ -107,24 +107,17 @@ use function Harbor\Command\command_arg_string;
 use function Harbor\Command\command_debug;
 use function Harbor\Command\command_error;
 use function Harbor\Command\command_info;
-use function Harbor\Command\command_option_bool;
-use function Harbor\Command\command_option_int;
 
 require __DIR__."/../../vendor/autoload.php";
 Helper::Command->load();
 
 $name = command_arg_string(0, 'world');
-$limit = command_option_int('limit', 100);
-$dry_run = command_option_bool('dry-run', false);
 
 command_info(sprintf('Hello %s', $name));
-command_debug(sprintf('limit=%d dry_run=%s', $limit, $dry_run ? 'true' : 'false'));
-
-if ($dry_run) {
-    command_error('Dry-run mode enabled.');
-}</code></pre>
+command_debug('Ready to execute command logic.');
+command_error('Example STDERR message.');</code></pre>
     <h3>What it does</h3>
-    <p>Gives command entry scripts reusable runtime helpers for output, debug logging, positional arguments, and options after loading autoload and calling <code>Helper::Command-&gt;load()</code>.</p>
+    <p>Gives command entry scripts reusable runtime helpers for output, debug logging, and positional arguments after loading autoload and calling <code>Helper::Command-&gt;load()</code>.</p>
     <h3>API</h3>
     <details class="api-details">
         <summary class="api-summary">
@@ -140,11 +133,93 @@ if ($dry_run) {
                 <li><code>command_arguments(): array</code> Positional arguments only (options excluded).</li>
                 <li><code>command_arg(int $index, mixed $default = null): mixed</code> Positional argument by index.</li>
                 <li><code>command_arg_string|command_arg_int|command_arg_float|command_arg_bool(...)</code> Typed positional argument helpers.</li>
-                <li><code>command_options(): array</code> Parsed options map (supports <code>--key=value</code>, <code>--key value</code>, and short flags like <code>-v</code>).</li>
-                <li><code>command_option(string $name, mixed $default = null): mixed</code> Option value by name.</li>
-                <li><code>command_option_string|command_option_int|command_option_float|command_option_bool(...)</code> Typed option helpers.</li>
-                <li><code>command_has_option(string $name): bool</code> Checks if option exists.</li>
                 <li><code>Namespace</code> Import these functions from <code>Harbor\Command</code> using <code>use function Harbor\Command\...</code>.</li>
+            </ul>
+        </div>
+    </details>
+</section>
+
+<section class="docs-section">
+    <h2>Command Flag API</h2>
+    <h3>Example</h3>
+    <pre><code class="language-php">&lt;?php
+
+declare(strict_types=1);
+
+use Harbor\Helper;
+use Harbor\Validation\ValidationRule;
+use function Harbor\Command\Flags\command_flag;
+use function Harbor\Command\Flags\command_flag_array;
+use function Harbor\Command\Flags\command_flag_bool;
+use function Harbor\Command\Flags\command_flag_float;
+use function Harbor\Command\Flags\command_flag_int;
+use function Harbor\Command\Flags\command_flag_string;
+use function Harbor\Command\Flags\command_flags_init;
+use function Harbor\Command\Flags\command_flags_print_usage;
+use function Harbor\Command\command_info;
+
+require __DIR__."/../../vendor/autoload.php";
+Helper::Command->load();
+
+$command = command_flags_init('users:sync', $argc ?? 0, $argv ?? []);
+$help = command_flag_bool($command, '--help', 'Display command usage', default_value: false);
+$probe = command_flag($command, '--probe', 'Presence-only flag');
+$name = command_flag_string($command, '--name', 'User name', default_value: 'world');
+$force = command_flag_bool($command, '--force', 'Enable force mode', default_value: false);
+$limit = command_flag_int($command, '--limit', 'Chunk size', default_value: 100);
+$ratio = command_flag_float($command, '--ratio', 'Ratio value', default_value: 1.5);
+$ids = command_flag_array($command, '-p', 'Player ids', default_value: [1, 2, 3, 4]);
+
+// validator with required constraint
+$player = command_flag_string(
+    $command,
+    '--player',
+    'Player name',
+    validator: (new ValidationRule('player'))->required()->string()->min(2)
+);
+
+// validator with in-list constraint
+$environment = command_flag_string(
+    $command,
+    '--env',
+    'Environment',
+    validator: (new ValidationRule('environment'))->required()->string()->in(['dev', 'stage', 'prod'])
+);
+
+if ($help) {
+    command_flags_print_usage($command);
+    exit(0);
+}
+
+command_info(
+    sprintf(
+        'Running users:sync for %s (force=%s probe=%s player=%s env=%s)',
+        $name,
+        $force ? 'true' : 'false',
+        true === $probe ? 'present' : 'missing',
+        $player,
+        $environment
+    )
+);</code></pre>
+    <h3>What it does</h3>
+    <p>Provides a dedicated flag-definition API for command entry scripts. Any user-created command can use it after loading <code>Helper::Command-&gt;load()</code> (generated command stubs already include this).</p>
+    <h3>API</h3>
+    <details class="api-details">
+        <summary class="api-summary">
+            <span>Flag Helper API</span>
+            <span class="api-state"><span class="api-state-closed">Hidden - click to open</span><span class="api-state-open">Open</span></span>
+        </summary>
+        <div class="api-body">
+            <ul class="api-method-list">
+                <li><code>command_flags_init(string $name, int $argc, array $argv): array</code> Initializes command flag context.</li>
+                <li><code>command_flag(array &$command, string $flag, string $description, ?ValidationRule $validator = null, mixed $default_value = null): mixed</code> Presence helper. Returns <code>true</code> or a parsed value when present, and <code>null</code> when the flag token is not passed.</li>
+                <li><code>command_flag_string|command_flag_int|command_flag_float|command_flag_bool(...)</code> Typed scalar flag helpers.</li>
+                <li><code>command_flag_array(...)</code> Array flag helper using comma-separated input, for example <code>--ids=1,2,3,4</code>.</li>
+                <li><code>command_flags_print_usage(array $command): void</code> Prints usage text with all registered flags and defaults.</li>
+                <li><code>Accepted formats</code> Use <code>--name=value</code> (including quoted values like <code>--name="Ada Lovelace"</code>) or boolean switches like <code>--force</code>.</li>
+                <li><code>validator</code> Build with <code>new ValidationRule('field')</code> and pass using <code>validator:</code> (for example <code>required()-&gt;string()-&gt;min(2)</code>).</li>
+                <li><code>default_value</code> Example: <code>command_flag_array($command, '-p', 'My command', default_value: [1, 2, 3, 4])</code>.</li>
+                <li><code>Validation errors</code> If validator rules fail, <code>Harbor\Command\CommandValueRequiredException</code> is thrown with validator error messages.</li>
             </ul>
         </div>
     </details>
@@ -211,14 +286,16 @@ declare(strict_types=1);
 // File: my-site/commands/users_export.php
 use Harbor\Helper;
 use function Harbor\Command\command_arguments;
+use function Harbor\Command\Flags\command_flag_string;
+use function Harbor\Command\Flags\command_flags_init;
 use function Harbor\Command\command_info;
-use function Harbor\Command\command_option_string;
 
 require __DIR__."/../../vendor/autoload.php";
 Helper::Command->load();
 
+$command = command_flags_init('users:export', $argc ?? 0, $argv ?? []);
 $arguments = command_arguments();
-$format = command_option_string('format', 'csv');
+$format = command_flag_string($command, '--format', 'Export format', default_value: 'csv');
 
 command_info(sprintf('users:export format=%s args=%s', $format, json_encode($arguments)));</code></pre>
     <pre><code class="language-bash">cd my-site

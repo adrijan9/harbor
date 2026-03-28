@@ -43,6 +43,7 @@ final class HelperTest extends TestCase
         self::assertContains('response', $helpers);
         self::assertContains('view', $helpers);
         self::assertContains('command', $helpers);
+        self::assertContains('command_flags', $helpers);
         self::assertContains('db', $helpers);
         self::assertContains('database', $helpers);
         self::assertContains('db_sqlite', $helpers);
@@ -259,6 +260,35 @@ final class HelperTest extends TestCase
         Helper::load_many('command');
 
         self::assertTrue(function_exists('Harbor\Command\command_run'));
+        self::assertTrue(function_exists('Harbor\Command\Flags\command_flags_init'));
+        self::assertTrue(function_exists('Harbor\Command\Flags\command_flag'));
+        self::assertTrue(function_exists('Harbor\Command\Flags\command_flag_string'));
+        self::assertTrue(function_exists('Harbor\Command\Flags\command_flag_int'));
+        self::assertTrue(function_exists('Harbor\Command\Flags\command_flag_float'));
+        self::assertTrue(function_exists('Harbor\Command\Flags\command_flag_bool'));
+        self::assertTrue(function_exists('Harbor\Command\Flags\command_flag_array'));
+        self::assertTrue(function_exists('Harbor\Command\Flags\command_flags_print_usage'));
+        self::assertFalse(function_exists('Harbor\Command\command_option'));
+        self::assertFalse(function_exists('Harbor\Command\command_option_string'));
+        self::assertFalse(function_exists('Harbor\Command\command_option_int'));
+        self::assertFalse(function_exists('Harbor\Command\command_option_float'));
+        self::assertFalse(function_exists('Harbor\Command\command_option_bool'));
+        self::assertFalse(function_exists('Harbor\Command\command_options'));
+        self::assertFalse(function_exists('Harbor\Command\command_has_option'));
+    }
+
+    public function test_load_command_flags_helper_registers_namespaced_functions(): void
+    {
+        Helper::load_many('command_flags');
+
+        self::assertTrue(function_exists('Harbor\Command\Flags\command_flags_init'));
+        self::assertTrue(function_exists('Harbor\Command\Flags\command_flag'));
+        self::assertTrue(function_exists('Harbor\Command\Flags\command_flag_string'));
+        self::assertTrue(function_exists('Harbor\Command\Flags\command_flag_int'));
+        self::assertTrue(function_exists('Harbor\Command\Flags\command_flag_float'));
+        self::assertTrue(function_exists('Harbor\Command\Flags\command_flag_bool'));
+        self::assertTrue(function_exists('Harbor\Command\Flags\command_flag_array'));
+        self::assertTrue(function_exists('Harbor\Command\Flags\command_flags_print_usage'));
     }
 
     public function test_load_validation_helper_registers_namespaced_functions(): void

@@ -8,6 +8,8 @@ require_once __DIR__.'/../Support/value.php';
 
 require_once __DIR__.'/command_entry_helpers.php';
 
+require_once __DIR__.'/flags/command_flags.php';
+
 require_once __DIR__.'/../../bin/commands/harbor-command/CommandException.php';
 
 require_once __DIR__.'/../../bin/commands/harbor-command/BaseCommand.php';
