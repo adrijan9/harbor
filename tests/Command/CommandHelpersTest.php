@@ -104,6 +104,7 @@ final class CommandHelpersTest extends TestCase
                 use function Harbor\Command\command_debug_enabled;
                 use function Harbor\Command\command_error;
                 use function Harbor\Command\Flags\command_flag;
+                use function Harbor\Command\Flags\command_flag_no_value;
                 use function Harbor\Command\Flags\command_flags_init;
                 use function Harbor\Command\command_info;
                 use function Harbor\Command\command_raw_arguments;
@@ -122,6 +123,7 @@ final class CommandHelpersTest extends TestCase
                     'has_command_arg_int' => function_exists('Harbor\Command\command_arg_int'),
                     'has_command_init' => function_exists('Harbor\Command\Flags\command_flags_init'),
                     'has_command_flag' => function_exists('Harbor\Command\Flags\command_flag'),
+                    'has_command_flag_no_value' => function_exists('Harbor\Command\Flags\command_flag_no_value'),
                     'has_command_flag_string' => function_exists('Harbor\Command\Flags\command_flag_string'),
                     'has_command_flag_int' => function_exists('Harbor\Command\Flags\command_flag_int'),
                     'has_command_flag_float' => function_exists('Harbor\Command\Flags\command_flag_float'),
@@ -139,6 +141,7 @@ final class CommandHelpersTest extends TestCase
                     'flag_force' => command_flag($command, '--force', 'Force mode', default_value: false),
                     'flag_limit' => command_flag($command, '--limit', 'Limit value', default_value: '0'),
                     'flag_verbose' => command_flag($command, '-v', 'Verbose mode', default_value: false),
+                    'flag_help' => command_flag_no_value($command, '--help', 'Display command usage'),
                     'debug_enabled' => command_debug_enabled(),
                 ];
 
@@ -173,6 +176,7 @@ final class CommandHelpersTest extends TestCase
         self::assertTrue($runtime_payload['has_command_arg_int'] ?? false);
         self::assertTrue($runtime_payload['has_command_init'] ?? false);
         self::assertTrue($runtime_payload['has_command_flag'] ?? false);
+        self::assertTrue($runtime_payload['has_command_flag_no_value'] ?? false);
         self::assertTrue($runtime_payload['has_command_flag_string'] ?? false);
         self::assertTrue($runtime_payload['has_command_flag_int'] ?? false);
         self::assertTrue($runtime_payload['has_command_flag_float'] ?? false);
@@ -191,6 +195,7 @@ final class CommandHelpersTest extends TestCase
         self::assertFalse($runtime_payload['flag_force'] ?? true);
         self::assertSame('0', $runtime_payload['flag_limit'] ?? null);
         self::assertFalse($runtime_payload['flag_verbose'] ?? true);
+        self::assertFalse($runtime_payload['flag_help'] ?? true);
         self::assertTrue($runtime_payload['debug_enabled'] ?? false);
     }
 

@@ -3,9 +3,13 @@
 
 declare(strict_types=1);
 
+use function Harbor\Command\Flags\command_flag_no_value;
+use function Harbor\Command\Flags\command_flag;
+use function Harbor\Command\Flags\command_flags_init;
+
 require __DIR__.'/../vendor/autoload.php';
 
-require_once __DIR__.'/../src/Command/command_flags.php';
+require_once __DIR__.'/../src/Command/flags/command_flags.php';
 
 if ('cli' !== PHP_SAPI) {
     return;
@@ -18,30 +22,15 @@ if (! is_string($resolved_script_file) || __FILE__ !== $resolved_script_file) {
 }
 
 // Command usage
-$command = command_init('harbor-flag', $argc, $argv);
-$help = command_flag($command, '-h', 'Display this help message');
-$player = command_flag(
-    $command,
-    '-p',
-    'Display this player message',
-    required: static fn ($value) => ! empty($value) && strlen($value) > 7,
-    defaultValue: 'Bob'
-);
-$someExtra = command_flag(
-    $command,
-    '-e',
-    'Display this extra message',
-    required: true,
-    defaultValue: 'Extra'
-);
+$command = command_flags_init('harbor-flag', $argc, $argv);
+$help = command_flag_no_value($command, '-h', 'Display this help message');
 
-if ($argc <= 1 || $help) {
-    command_print_usage($command);
+if ($help) {
+    \Harbor\Command\Flags\command_flags_print_usage($command);
 
     exit(0);
 }
 
 echo 'Command executed'.PHP_EOL;
-echo 'Player: '.$player.PHP_EOL;
 
 exit(0);

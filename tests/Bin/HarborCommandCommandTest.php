@@ -40,12 +40,14 @@ final class HarborCommandCommandTest extends TestCase
         self::assertStringContainsString('require __DIR__."/../../vendor/autoload.php";', $entry_content);
         self::assertStringContainsString('use Harbor\Helper;', $entry_content);
         self::assertStringContainsString('use function Harbor\Command\Flags\command_flag_bool;', $entry_content);
+        self::assertStringContainsString('use function Harbor\Command\Flags\command_flag_no_value;', $entry_content);
         self::assertStringContainsString('use function Harbor\Command\Flags\command_flag_string;', $entry_content);
         self::assertStringContainsString('use function Harbor\Command\Flags\command_flags_init;', $entry_content);
         self::assertStringContainsString('use function Harbor\Command\Flags\command_flags_print_usage;', $entry_content);
         self::assertStringContainsString('use function Harbor\Command\command_info;', $entry_content);
         self::assertStringContainsString('Helper::Command->load();', $entry_content);
         self::assertStringContainsString('command_flags_init(', $entry_content);
+        self::assertStringContainsString('command_flag_no_value(', $entry_content);
         self::assertStringContainsString('command_flags_print_usage(', $entry_content);
         self::assertStringContainsString('command_info(', $entry_content);
 

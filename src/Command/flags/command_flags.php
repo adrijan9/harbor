@@ -5,13 +5,18 @@ declare(strict_types=1);
 namespace Harbor\Command\Flags;
 
 require_once __DIR__.'/../../Support/value.php';
+
 require_once __DIR__.'/../../Support/string.php';
 
 require_once __DIR__.'/command_flag.php';
+
 require_once __DIR__.'/command_flag_casts.php';
+
 require_once __DIR__.'/command_flag_validation.php';
+
 require_once __DIR__.'/command_flag_value.php';
 
+use Harbor\Command\CommandInvalidFlagException;
 use Harbor\Exceptions\EmptyStringException;
 use Harbor\Validation\ValidationRule;
 
@@ -104,6 +109,38 @@ function command_flag(
     command_flags_internal_assert_validated_value($normalized_flag, $value, $validator);
 
     return $value;
+}
+
+/**
+ * @throws EmptyStringException
+ */
+function command_flag_no_value(
+    array &$command,
+    string $flag,
+    string $description,
+): bool {
+    $normalized_flag = command_flags_internal_normalize_flag($flag);
+    if (harbor_is_blank($normalized_flag)) {
+        throw new EmptyStringException('Flag cannot be empty.');
+    }
+
+    command_flags_internal_register_option(
+        $command,
+        $normalized_flag,
+        $description,
+        null
+    );
+
+    $flag_payload = command_flags_internal_find_flag_payload(
+        $command['argv'] ?? [],
+        $normalized_flag
+    );
+
+    if (! $flag_payload['present']) {
+        return false;
+    }
+
+    return ! $flag_payload['has_value'];
 }
 
 /**

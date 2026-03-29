@@ -15,6 +15,7 @@ use function Harbor\Command\Flags\command_flag_array;
 use function Harbor\Command\Flags\command_flag_bool;
 use function Harbor\Command\Flags\command_flag_float;
 use function Harbor\Command\Flags\command_flag_int;
+use function Harbor\Command\Flags\command_flag_no_value;
 use function Harbor\Command\Flags\command_flag_string;
 use function Harbor\Command\Flags\command_flags_init;
 
@@ -34,6 +35,42 @@ final class CommandFlagsHelpersTest extends TestCase
 
         self::assertNull($player);
         self::assertCount(1, $command['options']);
+    }
+
+    public function test_command_flag_no_value_returns_true_when_long_flag_is_present_without_value(): void
+    {
+        $command = command_flags_init('harbor-flag', 2, ['harbor-flag', '--help']);
+
+        $help = command_flag_no_value($command, '--help', 'Display command usage');
+
+        self::assertTrue($help);
+    }
+
+    public function test_command_flag_no_value_returns_true_when_short_flag_is_present_without_value(): void
+    {
+        $command = command_flags_init('harbor-flag', 2, ['harbor-flag', '-h']);
+
+        $help = command_flag_no_value($command, '-h', 'Display command usage');
+
+        self::assertTrue($help);
+    }
+
+    public function test_command_flag_no_value_returns_false_when_flag_is_missing(): void
+    {
+        $command = command_flags_init('harbor-flag', 1, ['harbor-flag']);
+
+        $help = command_flag_no_value($command, '--help', 'Display command usage');
+
+        self::assertFalse($help);
+    }
+
+    public function test_command_flag_no_value_returns_false_when_flag_contains_inline_value(): void
+    {
+        $command = command_flags_init('harbor-flag', 2, ['harbor-flag', '--help=true']);
+
+        $help = command_flag_no_value($command, '--help', 'Display command usage');
+
+        self::assertFalse($help);
     }
 
     public function test_command_flag_returns_default_for_present_boolean_flag_without_value(): void
