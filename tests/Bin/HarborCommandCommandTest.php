@@ -40,14 +40,14 @@ final class HarborCommandCommandTest extends TestCase
         self::assertStringContainsString('require __DIR__."/../../vendor/autoload.php";', $entry_content);
         self::assertStringContainsString('use Harbor\Helper;', $entry_content);
         self::assertStringContainsString('use function Harbor\Command\Flags\command_flag_bool;', $entry_content);
-        self::assertStringContainsString('use function Harbor\Command\Flags\command_flag_no_value;', $entry_content);
+        self::assertStringContainsString('use function Harbor\Command\Flags\command_flag_present;', $entry_content);
         self::assertStringContainsString('use function Harbor\Command\Flags\command_flag_string;', $entry_content);
         self::assertStringContainsString('use function Harbor\Command\Flags\command_flags_init;', $entry_content);
         self::assertStringContainsString('use function Harbor\Command\Flags\command_flags_print_usage;', $entry_content);
         self::assertStringContainsString('use function Harbor\Command\command_info;', $entry_content);
         self::assertStringContainsString('Helper::Command->load();', $entry_content);
         self::assertStringContainsString('command_flags_init(', $entry_content);
-        self::assertStringContainsString('command_flag_no_value(', $entry_content);
+        self::assertStringContainsString('command_flag_present(', $entry_content);
         self::assertStringContainsString('command_flags_print_usage(', $entry_content);
         self::assertStringContainsString('command_info(', $entry_content);
 
@@ -172,11 +172,12 @@ final class HarborCommandCommandTest extends TestCase
                 $name = command_flag(
                     $command,
                     '--name',
+                    false,
                     'User name',
                     validator: (new ValidationRule('name'))->required()->string()
                 );
-                $dry_run = command_flag($command, '--dry-run', 'Dry run mode', default_value: false);
-                $help = command_flag($command, '--help', 'Display command usage', default_value: false);
+                $dry_run = command_flag($command, '--dry-run', false, 'Dry run mode', default_value: false);
+                $help = command_flag($command, '--help', false, 'Display command usage', default_value: false);
 
                 file_put_contents(
                     __DIR__.'/../storage/command-flags.json',

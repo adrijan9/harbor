@@ -33,8 +33,11 @@ function command_flags_internal_register_option(
     array &$command,
     string $flag,
     string $description,
-    array|bool|float|int|string|null $default_value
+    array|bool|float|int|string|null $default_value,
+    string $value_requirement = 'optional'
 ): void {
+    $normalized_value_requirement = command_flags_internal_normalize_value_requirement($value_requirement);
+
     if (! is_array($command['options'] ?? null)) {
         $command['options'] = [];
     }
@@ -53,7 +56,19 @@ function command_flags_internal_register_option(
         'flag' => $flag,
         'description' => $description,
         'default_value' => $default_value,
+        'value_requirement' => $normalized_value_requirement,
     ];
+}
+
+function command_flags_internal_normalize_value_requirement(string $value_requirement): string
+{
+    $normalized_value_requirement = strtolower(trim($value_requirement));
+
+    if (in_array($normalized_value_requirement, ['none', 'optional', 'required'], true)) {
+        return $normalized_value_requirement;
+    }
+
+    return 'optional';
 }
 
 function command_flags_internal_default_label(array|bool|float|int|string|null $default_value): string

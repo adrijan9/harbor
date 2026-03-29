@@ -153,7 +153,7 @@ use function Harbor\Command\Flags\command_flag_array;
 use function Harbor\Command\Flags\command_flag_bool;
 use function Harbor\Command\Flags\command_flag_float;
 use function Harbor\Command\Flags\command_flag_int;
-use function Harbor\Command\Flags\command_flag_no_value;
+use function Harbor\Command\Flags\command_flag_present;
 use function Harbor\Command\Flags\command_flag_string;
 use function Harbor\Command\Flags\command_flags_init;
 use function Harbor\Command\Flags\command_flags_print_usage;
@@ -163,18 +163,19 @@ require __DIR__."/../../vendor/autoload.php";
 Helper::Command->load();
 
 $command = command_flags_init('users:sync', $argc ?? 0, $argv ?? []);
-$help = command_flag_no_value($command, '--help', 'Display command usage');
-$probe = command_flag_no_value($command, '--probe', 'Presence-only flag');
-$name = command_flag_string($command, '--name', 'User name', default_value: 'world');
-$force = command_flag_bool($command, '--force', 'Enable force mode', default_value: false);
-$limit = command_flag_int($command, '--limit', 'Chunk size', default_value: 100);
-$ratio = command_flag_float($command, '--ratio', 'Ratio value', default_value: 1.5);
-$ids = command_flag_array($command, '-p', 'Player ids', default_value: [1, 2, 3, 4]);
+$help = command_flag_present($command, '--help', 'Display command usage');
+$probe = command_flag_present($command, '--probe', 'Presence-only flag');
+$name = command_flag_string($command, '--name', true, 'User name', default_value: 'world');
+$force = command_flag_bool($command, '--force', false, 'Enable force mode', default_value: false);
+$limit = command_flag_int($command, '--limit', true, 'Chunk size', default_value: 100);
+$ratio = command_flag_float($command, '--ratio', false, 'Ratio value', default_value: 1.5);
+$ids = command_flag_array($command, '-p', false, 'Player ids', default_value: [1, 2, 3, 4]);
 
 // validator with required constraint
 $player = command_flag_string(
     $command,
     '--player',
+    true,
     'Player name',
     validator: (new ValidationRule('player'))->required()->string()->min(2)
 );
@@ -183,6 +184,7 @@ $player = command_flag_string(
 $environment = command_flag_string(
     $command,
     '--env',
+    true,
     'Environment',
     validator: (new ValidationRule('environment'))->required()->string()->in(['dev', 'stage', 'prod'])
 );
@@ -213,15 +215,16 @@ command_info(
         <div class="api-body">
             <ul class="api-method-list">
                 <li><code>command_flags_init(string $name, int $argc, array $argv): array</code> Initializes command flag context.</li>
-                <li><code>command_flag_no_value(array &$command, string $flag, string $description): bool</code> No-value flag helper. Returns <code>true</code> only when the exact flag token is present (for example <code>-h</code> or <code>--help</code>).</li>
-                <li><code>command_flag(array &$command, string $flag, string $description, ?ValidationRule $validator = null, mixed $default_value = null): mixed</code> Generic value helper. Returns the parsed flag value when provided with <code>--flag=value</code>, otherwise the configured default (or <code>null</code>).</li>
+                <li><code>command_flag_present(array &$command, string $flag, string $description): bool</code> Presence helper. Returns <code>true</code> when the flag token is present and <code>false</code> when missing.</li>
+                <li><code>command_flag(array &$command, string $flag, bool $require_value, string $description, ?ValidationRule $validator = null, mixed $default_value = null): mixed</code> Generic value helper. Pass <code>true</code> to enforce <code>--flag=&lt;value&gt;</code> when the flag appears.</li>
                 <li><code>command_flag_string|command_flag_int|command_flag_float|command_flag_bool(...)</code> Typed scalar flag helpers.</li>
                 <li><code>command_flag_array(...)</code> Array flag helper using comma-separated input, for example <code>--ids=1,2,3,4</code>.</li>
                 <li><code>command_flags_print_usage(array $command): void</code> Prints usage text with all registered flags and defaults.</li>
-                <li><code>Accepted formats</code> Use <code>--name=value</code> (including quoted values like <code>--name="Ada Lovelace"</code>) for value flags, and plain switches like <code>--help</code> with <code>command_flag_no_value()</code>.</li>
+                <li><code>Accepted formats</code> Use <code>--name=value</code> (including quoted values like <code>--name="Ada Lovelace"</code>) for value flags, and plain switches like <code>--help</code> with <code>command_flag_present()</code>.</li>
+                <li><code>require_value</code> Must be passed explicitly as <code>true</code> or <code>false</code> for value helpers.</li>
                 <li><code>validator</code> Build with <code>new ValidationRule('field')</code> and pass using <code>validator:</code> (for example <code>required()-&gt;string()-&gt;min(2)</code>).</li>
-                <li><code>default_value</code> Example: <code>command_flag_array($command, '-p', 'My command', default_value: [1, 2, 3, 4])</code>.</li>
-                <li><code>Validation errors</code> If validator rules fail, <code>Harbor\Command\CommandValueRequiredException</code> is thrown with validator error messages.</li>
+                <li><code>default_value</code> Example: <code>command_flag_array($command, '-p', false, 'My command', default_value: [1, 2, 3, 4])</code>.</li>
+                <li><code>Validation errors</code> Validator failures and required-value violations throw <code>Harbor\Command\CommandInvalidFlagException</code>.</li>
             </ul>
         </div>
     </details>
@@ -297,7 +300,7 @@ Helper::Command->load();
 
 $command = command_flags_init('users:export', $argc ?? 0, $argv ?? []);
 $arguments = command_arguments();
-$format = command_flag_string($command, '--format', 'Export format', default_value: 'csv');
+$format = command_flag_string($command, '--format', true, 'Export format', default_value: 'csv');
 
 command_info(sprintf('users:export format=%s args=%s', $format, json_encode($arguments)));</code></pre>
     <pre><code class="language-bash">cd my-site

@@ -9,6 +9,28 @@ use Harbor\Validation\ValidationRule;
 
 use function Harbor\Support\harbor_is_blank;
 
+function command_flags_internal_assert_required_value(
+    string $flag,
+    array $flag_payload,
+    bool $require_value
+): void {
+    if (! $require_value) {
+        return;
+    }
+
+    if (! ($flag_payload['present'] ?? false)) {
+        return;
+    }
+
+    if ($flag_payload['has_value'] ?? false) {
+        return;
+    }
+
+    throw new CommandInvalidFlagException(
+        sprintf('%s: value is required. Use %s=<value>.', $flag, $flag)
+    );
+}
+
 /**
  * @throws CommandInvalidFlagException
  */

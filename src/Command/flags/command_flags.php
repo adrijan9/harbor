@@ -33,7 +33,8 @@ use function Harbor\Support\harbor_is_blank;
  *     options: array<int, array{
  *         flag: string,
  *         description: string,
- *         default_value: null|array<int, bool|float|int|string>|bool|float|int|string
+ *         default_value: null|array<int, bool|float|int|string>|bool|float|int|string,
+ *         value_requirement: 'none'|'optional'|'required'
  *     }>
  * }
  */
@@ -64,6 +65,7 @@ function command_flags_init(string $name, int $argc, array $argv): array
 function command_flag(
     array &$command,
     string $flag,
+    bool $require_value,
     string $description,
     ?ValidationRule $validator = null,
     bool|float|int|string|null $default_value = null
@@ -77,13 +79,15 @@ function command_flag(
         $command,
         $normalized_flag,
         $description,
-        $default_value
+        $default_value,
+        $require_value ? 'required' : 'optional'
     );
 
     $flag_payload = command_flags_internal_find_flag_payload(
         $command['argv'] ?? [],
         $normalized_flag
     );
+    command_flags_internal_assert_required_value($normalized_flag, $flag_payload, $require_value);
 
     if (! $flag_payload['present']) {
         command_flags_internal_assert_validated_value($normalized_flag, null, $validator);
@@ -114,7 +118,7 @@ function command_flag(
 /**
  * @throws EmptyStringException
  */
-function command_flag_no_value(
+function command_flag_present(
     array &$command,
     string $flag,
     string $description,
@@ -128,7 +132,8 @@ function command_flag_no_value(
         $command,
         $normalized_flag,
         $description,
-        null
+        null,
+        'none'
     );
 
     $flag_payload = command_flags_internal_find_flag_payload(
@@ -136,11 +141,7 @@ function command_flag_no_value(
         $normalized_flag
     );
 
-    if (! $flag_payload['present']) {
-        return false;
-    }
-
-    return ! $flag_payload['has_value'];
+    return (bool) ($flag_payload['present'] ?? false);
 }
 
 /**
@@ -150,6 +151,7 @@ function command_flag_no_value(
 function command_flag_string(
     array &$command,
     string $flag,
+    bool $require_value,
     string $description,
     ?ValidationRule $validator = null,
     ?string $default_value = null
@@ -158,6 +160,7 @@ function command_flag_string(
     $raw_value = command_flag(
         $command,
         $flag,
+        $require_value,
         $description,
         $validator,
         $resolved_default_value
@@ -173,6 +176,7 @@ function command_flag_string(
 function command_flag_int(
     array &$command,
     string $flag,
+    bool $require_value,
     string $description,
     ?ValidationRule $validator = null,
     int $default_value = 0
@@ -180,6 +184,7 @@ function command_flag_int(
     $raw_value = command_flag(
         $command,
         $flag,
+        $require_value,
         $description,
         $validator
     );
@@ -194,6 +199,7 @@ function command_flag_int(
 function command_flag_float(
     array &$command,
     string $flag,
+    bool $require_value,
     string $description,
     ?ValidationRule $validator = null,
     float $default_value = 0.0
@@ -201,6 +207,7 @@ function command_flag_float(
     $raw_value = command_flag(
         $command,
         $flag,
+        $require_value,
         $description,
         $validator
     );
@@ -215,6 +222,7 @@ function command_flag_float(
 function command_flag_bool(
     array &$command,
     string $flag,
+    bool $require_value,
     string $description,
     ?ValidationRule $validator = null,
     bool $default_value = false
@@ -222,6 +230,7 @@ function command_flag_bool(
     $raw_value = command_flag(
         $command,
         $flag,
+        $require_value,
         $description,
         $validator
     );
@@ -242,25 +251,33 @@ function command_flag_bool(
 function command_flag_array(
     array &$command,
     string $flag,
+    bool $require_value,
     string $description,
     ?ValidationRule $validator = null,
     array $default_value = []
 ): array {
+    $normalized_flag = command_flags_internal_normalize_flag($flag);
+    if (harbor_is_blank($normalized_flag)) {
+        throw new EmptyStringException('Flag cannot be empty.');
+    }
+
     command_flags_internal_register_option(
         $command,
-        $flag,
+        $normalized_flag,
         $description,
-        $default_value
+        $default_value,
+        $require_value ? 'required' : 'optional'
     );
 
     $raw_value = command_flag(
         $command,
-        $flag,
-        $description
+        $normalized_flag,
+        $require_value,
+        $description,
     );
 
     $typed_value = command_flags_internal_parse_csv_array_value($raw_value, $default_value);
-    command_flags_internal_assert_validated_value($flag, $typed_value, $validator);
+    command_flags_internal_assert_validated_value($normalized_flag, $typed_value, $validator);
 
     return $typed_value;
 }
@@ -268,7 +285,7 @@ function command_flag_array(
 /**
  * @param array{
  *     name?: string,
- *     options?: array<int, array{flag?: string, description?: string, default_value?: null|array<int, bool|float|int|string>|bool|float|int|string}>
+ *     options?: array<int, array{flag?: string, description?: string, default_value?: null|array<int, bool|float|int|string>|bool|float|int|string, value_requirement?: 'none'|'optional'|'required'}>
  * } $command
  */
 function command_flags_print_usage(array $command): void
@@ -286,10 +303,18 @@ function command_flags_print_usage(array $command): void
 
     foreach ($registered_options as $option) {
         $option_flag = (string) ($option['flag'] ?? '');
+        $option_value_requirement = command_flags_internal_normalize_value_requirement(
+            (string) ($option['value_requirement'] ?? 'optional')
+        );
         $option_description = (string) ($option['description'] ?? '');
         $default_label = command_flags_internal_default_label($option['default_value'] ?? null);
         $default_segment = harbor_is_blank($default_label) ? '' : sprintf(' (default: %s)', $default_label);
+        $option_flag_display = $option_flag;
 
-        fwrite(STDOUT, sprintf('    %s: %s%s%s', $option_flag, $option_description, $default_segment, PHP_EOL));
+        if ('required' === $option_value_requirement) {
+            $option_flag_display = $option_flag.'=<value>';
+        }
+
+        fwrite(STDOUT, sprintf('    %s: %s%s%s', $option_flag_display, $option_description, $default_segment, PHP_EOL));
     }
 }

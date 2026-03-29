@@ -262,7 +262,7 @@ final class HelperTest extends TestCase
         self::assertTrue(function_exists('Harbor\Command\command_run'));
         self::assertTrue(function_exists('Harbor\Command\Flags\command_flags_init'));
         self::assertTrue(function_exists('Harbor\Command\Flags\command_flag'));
-        self::assertTrue(function_exists('Harbor\Command\Flags\command_flag_no_value'));
+        self::assertTrue(function_exists('Harbor\Command\Flags\command_flag_present'));
         self::assertTrue(function_exists('Harbor\Command\Flags\command_flag_string'));
         self::assertTrue(function_exists('Harbor\Command\Flags\command_flag_int'));
         self::assertTrue(function_exists('Harbor\Command\Flags\command_flag_float'));
@@ -284,7 +284,7 @@ final class HelperTest extends TestCase
 
         self::assertTrue(function_exists('Harbor\Command\Flags\command_flags_init'));
         self::assertTrue(function_exists('Harbor\Command\Flags\command_flag'));
-        self::assertTrue(function_exists('Harbor\Command\Flags\command_flag_no_value'));
+        self::assertTrue(function_exists('Harbor\Command\Flags\command_flag_present'));
         self::assertTrue(function_exists('Harbor\Command\Flags\command_flag_string'));
         self::assertTrue(function_exists('Harbor\Command\Flags\command_flag_int'));
         self::assertTrue(function_exists('Harbor\Command\Flags\command_flag_float'));
