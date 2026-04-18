@@ -34,6 +34,7 @@ require __DIR__.'/../shared/header.php';
 ./bin/harbor-init documentation</code></pre>
     <h3>What it does</h3>
     <p>Installs dependencies and creates a runnable site scaffold.</p>
+    <p>Scaffolded sites include an editable <code>public/robots.txt</code> file by default.</p>
     <h3>API</h3>
     <details class="api-details">
         <summary class="api-summary">
@@ -45,6 +46,7 @@ require __DIR__.'/../shared/header.php';
                 <li><code>composer install</code> Install PHP dependencies.</li>
                 <li><code>./bin/harbor-init [site-name]</code> Generate new site scaffold.</li>
                 <li><code>site-name</code> Optional site directory name (default: <code>example.site</code>).</li>
+                <li><code>public/robots.txt</code> Included in scaffolded sites and editable at any time.</li>
             </ul>
         </div>
     </details>
@@ -57,6 +59,7 @@ require __DIR__.'/../shared/header.php';
 ./bin/harbor documentation</code></pre>
     <h3>What it does</h3>
     <p>Compiles route definitions into <code>public/routes.php</code> when <code>public/</code> exists, otherwise <code>routes.php</code>.</p>
+    <p>The compiler prepends a default <code>GET /robots.txt</code> route with <code>robots.txt</code> as its entry.</p>
     <h3>API</h3>
     <details class="api-details">
         <summary class="api-summary">
@@ -69,6 +72,7 @@ require __DIR__.'/../shared/header.php';
                 <li><code>./bin/harbor &lt;directory&gt;</code> Compile <code>&lt;directory&gt;/.router</code>.</li>
                 <li><code>public/routes.php</code> Output file is generated there when <code>public/</code> exists beside <code>.router</code>.</li>
                 <li><code>routes.php</code> Output file is generated beside input when no <code>public/</code> directory exists.</li>
+                <li><code>GET /robots.txt</code> Added automatically with <code>robots.txt</code> as the route entry.</li>
             </ul>
         </div>
     </details>

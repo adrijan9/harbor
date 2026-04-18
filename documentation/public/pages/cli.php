@@ -58,6 +58,7 @@ require __DIR__.'/../shared/header.php';
 ./bin/harbor documentation/.router</code></pre>
     <h3>What it does</h3>
     <p>Compiles routes (with <code>#include</code> preprocessing).</p>
+    <p>The compiled routes also include a default <code>GET /robots.txt</code> entry.</p>
     <h3>API</h3>
     <details class="api-details">
         <summary class="api-summary">
@@ -71,6 +72,7 @@ require __DIR__.'/../shared/header.php';
                 <li><code>./bin/harbor &lt;path-to-.router&gt;</code> Compile route file.</li>
                 <li><code>public/routes.php</code> Output target when a sibling <code>public/</code> directory exists.</li>
                 <li><code>routes.php</code> Output target when no sibling <code>public/</code> directory exists.</li>
+                <li><code>GET /robots.txt</code> Added automatically with <code>robots.txt</code> as the route entry.</li>
                 <li><code>#include "./path/to/file.router"</code> Include files are expanded before parsing routes.</li>
                 <li><code>Nested includes</code> Recursively processed; circular include chains fail compile.</li>
                 <li><code>./bin/harbor -h</code> Show CLI help.</li>
@@ -86,6 +88,7 @@ require __DIR__.'/../shared/header.php';
 ./bin/harbor-init my-site</code></pre>
     <h3>What it does</h3>
     <p>Creates a new site scaffold from <code>bin/stubs/site</code>.</p>
+    <p>Scaffolded sites include an editable <code>public/robots.txt</code> file.</p>
     <h3>API</h3>
     <details class="api-details">
         <summary class="api-summary">
@@ -96,6 +99,7 @@ require __DIR__.'/../shared/header.php';
             <ul class="api-method-list">
                 <li><code>./bin/harbor-init [site-name]</code> Create site scaffold.</li>
                 <li><code>site-name</code> Optional site directory name (default: <code>example.site</code>).</li>
+                <li><code>public/robots.txt</code> Included by default in scaffolded sites.</li>
                 <li><code>./bin/harbor-init -h</code> Show command usage.</li>
             </ul>
         </div>

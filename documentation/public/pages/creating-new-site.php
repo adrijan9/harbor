@@ -26,6 +26,7 @@ require __DIR__.'/../shared/header.php';
     <pre><code class="language-bash">./vendor/bin/harbor-init my-site</code></pre>
     <h3>What it does</h3>
     <p>Creates a new Harbor site scaffold in <code>./my-site</code>.</p>
+    <p>The scaffold includes an editable <code>public/robots.txt</code> file by default.</p>
 </section>
 
 <section class="docs-section">
@@ -34,6 +35,7 @@ require __DIR__.'/../shared/header.php';
     <pre><code class="language-bash">./vendor/bin/harbor my-site</code></pre>
     <h3>What it does</h3>
     <p>Compiles <code>my-site/.router</code> into <code>my-site/public/routes.php</code>.</p>
+    <p>The compiled routes always include a default <code>GET /robots.txt</code> entry that serves <code>public/robots.txt</code>.</p>
 </section>
 
 <section class="docs-section">

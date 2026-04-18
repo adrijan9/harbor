@@ -40,6 +40,7 @@ require __DIR__.'/../shared/header.php';
 
     <h3>What it does</h3>
     <p>Preprocesses <code>#include</code> lines first, then compiles final route entries into a routes file.</p>
+    <p>Compilation also prepends a default <code>GET /robots.txt</code> route that points to <code>robots.txt</code>.</p>
     <p>When <code>&lt;assets&gt;...&lt;/assets&gt;</code> is present at the top of <code>.router</code>, requests under that URL prefix are served as static files from that directory.</p>
 
     <h3>API</h3>
@@ -126,7 +127,7 @@ function harbor_is_absolute_path(string $path): bool
 $is_absolute = harbor_is_absolute_path('/var/www/site/.router');
 
 // Compile order:
-// 1) preprocess includes, 2) parse routes, 3) append /404 fallback.
+// 1) preprocess includes, 2) prepend /robots.txt, 3) parse routes, 4) append /404 fallback.
 // Missing files or circular includes stop compilation with an error.</code></pre>
         </div>
     </details>
@@ -364,6 +365,7 @@ $router->render(['name' => 'Ada']);</code></pre>
 ./bin/harbor .</code></pre>
     <h3>What it does</h3>
     <p>Compiles your route file into executable route arrays.</p>
+    <p>The compiled routes always start with a default <code>GET /robots.txt</code> entry.</p>
     <h3>API</h3>
     <details class="api-details">
         <summary class="api-summary">
@@ -382,6 +384,8 @@ $router->render(['name' => 'Ada']);</code></pre>
 ./bin/harbor &lt;path-to-.router&gt;
 # Compiles a specific router file path.
 # Writes sibling public/routes.php when that public directory exists.
+
+# Adds a default GET /robots.txt route with entry "robots.txt".
 
 #include "./routes/api.router"
 # Include directives are expanded before route parsing.

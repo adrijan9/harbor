@@ -269,7 +269,15 @@ function harbor_is_absolute_path(string $path): bool
 
 function harbor_compile_router_from_content(string $router_content): array
 {
-    $routes = [];
+    $routes = [
+        [
+            'path' => '/robots.txt',
+            'method' => 'GET',
+            'name' => 'robots',
+            'entry' => 'robots.txt',
+        ],
+    ];
+
     $parsed_route = [];
     $assets_path = null;
     $line_parts = preg_split('/\R/u', $router_content);

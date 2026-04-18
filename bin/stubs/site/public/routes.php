@@ -6,6 +6,12 @@ return [
     'assets' => null,
     'routes' => [
         [
+            'path' => '/robots.txt',
+            'method' => 'GET',
+            'name' => 'robots',
+            'entry' => 'robots.txt',
+        ],
+        [
             'path' => '/',
             'method' => 'GET',
             'name' => 'home',

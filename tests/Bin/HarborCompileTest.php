@@ -69,12 +69,14 @@ final class HarborCompileTest extends TestCase
 
         $compiled_routes = harbor_compile_routes_from_content($preprocessed);
 
-        self::assertCount(4, $compiled_routes);
-        self::assertSame('/', $compiled_routes[0]['path']);
-        self::assertSame('/posts/$', $compiled_routes[1]['path']);
-        self::assertSame('/health', $compiled_routes[2]['path']);
-        self::assertSame('/404', $compiled_routes[3]['path']);
-        self::assertSame('pages/error/404.php', $compiled_routes[3]['entry']);
+        self::assertCount(5, $compiled_routes);
+        self::assertSame('/robots.txt', $compiled_routes[0]['path']);
+        self::assertSame('robots.txt', $compiled_routes[0]['entry']);
+        self::assertSame('/', $compiled_routes[1]['path']);
+        self::assertSame('/posts/$', $compiled_routes[2]['path']);
+        self::assertSame('/health', $compiled_routes[3]['path']);
+        self::assertSame('/404', $compiled_routes[4]['path']);
+        self::assertSame('pages/error/404.php', $compiled_routes[4]['entry']);
     }
 
     public function test_pre_process_routes_file_supports_absolute_include_paths(): void
@@ -100,9 +102,11 @@ final class HarborCompileTest extends TestCase
         $preprocessed = harbor_pre_process_routes_file($main_routes_path);
         $compiled_routes = harbor_compile_routes_from_content($preprocessed);
 
-        self::assertSame('/about', $compiled_routes[0]['path']);
-        self::assertSame('/404', $compiled_routes[1]['path']);
-        self::assertSame('pages/error/404.php', $compiled_routes[1]['entry']);
+        self::assertSame('/robots.txt', $compiled_routes[0]['path']);
+        self::assertSame('robots.txt', $compiled_routes[0]['entry']);
+        self::assertSame('/about', $compiled_routes[1]['path']);
+        self::assertSame('/404', $compiled_routes[2]['path']);
+        self::assertSame('pages/error/404.php', $compiled_routes[2]['entry']);
     }
 
     public function test_compile_router_from_content_extracts_assets_path_and_routes(): void
@@ -120,9 +124,11 @@ final class HarborCompileTest extends TestCase
 
         self::assertSame('/assets', $compiled_router['assets']);
         self::assertIsArray($compiled_router['routes']);
-        self::assertSame('/', $compiled_router['routes'][0]['path']);
-        self::assertSame('/404', $compiled_router['routes'][1]['path']);
-        self::assertSame('pages/error/404.php', $compiled_router['routes'][1]['entry']);
+        self::assertSame('/robots.txt', $compiled_router['routes'][0]['path']);
+        self::assertSame('robots.txt', $compiled_router['routes'][0]['entry']);
+        self::assertSame('/', $compiled_router['routes'][1]['path']);
+        self::assertSame('/404', $compiled_router['routes'][2]['path']);
+        self::assertSame('pages/error/404.php', $compiled_router['routes'][2]['entry']);
     }
 
     public function test_run_compile_writes_assets_configuration_to_routes_file(): void
@@ -149,9 +155,11 @@ final class HarborCompileTest extends TestCase
         self::assertIsArray($compiled_router);
         self::assertSame('/assets', $compiled_router['assets'] ?? null);
         self::assertIsArray($compiled_router['routes'] ?? null);
-        self::assertSame('/', $compiled_router['routes'][0]['path'] ?? null);
-        self::assertSame('/404', $compiled_router['routes'][1]['path'] ?? null);
-        self::assertSame('pages/error/404.php', $compiled_router['routes'][1]['entry'] ?? null);
+        self::assertSame('/robots.txt', $compiled_router['routes'][0]['path'] ?? null);
+        self::assertSame('robots.txt', $compiled_router['routes'][0]['entry'] ?? null);
+        self::assertSame('/', $compiled_router['routes'][1]['path'] ?? null);
+        self::assertSame('/404', $compiled_router['routes'][2]['path'] ?? null);
+        self::assertSame('pages/error/404.php', $compiled_router['routes'][2]['entry'] ?? null);
 
         $generated_content = file_get_contents($workspace_path.'/routes.php');
         self::assertIsString($generated_content);
@@ -183,7 +191,9 @@ final class HarborCompileTest extends TestCase
         $compiled_router = require $workspace_path.'/public/routes.php';
         self::assertIsArray($compiled_router);
         self::assertIsArray($compiled_router['routes'] ?? null);
-        self::assertSame('/', $compiled_router['routes'][0]['path'] ?? null);
+        self::assertSame('/robots.txt', $compiled_router['routes'][0]['path'] ?? null);
+        self::assertSame('robots.txt', $compiled_router['routes'][0]['entry'] ?? null);
+        self::assertSame('/', $compiled_router['routes'][1]['path'] ?? null);
     }
 
     public function test_run_compile_from_non_root_working_directory(): void
@@ -220,7 +230,9 @@ final class HarborCompileTest extends TestCase
 
         self::assertIsArray($compiled_router);
         self::assertIsArray($compiled_router['routes'] ?? null);
-        self::assertSame('/', $compiled_router['routes'][0]['path'] ?? null);
+        self::assertSame('/robots.txt', $compiled_router['routes'][0]['path'] ?? null);
+        self::assertSame('robots.txt', $compiled_router['routes'][0]['entry'] ?? null);
+        self::assertSame('/', $compiled_router['routes'][1]['path'] ?? null);
     }
 
     #[After]

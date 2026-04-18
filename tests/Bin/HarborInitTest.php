@@ -44,6 +44,7 @@ final class HarborInitTest extends TestCase
         self::assertFileExists($site_path.'/serve.sh');
         self::assertFileExists($site_path.'/public/.htaccess');
         self::assertFileExists($site_path.'/public/index.php');
+        self::assertFileExists($site_path.'/public/robots.txt');
         self::assertFileExists($site_path.'/public/routes.php');
         self::assertFileExists($site_path.'/public/pages/index.php');
         self::assertFileExists($site_path.'/public/pages/error/404.php');
@@ -89,6 +90,10 @@ final class HarborInitTest extends TestCase
         self::assertSame(
             file_get_contents($template_path.'/.router'),
             file_get_contents($site_path.'/.router'),
+        );
+        self::assertSame(
+            file_get_contents($template_path.'/public/robots.txt'),
+            file_get_contents($site_path.'/public/robots.txt'),
         );
         self::assertSame(
             file_get_contents($template_path.'/public/routes.php'),
