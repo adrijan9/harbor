@@ -99,6 +99,8 @@ final class CommandHelpersTest extends TestCase
                 use Harbor\Helper;
                 use function Harbor\Command\command_arg_int;
                 use function Harbor\Command\command_arg_string;
+                use function Harbor\Command\command_arg_ufloat;
+                use function Harbor\Command\command_arg_uint;
                 use function Harbor\Command\command_arguments;
                 use function Harbor\Command\command_debug;
                 use function Harbor\Command\command_debug_enabled;
@@ -121,12 +123,16 @@ final class CommandHelpersTest extends TestCase
                     'has_command_debug' => function_exists('Harbor\Command\command_debug'),
                     'has_command_arg_string' => function_exists('Harbor\Command\command_arg_string'),
                     'has_command_arg_int' => function_exists('Harbor\Command\command_arg_int'),
+                    'has_command_arg_uint' => function_exists('Harbor\Command\command_arg_uint'),
+                    'has_command_arg_ufloat' => function_exists('Harbor\Command\command_arg_ufloat'),
                     'has_command_init' => function_exists('Harbor\Command\Flags\command_flags_init'),
                     'has_command_flag' => function_exists('Harbor\Command\Flags\command_flag'),
                     'has_command_flag_present' => function_exists('Harbor\Command\Flags\command_flag_present'),
                     'has_command_flag_string' => function_exists('Harbor\Command\Flags\command_flag_string'),
                     'has_command_flag_int' => function_exists('Harbor\Command\Flags\command_flag_int'),
                     'has_command_flag_float' => function_exists('Harbor\Command\Flags\command_flag_float'),
+                    'has_command_flag_uint' => function_exists('Harbor\Command\Flags\command_flag_uint'),
+                    'has_command_flag_ufloat' => function_exists('Harbor\Command\Flags\command_flag_ufloat'),
                     'has_command_flag_bool' => function_exists('Harbor\Command\Flags\command_flag_bool'),
                     'has_command_flag_array' => function_exists('Harbor\Command\Flags\command_flag_array'),
                     'has_command_flags_print_usage' => function_exists('Harbor\Command\Flags\command_flags_print_usage'),
@@ -135,8 +141,10 @@ final class CommandHelpersTest extends TestCase
                     'raw_arguments' => command_raw_arguments(),
                     'arguments' => command_arguments(),
                     'first_argument' => command_arg_string(0),
-                    'second_argument_defaulted' => command_arg_string(1, 'fallback'),
+                    'second_argument_defaulted' => command_arg_string(5, 'fallback'),
                     'retry_count' => command_arg_int(1, 7),
+                    'retry_count_uint' => command_arg_uint(1, 7),
+                    'ratio_limit' => command_arg_ufloat(2, 1.25),
                     'flag_name' => command_flag($command, '--name', false, 'Name value'),
                     'flag_force' => command_flag($command, '--force', false, 'Force mode', default_value: false),
                     'flag_limit' => command_flag($command, '--limit', false, 'Limit value', default_value: '0'),
@@ -155,7 +163,7 @@ final class CommandHelpersTest extends TestCase
 
         $exit_code = command_run(
             'users:inspect',
-            ['alpha', '--name=Harbor', '--force', '--limit', '10', '-v'],
+            ['alpha', '12', '2.5', '--name=Harbor', '--force', '--limit', '10', '-v'],
             $this->site_path,
             true
         );
@@ -174,23 +182,29 @@ final class CommandHelpersTest extends TestCase
         self::assertTrue($runtime_payload['has_command_debug'] ?? false);
         self::assertTrue($runtime_payload['has_command_arg_string'] ?? false);
         self::assertTrue($runtime_payload['has_command_arg_int'] ?? false);
+        self::assertTrue($runtime_payload['has_command_arg_uint'] ?? false);
+        self::assertTrue($runtime_payload['has_command_arg_ufloat'] ?? false);
         self::assertTrue($runtime_payload['has_command_init'] ?? false);
         self::assertTrue($runtime_payload['has_command_flag'] ?? false);
         self::assertTrue($runtime_payload['has_command_flag_present'] ?? false);
         self::assertTrue($runtime_payload['has_command_flag_string'] ?? false);
         self::assertTrue($runtime_payload['has_command_flag_int'] ?? false);
         self::assertTrue($runtime_payload['has_command_flag_float'] ?? false);
+        self::assertTrue($runtime_payload['has_command_flag_uint'] ?? false);
+        self::assertTrue($runtime_payload['has_command_flag_ufloat'] ?? false);
         self::assertTrue($runtime_payload['has_command_flag_bool'] ?? false);
         self::assertTrue($runtime_payload['has_command_flag_array'] ?? false);
         self::assertTrue($runtime_payload['has_command_flags_print_usage'] ?? false);
         self::assertFalse($runtime_payload['has_command_option_string'] ?? true);
         self::assertTrue($runtime_payload['has_command_run'] ?? false);
 
-        self::assertSame(['alpha', '--name=Harbor', '--force', '--limit', '10', '-v'], $runtime_payload['raw_arguments'] ?? null);
-        self::assertSame(['alpha'], $runtime_payload['arguments'] ?? null);
+        self::assertSame(['alpha', '12', '2.5', '--name=Harbor', '--force', '--limit', '10', '-v'], $runtime_payload['raw_arguments'] ?? null);
+        self::assertSame(['alpha', '12', '2.5'], $runtime_payload['arguments'] ?? null);
         self::assertSame('alpha', $runtime_payload['first_argument'] ?? null);
         self::assertSame('fallback', $runtime_payload['second_argument_defaulted'] ?? null);
-        self::assertSame(7, $runtime_payload['retry_count'] ?? null);
+        self::assertSame(12, $runtime_payload['retry_count'] ?? null);
+        self::assertSame(12, $runtime_payload['retry_count_uint'] ?? null);
+        self::assertSame(2.5, $runtime_payload['ratio_limit'] ?? null);
         self::assertSame('Harbor', $runtime_payload['flag_name'] ?? null);
         self::assertFalse($runtime_payload['flag_force'] ?? true);
         self::assertSame('0', $runtime_payload['flag_limit'] ?? null);
@@ -207,6 +221,44 @@ final class CommandHelpersTest extends TestCase
         $this->expectExceptionMessage('No selected site.');
 
         command_run('users:sync', [], $this->workspace_path);
+    }
+
+    public function test_command_run_surfaces_unsigned_argument_exceptions(): void
+    {
+        $this->prepare_workspace();
+
+        file_put_contents(
+            $this->site_path.'/.commands',
+            <<<'COMMANDS'
+                <command>
+                    key: users:unsigned
+                    entry: commands/users_unsigned.php
+                    enabled: true
+                </command>
+                COMMANDS
+        );
+
+        mkdir($this->site_path.'/commands', 0o777, true);
+
+        file_put_contents(
+            $this->site_path.'/commands/users_unsigned.php',
+            <<<'PHP_SCRIPT'
+                <?php
+
+                declare(strict_types=1);
+
+                use Harbor\Helper;
+                use function Harbor\Command\command_arg_uint;
+
+                require __DIR__."/../../vendor/autoload.php";
+
+                Helper::Command->load();
+
+                command_arg_uint(0);
+                PHP_SCRIPT
+        );
+
+        self::assertSame(255, command_run('users:unsigned', ['-1'], $this->site_path));
     }
 
     #[After]

@@ -6,8 +6,12 @@ namespace Harbor\Command;
 
 require_once __DIR__.'/../Support/value.php';
 
+require_once __DIR__.'/../Support/number.php';
+
 use function Harbor\Support\harbor_is_blank;
 use function Harbor\Support\harbor_is_null;
+use function Harbor\Support\number_internal_value_to_ufloat;
+use function Harbor\Support\number_internal_value_to_uint;
 
 /** Public */
 function command_info(string $message): void
@@ -102,6 +106,36 @@ function command_arg_int(int $index, int $default = 0): int
 function command_arg_float(int $index, float $default = 0.0): float
 {
     return command_entry_internal_value_to_float(command_arg($index, $default), $default);
+}
+
+function command_arg_uint(int $index, int $default = 0): int
+{
+    $resolved_default = number_internal_value_to_uint($default, 'command_arg_uint() default');
+    if ($index < 0) {
+        return $resolved_default;
+    }
+
+    $arguments = command_arguments();
+    if (! array_key_exists($index, $arguments)) {
+        return $resolved_default;
+    }
+
+    return number_internal_value_to_uint($arguments[$index], sprintf('command_arg_uint() index %d', $index));
+}
+
+function command_arg_ufloat(int $index, float $default = 0.0): float
+{
+    $resolved_default = number_internal_value_to_ufloat($default, 'command_arg_ufloat() default');
+    if ($index < 0) {
+        return $resolved_default;
+    }
+
+    $arguments = command_arguments();
+    if (! array_key_exists($index, $arguments)) {
+        return $resolved_default;
+    }
+
+    return number_internal_value_to_ufloat($arguments[$index], sprintf('command_arg_ufloat() index %d', $index));
 }
 
 function command_arg_bool(int $index, bool $default = false): bool

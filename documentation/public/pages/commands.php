@@ -103,6 +103,8 @@ require __DIR__.'/../shared/header.php';
 declare(strict_types=1);
 
 use Harbor\Helper;
+use function Harbor\Command\command_arg_ufloat;
+use function Harbor\Command\command_arg_uint;
 use function Harbor\Command\command_arg_string;
 use function Harbor\Command\command_debug;
 use function Harbor\Command\command_error;
@@ -112,12 +114,15 @@ require __DIR__."/../../vendor/autoload.php";
 Helper::Command->load();
 
 $name = command_arg_string(0, 'world');
+$page = command_arg_uint(1, 1);
+$ratio = command_arg_ufloat(2, 1.0);
 
-command_info(sprintf('Hello %s', $name));
+command_info(sprintf('Hello %s page=%d ratio=%s', $name, $page, $ratio));
 command_debug('Ready to execute command logic.');
 command_error('Example STDERR message.');</code></pre>
     <h3>What it does</h3>
     <p>Gives command entry scripts reusable runtime helpers for output, debug logging, and positional arguments after loading autoload and calling <code>Helper::Command-&gt;load()</code>.</p>
+    <p>The unsigned positional helpers return the provided default only when the positional argument is missing. If the argument exists but is negative or invalid for an unsigned read, Harbor throws <code>InvalidArgumentException</code>.</p>
     <h3>API</h3>
     <details class="api-details">
         <summary class="api-summary">
@@ -133,6 +138,7 @@ command_error('Example STDERR message.');</code></pre>
                 <li><code>command_arguments(): array</code> Positional arguments only (options excluded).</li>
                 <li><code>command_arg(int $index, mixed $default = null): mixed</code> Positional argument by index.</li>
                 <li><code>command_arg_string|command_arg_int|command_arg_float|command_arg_bool(...)</code> Typed positional argument helpers.</li>
+                <li><code>command_arg_uint|command_arg_ufloat(...)</code> Strict unsigned positional helpers. Missing values use the provided default; present invalid values throw <code>InvalidArgumentException</code>.</li>
                 <li><code>Namespace</code> Import these functions from <code>Harbor\Command</code> using <code>use function Harbor\Command\...</code>.</li>
             </ul>
         </div>
@@ -155,6 +161,8 @@ use function Harbor\Command\Flags\command_flag_float;
 use function Harbor\Command\Flags\command_flag_int;
 use function Harbor\Command\Flags\command_flag_present;
 use function Harbor\Command\Flags\command_flag_string;
+use function Harbor\Command\Flags\command_flag_ufloat;
+use function Harbor\Command\Flags\command_flag_uint;
 use function Harbor\Command\Flags\command_flags_init;
 use function Harbor\Command\Flags\command_flags_print_usage;
 use function Harbor\Command\command_info;
@@ -169,6 +177,8 @@ $name = command_flag_string($command, '--name', true, 'User name', default_value
 $force = command_flag_bool($command, '--force', false, 'Enable force mode', default_value: false);
 $limit = command_flag_int($command, '--limit', true, 'Chunk size', default_value: 100);
 $ratio = command_flag_float($command, '--ratio', false, 'Ratio value', default_value: 1.5);
+$page = command_flag_uint($command, '--page', false, 'Page number', default_value: 1);
+$weight = command_flag_ufloat($command, '--weight', false, 'Weight value', default_value: 0.0);
 $ids = command_flag_array($command, '-p', false, 'Player ids', default_value: [1, 2, 3, 4]);
 
 // validator with required constraint
@@ -206,6 +216,7 @@ command_info(
 );</code></pre>
     <h3>What it does</h3>
     <p>Provides a dedicated flag-definition API for command entry scripts. Any user-created command can use it after loading <code>Helper::Command-&gt;load()</code> (generated command stubs already include this).</p>
+    <p>The unsigned flag helpers return the provided default when the flag is missing, but they throw <code>Harbor\Command\CommandInvalidFlagException</code> when a present value is negative or invalid for an unsigned read.</p>
     <h3>API</h3>
     <details class="api-details">
         <summary class="api-summary">
@@ -218,13 +229,14 @@ command_info(
                 <li><code>command_flag_present(array &$command, string $flag, string $description): bool</code> Presence helper. Returns <code>true</code> when the flag token is present and <code>false</code> when missing.</li>
                 <li><code>command_flag(array &$command, string $flag, bool $require_value, string $description, ?ValidationRule $validator = null, mixed $default_value = null): mixed</code> Generic value helper. Pass <code>true</code> to enforce <code>--flag=&lt;value&gt;</code> when the flag appears.</li>
                 <li><code>command_flag_string|command_flag_int|command_flag_float|command_flag_bool(...)</code> Typed scalar flag helpers.</li>
+                <li><code>command_flag_uint|command_flag_ufloat(...)</code> Strict unsigned scalar flag helpers. Missing flags use the provided default; present invalid values throw <code>Harbor\Command\CommandInvalidFlagException</code>.</li>
                 <li><code>command_flag_array(...)</code> Array flag helper using comma-separated input, for example <code>--ids=1,2,3,4</code>.</li>
                 <li><code>command_flags_print_usage(array $command): void</code> Prints usage text with all registered flags and defaults.</li>
                 <li><code>Accepted formats</code> Use <code>--name=value</code> (including quoted values like <code>--name="Ada Lovelace"</code>) for value flags, and plain switches like <code>--help</code> with <code>command_flag_present()</code>.</li>
                 <li><code>require_value</code> Must be passed explicitly as <code>true</code> or <code>false</code> for value helpers.</li>
                 <li><code>validator</code> Build with <code>new ValidationRule('field')</code> and pass using <code>validator:</code> (for example <code>required()-&gt;string()-&gt;min(2)</code>).</li>
                 <li><code>default_value</code> Example: <code>command_flag_array($command, '-p', false, 'My command', default_value: [1, 2, 3, 4])</code>.</li>
-                <li><code>Validation errors</code> Validator failures and required-value violations throw <code>Harbor\Command\CommandInvalidFlagException</code>.</li>
+                <li><code>Validation errors</code> Validator failures, unsigned-value violations, and required-value violations throw <code>Harbor\Command\CommandInvalidFlagException</code>.</li>
             </ul>
         </div>
     </details>

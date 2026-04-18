@@ -6,8 +6,12 @@ namespace Harbor\Config;
 
 require_once __DIR__.'/../Support/value.php';
 
+require_once __DIR__.'/../Support/number.php';
+
 use function Harbor\Support\harbor_is_blank;
 use function Harbor\Support\harbor_is_null;
+use function Harbor\Support\number_internal_value_to_ufloat;
+use function Harbor\Support\number_internal_value_to_uint;
 
 $config_global_file_path = null;
 
@@ -93,6 +97,26 @@ function config_int(string $key, int $default = 0): int
 function config_float(string $key, float $default = 0.0): float
 {
     return config_internal_value_to_float(config_get($key), $default);
+}
+
+function config_uint(string $key, int $default = 0): int
+{
+    $resolved_default = number_internal_value_to_uint($default, 'config_uint() default');
+    if (! config_exists($key)) {
+        return $resolved_default;
+    }
+
+    return number_internal_value_to_uint(config_get($key), sprintf('config_uint() key "%s"', $key));
+}
+
+function config_ufloat(string $key, float $default = 0.0): float
+{
+    $resolved_default = number_internal_value_to_ufloat($default, 'config_ufloat() default');
+    if (! config_exists($key)) {
+        return $resolved_default;
+    }
+
+    return number_internal_value_to_ufloat(config_get($key), sprintf('config_ufloat() key "%s"', $key));
 }
 
 function config_str(string $key, string $default = ''): string

@@ -6,11 +6,15 @@ namespace Harbor\Router;
 
 require_once __DIR__.'/../../Support/array.php';
 
+require_once __DIR__.'/../../Support/number.php';
+
 require_once __DIR__.'/../../Support/value.php';
 
 use function Harbor\Support\array_forget;
 use function Harbor\Support\harbor_is_blank;
 use function Harbor\Support\harbor_is_null;
+use function Harbor\Support\number_internal_value_to_ufloat;
+use function Harbor\Support\number_internal_value_to_uint;
 
 /**
  * Query functions.
@@ -90,6 +94,26 @@ function route_query_float(string $key, float $default = 0.0): float
     }
 
     return $default;
+}
+
+function route_query_uint(string $key, int $default = 0): int
+{
+    $resolved_default = number_internal_value_to_uint($default, 'route_query_uint() default');
+    if (! route_query_exists($key)) {
+        return $resolved_default;
+    }
+
+    return number_internal_value_to_uint(route_query($key), sprintf('route_query_uint() key "%s"', $key));
+}
+
+function route_query_ufloat(string $key, float $default = 0.0): float
+{
+    $resolved_default = number_internal_value_to_ufloat($default, 'route_query_ufloat() default');
+    if (! route_query_exists($key)) {
+        return $resolved_default;
+    }
+
+    return number_internal_value_to_ufloat(route_query($key), sprintf('route_query_ufloat() key "%s"', $key));
 }
 
 function route_query_str(string $key, string $default = ''): string

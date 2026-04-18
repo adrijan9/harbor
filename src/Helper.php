@@ -15,6 +15,7 @@ enum Helper: string
     case Route = 'route';
     case Config = 'config';
     case Value = 'value';
+    case Number = 'number';
     case Str = 'string';
     case SupportArray = 'array';
     case Carbon = 'carbon';
@@ -125,6 +126,7 @@ enum Helper: string
             ],
             self::Config => [__DIR__.'/Config/config.php'],
             self::Value => [__DIR__.'/Support/value.php'],
+            self::Number => [__DIR__.'/Support/number.php'],
             self::Str => [__DIR__.'/Support/string.php'],
             self::SupportArray => [__DIR__.'/Support/array.php'],
             self::Carbon => [__DIR__.'/Date/date.php'],

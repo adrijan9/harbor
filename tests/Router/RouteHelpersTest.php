@@ -24,6 +24,8 @@ use function Harbor\Router\route_query_json;
 use function Harbor\Router\route_query_obj;
 use function Harbor\Router\route_query_only;
 use function Harbor\Router\route_query_str;
+use function Harbor\Router\route_query_ufloat;
+use function Harbor\Router\route_query_uint;
 use function Harbor\Router\route_segment;
 use function Harbor\Router\route_segment_arr;
 use function Harbor\Router\route_segment_bool;
@@ -32,6 +34,8 @@ use function Harbor\Router\route_segment_int;
 use function Harbor\Router\route_segment_json;
 use function Harbor\Router\route_segment_obj;
 use function Harbor\Router\route_segments_count;
+use function Harbor\Router\route_segment_ufloat;
+use function Harbor\Router\route_segment_uint;
 
 /**
  * Class RouteHelpersTest.
@@ -67,7 +71,7 @@ final class RouteHelpersTest extends TestCase
         self::assertFalse(route_segment_exists(50));
         self::assertSame('fallback', route_segment(50, 'fallback'));
         self::assertSame(5, route_segment_int(50, 5));
-        self::assertSame(6, route_segments_count());
+        self::assertSame(11, route_segments_count());
     }
 
     public function test_query_helpers_support_nested_keys_and_type_casts(): void
@@ -89,7 +93,47 @@ final class RouteHelpersTest extends TestCase
         self::assertSame('fallback', route_query_str('missing', 'fallback'));
         self::assertSame([], route_query_arr('missing', []));
         self::assertSame($GLOBALS['route']['query'], route_query());
-        self::assertSame(6, route_queries_count());
+        self::assertSame(11, route_queries_count());
+    }
+
+    public function test_unsigned_segment_helpers_return_typed_values_and_defaults(): void
+    {
+        self::assertSame(0, route_segment_uint(6));
+        self::assertSame(2.75, route_segment_ufloat(9));
+        self::assertSame(8, route_segment_uint(50, 8));
+        self::assertSame(1.5, route_segment_ufloat(50, 1.5));
+    }
+
+    public function test_unsigned_segment_helpers_throw_for_invalid_values(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('route_segment_uint() index 7 expects an unsigned integer.');
+
+        route_segment_uint(7);
+    }
+
+    public function test_unsigned_query_helpers_return_typed_values_and_defaults(): void
+    {
+        self::assertSame(0, route_query_uint('zero'));
+        self::assertSame(2.5, route_query_ufloat('positive_ratio'));
+        self::assertSame(4, route_query_uint('missing', 4));
+        self::assertSame(1.25, route_query_ufloat('missing_ratio', 1.25));
+    }
+
+    public function test_unsigned_query_helpers_throw_for_invalid_values(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('route_query_uint() key "negative_page" expects an unsigned integer.');
+
+        route_query_uint('negative_page');
+    }
+
+    public function test_unsigned_query_helpers_throw_for_invalid_defaults(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('route_query_uint() default expects an unsigned integer.');
+
+        route_query_uint('missing', -1);
     }
 
     public function test_query_only_and_except_helpers_filter_query_data(): void
@@ -109,6 +153,11 @@ final class RouteHelpersTest extends TestCase
                 'tags' => 'php,tests',
                 'filters' => ['author' => ['id' => '9']],
                 'payload' => rawurlencode('{"name":"Ada"}'),
+                'zero' => '0',
+                'positive_ratio' => '2.5',
+                'negative_page' => '-1',
+                'decimal_page' => '1.5',
+                'negative_ratio' => '-0.5',
             ],
             route_query_except('enabled', 'meta', 'missing')
         );
@@ -170,6 +219,11 @@ final class RouteHelpersTest extends TestCase
                 rawurlencode('{"id":15,"enabled":true}'),
                 ['a' => 1],
                 'not-json',
+                '0',
+                '-4',
+                '1.5',
+                '2.75',
+                '-1.5',
             ],
             'query' => [
                 'page' => '7',
@@ -178,6 +232,11 @@ final class RouteHelpersTest extends TestCase
                 'filters' => ['author' => ['id' => '9']],
                 'meta' => rawurlencode('{"sort":"desc","limit":10}'),
                 'payload' => rawurlencode('{"name":"Ada"}'),
+                'zero' => '0',
+                'positive_ratio' => '2.5',
+                'negative_page' => '-1',
+                'decimal_page' => '1.5',
+                'negative_ratio' => '-0.5',
             ],
         ];
 

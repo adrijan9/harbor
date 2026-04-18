@@ -6,7 +6,11 @@ namespace Harbor\Router;
 
 require_once __DIR__.'/../../Support/value.php';
 
+require_once __DIR__.'/../../Support/number.php';
+
 use function Harbor\Support\harbor_is_null;
+use function Harbor\Support\number_internal_value_to_ufloat;
+use function Harbor\Support\number_internal_value_to_uint;
 
 /**
  * Segment functions.
@@ -47,6 +51,26 @@ function route_segment_float(int $index, float $default = 0.0): float
     }
 
     return $default;
+}
+
+function route_segment_uint(int $index, int $default = 0): int
+{
+    $resolved_default = number_internal_value_to_uint($default, 'route_segment_uint() default');
+    if (! route_segment_exists($index)) {
+        return $resolved_default;
+    }
+
+    return number_internal_value_to_uint(route_segment($index), sprintf('route_segment_uint() index %d', $index));
+}
+
+function route_segment_ufloat(int $index, float $default = 0.0): float
+{
+    $resolved_default = number_internal_value_to_ufloat($default, 'route_segment_ufloat() default');
+    if (! route_segment_exists($index)) {
+        return $resolved_default;
+    }
+
+    return number_internal_value_to_ufloat(route_segment($index), sprintf('route_segment_ufloat() index %d', $index));
 }
 
 function route_segment_str(int $index, string $default = ''): string

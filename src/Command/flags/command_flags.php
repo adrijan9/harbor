@@ -219,6 +219,52 @@ function command_flag_float(
  * @throws EmptyStringException
  * @throws CommandInvalidFlagException
  */
+function command_flag_uint(
+    array &$command,
+    string $flag,
+    bool $require_value,
+    string $description,
+    ?ValidationRule $validator = null,
+    int $default_value = 0
+): int {
+    $raw_value = command_flag(
+        $command,
+        $flag,
+        $require_value,
+        $description,
+        $validator
+    );
+
+    return command_flags_internal_value_to_uint($raw_value, $default_value, $flag);
+}
+
+/**
+ * @throws EmptyStringException
+ * @throws CommandInvalidFlagException
+ */
+function command_flag_ufloat(
+    array &$command,
+    string $flag,
+    bool $require_value,
+    string $description,
+    ?ValidationRule $validator = null,
+    float $default_value = 0.0
+): float {
+    $raw_value = command_flag(
+        $command,
+        $flag,
+        $require_value,
+        $description,
+        $validator
+    );
+
+    return command_flags_internal_value_to_ufloat($raw_value, $default_value, $flag);
+}
+
+/**
+ * @throws EmptyStringException
+ * @throws CommandInvalidFlagException
+ */
 function command_flag_bool(
     array &$command,
     string $flag,

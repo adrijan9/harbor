@@ -24,6 +24,8 @@ use function Harbor\Config\config_json;
 use function Harbor\Config\config_obj;
 use function Harbor\Config\config_resolve;
 use function Harbor\Config\config_str;
+use function Harbor\Config\config_ufloat;
+use function Harbor\Config\config_uint;
 
 /**
  * Class ConfigHelpersTest.
@@ -116,6 +118,65 @@ final class ConfigHelpersTest extends TestCase
 
         self::assertSame('Harbor', config_resolve('app.app_name', 'legacy.app_name', 'fallback'));
         self::assertSame('fallback', config_resolve('missing.primary', 'missing.fallback', 'fallback'));
+    }
+
+    public function test_config_unsigned_helpers_return_typed_unsigned_values_and_defaults(): void
+    {
+        $_ENV = [
+            'app' => [
+                'zero' => '0',
+                'page' => '15',
+                'ratio' => '2.75',
+            ],
+        ];
+        $GLOBALS['_ENV'] = $_ENV;
+
+        self::assertSame(0, config_uint('app.zero', 9));
+        self::assertSame(15, config_uint('app.page'));
+        self::assertSame(4, config_uint('app.missing', 4));
+        self::assertSame(2.75, config_ufloat('app.ratio'));
+        self::assertSame(1.5, config_ufloat('app.missing_ratio', 1.5));
+    }
+
+    public function test_config_uint_throws_for_negative_present_value(): void
+    {
+        $_ENV = [
+            'app' => [
+                'page' => '-1',
+            ],
+        ];
+        $GLOBALS['_ENV'] = $_ENV;
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('config_uint() key "app.page" expects an unsigned integer.');
+
+        config_uint('app.page');
+    }
+
+    public function test_config_uint_throws_for_negative_default(): void
+    {
+        $_ENV = [];
+        $GLOBALS['_ENV'] = $_ENV;
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('config_uint() default expects an unsigned integer.');
+
+        config_uint('app.page', -1);
+    }
+
+    public function test_config_ufloat_throws_for_negative_present_value(): void
+    {
+        $_ENV = [
+            'app' => [
+                'ratio' => '-0.5',
+            ],
+        ];
+        $GLOBALS['_ENV'] = $_ENV;
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('config_ufloat() key "app.ratio" expects an unsigned float.');
+
+        config_ufloat('app.ratio');
     }
 
     public function test_config_init_throws_for_missing_file(): void

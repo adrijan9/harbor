@@ -15,6 +15,8 @@ use function Harbor\Command\Flags\command_flag_array;
 use function Harbor\Command\Flags\command_flag_bool;
 use function Harbor\Command\Flags\command_flag_float;
 use function Harbor\Command\Flags\command_flag_int;
+use function Harbor\Command\Flags\command_flag_ufloat;
+use function Harbor\Command\Flags\command_flag_uint;
 use function Harbor\Command\Flags\command_flag_present;
 use function Harbor\Command\Flags\command_flag_string;
 use function Harbor\Command\Flags\command_flags_init;
@@ -261,6 +263,63 @@ final class CommandFlagsHelpersTest extends TestCase
         $this->expectExceptionMessage('--ratio: value is required. Use --ratio=<value>.');
 
         command_flag_float($command, '--ratio', true, 'Ratio value');
+    }
+
+    public function test_command_flag_uint_returns_typed_uint(): void
+    {
+        $command = command_flags_init('harbor-flag', 2, ['harbor-flag', '--limit=10']);
+
+        $limit = command_flag_uint($command, '--limit', false, 'Limit value', default_value: 3);
+
+        self::assertSame(10, $limit);
+    }
+
+    public function test_command_flag_uint_returns_default_when_flag_is_missing(): void
+    {
+        $command = command_flags_init('harbor-flag', 1, ['harbor-flag']);
+
+        $limit = command_flag_uint($command, '--limit', false, 'Limit value', default_value: 3);
+
+        self::assertSame(3, $limit);
+    }
+
+    public function test_command_flag_uint_throws_for_negative_value(): void
+    {
+        $command = command_flags_init('harbor-flag', 2, ['harbor-flag', '--limit=-1']);
+
+        $this->expectException(CommandInvalidFlagException::class);
+        $this->expectExceptionMessage('--limit expects an unsigned integer.');
+
+        command_flag_uint($command, '--limit', false, 'Limit value', default_value: 3);
+    }
+
+    public function test_command_flag_uint_throws_for_negative_default(): void
+    {
+        $command = command_flags_init('harbor-flag', 1, ['harbor-flag']);
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('--limit default expects an unsigned integer.');
+
+        command_flag_uint($command, '--limit', false, 'Limit value', default_value: -1);
+    }
+
+    public function test_command_flag_ufloat_returns_typed_unsigned_float(): void
+    {
+        $command = command_flags_init('harbor-flag', 2, ['harbor-flag', '--ratio=2.75']);
+
+        $ratio = command_flag_ufloat($command, '--ratio', false, 'Ratio value', default_value: 1.0);
+
+        self::assertSame(2.75, $ratio);
+    }
+
+    public function test_command_flag_ufloat_throws_for_negative_value(): void
+    {
+        $command = command_flags_init('harbor-flag', 2, ['harbor-flag', '--ratio=-0.5']);
+
+        $this->expectException(CommandInvalidFlagException::class);
+        $this->expectExceptionMessage('--ratio expects an unsigned float.');
+
+        command_flag_ufloat($command, '--ratio', false, 'Ratio value', default_value: 1.0);
     }
 
     public function test_command_flag_bool_returns_typed_bool(): void

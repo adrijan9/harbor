@@ -25,6 +25,7 @@ Helper::Cookie->load();
 Helper::Session->load();
 Helper::Validation->load();
 Helper::Response->load();
+Helper::Number->load();
 Helper::View->load();
 Helper::Command->load();
 Helper::CommandFlags->load();
@@ -41,6 +42,7 @@ Helper::Database->load();</code></pre>
 Helper::load_many('request');
 Helper::load_many('cookie', 'session');
 Helper::load_many('validation', 'response');
+Helper::load_many('number');
 Helper::load_many('view');
 Helper::load_many('command_flags');
 Helper::load_many('db'); // alias supported, resolves to Helper::Database
@@ -72,9 +74,9 @@ Helper::load_many(Helper::Cache, Helper::Log);</code></pre>
                 <td>Config loading and typed value readers.</td>
             </tr>
             <tr>
-                <td><code>value</code>, <code>array</code></td>
+                <td><code>value</code>, <code>number</code>, <code>array</code></td>
                 <td><code>Harbor\Support</code></td>
-                <td>Blank/null checks and array mutation helpers.</td>
+                <td>Blank/null checks, strict unsigned number conversion helpers, and array mutation helpers.</td>
             </tr>
             <tr>
                 <td><code>carbon</code></td>

@@ -135,15 +135,20 @@ return [
 use function Harbor\Config\config_bool;
 use function Harbor\Config\config_get;
 use function Harbor\Config\config_int;
+use function Harbor\Config\config_ufloat;
+use function Harbor\Config\config_uint;
 use function Harbor\Config\config_str;
 
 $app_name = config_str('app.app_name', 'Harbor');
 $db_port = config_int('database.mysql.port', 3306);
+$page = config_uint('pagination.page', 1);
+$tax_rate = config_ufloat('billing.tax_rate', 0.0);
 $debug = config_bool('app.debug', false);
 $hosts = config_arr('database.hosts', []);
 $host = config_get('database.mysql.host', '127.0.0.1');</code></pre>
     <h3>What it does</h3>
     <p>Reads values with typed helpers and defaults. Dot notation is supported for nested arrays.</p>
+    <p>The unsigned helpers return the provided default only when the key is missing. If the key exists but the value is negative or otherwise invalid for an unsigned read, Harbor throws <code>InvalidArgumentException</code>.</p>
     <h3>API</h3>
     <details class="api-details">
         <summary class="api-summary">
@@ -175,6 +180,18 @@ function config_float(string $key, float $default = 0.0): float
 // Reads value as float.
 // Returns default when conversion fails.
 $ratio = config_float('app.ratio', 1.0);
+
+function config_uint(string $key, int $default = 0): int
+// Reads value as unsigned integer.
+// Returns default only when the key is missing.
+// Throws InvalidArgumentException when a present value is negative, decimal, or not integer-like.
+$page = config_uint('pagination.page', 1);
+
+function config_ufloat(string $key, float $default = 0.0): float
+// Reads value as unsigned float.
+// Returns default only when the key is missing.
+// Throws InvalidArgumentException when a present value is negative or not numeric.
+$tax_rate = config_ufloat('billing.tax_rate', 0.0);
 
 function config_str(string $key, string $default = ''): string
 // Reads value as string.

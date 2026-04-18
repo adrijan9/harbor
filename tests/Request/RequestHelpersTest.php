@@ -37,8 +37,12 @@ use function Harbor\Request\request_header_float;
 use function Harbor\Request\request_header_int;
 use function Harbor\Request\request_header_json;
 use function Harbor\Request\request_header_obj;
+use function Harbor\Request\request_header_ufloat;
+use function Harbor\Request\request_header_uint;
 use function Harbor\Request\request_host;
 use function Harbor\Request\request_input_str;
+use function Harbor\Request\request_input_ufloat;
+use function Harbor\Request\request_input_uint;
 use function Harbor\Request\request_ip;
 use function Harbor\Request\request_is_ajax;
 use function Harbor\Request\request_is_json;
@@ -55,6 +59,8 @@ use function Harbor\Request\request_server;
 use function Harbor\Request\request_uri;
 use function Harbor\Request\request_url;
 use function Harbor\Request\request_user_agent;
+use function Harbor\Request\request_body_ufloat;
+use function Harbor\Request\request_body_uint;
 use function Harbor\Support\harbor_is_null;
 
 #[RunTestsInSeparateProcesses]
@@ -164,6 +170,102 @@ final class RequestHelpersTest extends TestCase
         self::assertInstanceOf(\stdClass::class, $body_object);
         self::assertSame(9, $body_object->id);
         self::assertSame('Ada', request_body_all()['name']);
+    }
+
+    public function test_request_unsigned_helpers_return_typed_unsigned_values_and_defaults(): void
+    {
+        $this->boot_request_helper(
+            server: [
+                'REQUEST_METHOD' => 'POST',
+                'REQUEST_URI' => '/submit',
+                'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
+                'HTTP_X_PAGE' => '0',
+                'HTTP_X_RATIO' => '2.5',
+            ],
+            post: [
+                'count' => '12',
+                'ratio' => '3.75',
+                'filters' => ['limit' => '0'],
+            ],
+        );
+
+        self::assertSame(0, request_header_uint('x-page', 9));
+        self::assertSame(2.5, request_header_ufloat('x-ratio', 1.0));
+        self::assertSame(12, request_body_uint('count'));
+        self::assertSame(3.75, request_body_ufloat('ratio'));
+        self::assertSame(0, request_input_uint('filters.limit', 5));
+        self::assertSame(3.75, request_input_ufloat('ratio'));
+        self::assertSame(4, request_body_uint('missing', 4));
+        self::assertSame(1.25, request_input_ufloat('missing_ratio', 1.25));
+    }
+
+    public function test_request_header_uint_throws_for_negative_present_value(): void
+    {
+        $this->boot_request_helper(
+            server: [
+                'REQUEST_METHOD' => 'GET',
+                'REQUEST_URI' => '/',
+                'HTTP_X_PAGE' => '-1',
+            ],
+        );
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('request_header_uint() key "x-page" expects an unsigned integer.');
+
+        request_header_uint('x-page');
+    }
+
+    public function test_request_body_uint_throws_for_decimal_present_value(): void
+    {
+        $this->boot_request_helper(
+            server: [
+                'REQUEST_METHOD' => 'POST',
+                'REQUEST_URI' => '/submit',
+                'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
+            ],
+            post: [
+                'count' => '1.5',
+            ],
+        );
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('request_body_uint() key "count" expects an unsigned integer.');
+
+        request_body_uint('count');
+    }
+
+    public function test_request_input_ufloat_throws_for_negative_present_value(): void
+    {
+        $this->boot_request_helper(
+            server: [
+                'REQUEST_METHOD' => 'POST',
+                'REQUEST_URI' => '/submit',
+                'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
+            ],
+            post: [
+                'ratio' => '-0.25',
+            ],
+        );
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('request_input_ufloat() key "ratio" expects an unsigned float.');
+
+        request_input_ufloat('ratio');
+    }
+
+    public function test_request_unsigned_helpers_throw_for_negative_defaults(): void
+    {
+        $this->boot_request_helper(
+            server: [
+                'REQUEST_METHOD' => 'GET',
+                'REQUEST_URI' => '/',
+            ],
+        );
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('request_header_uint() default expects an unsigned integer.');
+
+        request_header_uint('x-missing', -1);
     }
 
     public function test_request_only_and_except_helpers_filter_input_data(): void

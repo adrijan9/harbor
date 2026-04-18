@@ -6,6 +6,8 @@ namespace Harbor\Request;
 
 require_once __DIR__.'/../Support/array.php';
 
+require_once __DIR__.'/../Support/number.php';
+
 require_once __DIR__.'/../Support/value.php';
 
 require_once __DIR__.'/../Session/session.php';
@@ -15,6 +17,8 @@ use function Harbor\Session\session_flash_get;
 use function Harbor\Session\session_flash_set;
 use function Harbor\Support\array_forget;
 use function Harbor\Support\harbor_is_blank;
+use function Harbor\Support\number_internal_value_to_ufloat;
+use function Harbor\Support\number_internal_value_to_uint;
 
 /**
  * Full request snapshot.
@@ -322,6 +326,26 @@ function request_header_float(string $key, float $default = 0.0): float
     return request_internal_value_to_float(request_header($key), $default);
 }
 
+function request_header_uint(string $key, int $default = 0): int
+{
+    $resolved_default = number_internal_value_to_uint($default, 'request_header_uint() default');
+    if (! request_header_exists($key)) {
+        return $resolved_default;
+    }
+
+    return number_internal_value_to_uint(request_header($key), sprintf('request_header_uint() key "%s"', $key));
+}
+
+function request_header_ufloat(string $key, float $default = 0.0): float
+{
+    $resolved_default = number_internal_value_to_ufloat($default, 'request_header_ufloat() default');
+    if (! request_header_exists($key)) {
+        return $resolved_default;
+    }
+
+    return number_internal_value_to_ufloat(request_header($key), sprintf('request_header_ufloat() key "%s"', $key));
+}
+
 function request_header_str(string $key, string $default = ''): string
 {
     return request_internal_value_to_str(request_header($key), $default);
@@ -422,6 +446,26 @@ function request_body_float(string $key, float $default = 0.0): float
     return request_internal_value_to_float(request_body($key), $default);
 }
 
+function request_body_uint(string $key, int $default = 0): int
+{
+    $resolved_default = number_internal_value_to_uint($default, 'request_body_uint() default');
+    if (! request_body_exists($key)) {
+        return $resolved_default;
+    }
+
+    return number_internal_value_to_uint(request_body($key), sprintf('request_body_uint() key "%s"', $key));
+}
+
+function request_body_ufloat(string $key, float $default = 0.0): float
+{
+    $resolved_default = number_internal_value_to_ufloat($default, 'request_body_ufloat() default');
+    if (! request_body_exists($key)) {
+        return $resolved_default;
+    }
+
+    return number_internal_value_to_ufloat(request_body($key), sprintf('request_body_ufloat() key "%s"', $key));
+}
+
 function request_body_str(string $key, string $default = ''): string
 {
     return request_internal_value_to_str(request_body($key), $default);
@@ -498,6 +542,26 @@ function request_input_int(string $key, int $default = 0): int
 function request_input_float(string $key, float $default = 0.0): float
 {
     return request_internal_value_to_float(request_input($key), $default);
+}
+
+function request_input_uint(string $key, int $default = 0): int
+{
+    $resolved_default = number_internal_value_to_uint($default, 'request_input_uint() default');
+    if (! request_body_exists($key)) {
+        return $resolved_default;
+    }
+
+    return number_internal_value_to_uint(request_input($key), sprintf('request_input_uint() key "%s"', $key));
+}
+
+function request_input_ufloat(string $key, float $default = 0.0): float
+{
+    $resolved_default = number_internal_value_to_ufloat($default, 'request_input_ufloat() default');
+    if (! request_body_exists($key)) {
+        return $resolved_default;
+    }
+
+    return number_internal_value_to_ufloat(request_input($key), sprintf('request_input_ufloat() key "%s"', $key));
 }
 
 function request_input_str(string $key, string $default = ''): string

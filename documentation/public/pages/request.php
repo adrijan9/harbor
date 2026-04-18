@@ -19,9 +19,11 @@ require __DIR__.'/../shared/header.php';
     <h2>Read Request Data</h2>
     <h3>Example</h3>
     <pre><code class="language-php">use function Harbor\Request\request_body_int;
+use function Harbor\Request\request_body_uint;
 use function Harbor\Request\request_except;
 use function Harbor\Request\request_full_url;
 use function Harbor\Request\request_header_bool;
+use function Harbor\Request\request_header_ufloat;
 use function Harbor\Request\request_input_str;
 use function Harbor\Request\request_method;
 use function Harbor\Request\request_only;
@@ -29,6 +31,8 @@ use function Harbor\Request\request_only;
 $method = request_method();
 $url = request_full_url();
 $user_id = request_body_int('user.id');
+$page = request_body_uint('page', 1);
+$weight = request_header_ufloat('x-weight', 0.0);
 $trace_enabled = request_header_bool('x-trace-enabled');
 $search_query = request_input_str('search', '');
 $payload = request_only('first', 'second');
@@ -36,6 +40,7 @@ $without_token = request_except('token');</code></pre>
 
     <h3>What it does</h3>
     <p>Reads request values with typed helpers and defaults.</p>
+    <p>The unsigned helpers return the provided default only when the header/body/input key is missing. If the key exists but the value is negative or invalid for an unsigned read, Harbor throws <code>InvalidArgumentException</code>.</p>
 
     <h3>API</h3>
     <details class="api-details">
@@ -202,6 +207,18 @@ function request_header_float(string $key, float $default = 0.0): float
 // Falls back to default when conversion fails.
 $ratio = request_header_float('x-ratio', 1.0);
 
+function request_header_uint(string $key, int $default = 0): int
+// Returns one header value as unsigned int.
+// Returns default only when the header is missing.
+// Throws InvalidArgumentException when a present value is negative, decimal, or not integer-like.
+$page = request_header_uint('x-page', 1);
+
+function request_header_ufloat(string $key, float $default = 0.0): float
+// Returns one header value as unsigned float.
+// Returns default only when the header is missing.
+// Throws InvalidArgumentException when a present value is negative or not numeric.
+$weight = request_header_ufloat('x-weight', 0.0);
+
 function request_header_str(string $key, string $default = ''): string
 // Returns one header value as string.
 // Falls back to default when value is missing.
@@ -265,6 +282,18 @@ function request_body_float(string $key, float $default = 0.0): float
 // Falls back to default when conversion fails.
 $price = request_body_float('price', 0.0);
 
+function request_body_uint(string $key, int $default = 0): int
+// Returns one body value as unsigned int.
+// Returns default only when the body key is missing.
+// Throws InvalidArgumentException when a present value is negative, decimal, or not integer-like.
+$page = request_body_uint('page', 1);
+
+function request_body_ufloat(string $key, float $default = 0.0): float
+// Returns one body value as unsigned float.
+// Returns default only when the body key is missing.
+// Throws InvalidArgumentException when a present value is negative or not numeric.
+$weight = request_body_ufloat('weight', 0.0);
+
 function request_body_str(string $key, string $default = ''): string
 // Returns one body value as string.
 // Falls back to default when conversion fails.
@@ -317,6 +346,18 @@ function request_input_float(string $key, float $default = 0.0): float
 // Returns input value as float.
 // Falls back to default when conversion fails.
 $discount = request_input_float('discount', 0.0);
+
+function request_input_uint(string $key, int $default = 0): int
+// Returns input value as unsigned int.
+// Returns default only when the input key is missing.
+// Throws InvalidArgumentException when a present value is negative, decimal, or not integer-like.
+$page = request_input_uint('page', 1);
+
+function request_input_ufloat(string $key, float $default = 0.0): float
+// Returns input value as unsigned float.
+// Returns default only when the input key is missing.
+// Throws InvalidArgumentException when a present value is negative or not numeric.
+$weight = request_input_ufloat('weight', 0.0);
 
 function request_input_str(string $key, string $default = ''): string
 // Returns input value as string.

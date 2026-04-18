@@ -145,8 +145,12 @@ use function Harbor\Router\route_query;
 use function Harbor\Router\route_query_except;
 use function Harbor\Router\route_query_only;
 use function Harbor\Router\route_segment;
+use function Harbor\Router\route_query_uint;
+use function Harbor\Router\route_segment_uint;
 
 $guide_slug = route_segment(0, 'overview');
+$page = route_query_uint('page', 1);
+$chapter = route_segment_uint(1, 1);
 $tab = route_query('tab', 'general');
 $query_only = route_query_only('tab', 'page');
 $query_except = route_query_except('token');
@@ -157,6 +161,7 @@ $is_guide_page = route_name_is('docs.guide');</code></pre>
     <h3>What it does</h3>
     <p>Reads matched path segments and query values from the current route context.</p>
     <p>Also builds paths from route names with positional parameters.</p>
+    <p>Use the unsigned segment/query helpers when negative values should fail fast instead of silently casting as signed numbers. Missing values still use the provided default.</p>
     <p>Example URL: <code>/guides/php?tab=general</code> with route path <code>/guides/$</code>.</p>
     <p>Result: <code>route_segment(0)</code> returns <code>'php'</code>, <code>route_query('tab')</code> returns <code>'general'</code>, and <code>route('docs.guide', ['php'])</code> returns <code>/guides/php</code>.</p>
 
@@ -183,6 +188,18 @@ function route_segment_float(int $index, float $default = 0.0): float
 // Gets one segment and casts numeric values to float.
 // Returns $default when conversion is not possible.
 $ratio = route_segment_float(1, 1.0);
+
+function route_segment_uint(int $index, int $default = 0): int
+// Gets one segment as unsigned int.
+// Returns $default only when the segment index is missing.
+// Throws InvalidArgumentException when a present value is negative, decimal, or not integer-like.
+$chapter = route_segment_uint(1, 1);
+
+function route_segment_ufloat(int $index, float $default = 0.0): float
+// Gets one segment as unsigned float.
+// Returns $default only when the segment index is missing.
+// Throws InvalidArgumentException when a present value is negative or not numeric.
+$weight = route_segment_ufloat(1, 0.0);
 
 function route_segment_str(int $index, string $default = ''): string
 // Gets one segment as string.
@@ -251,6 +268,18 @@ function route_query_float(string $key, float $default = 0.0): float
 // Gets one query value as float.
 // Returns $default if conversion fails.
 $ratio = route_query_float('ratio', 1.0);
+
+function route_query_uint(string $key, int $default = 0): int
+// Gets one query value as unsigned int.
+// Returns $default only when the query key is missing.
+// Throws InvalidArgumentException when a present value is negative, decimal, or not integer-like.
+$page = route_query_uint('page', 1);
+
+function route_query_ufloat(string $key, float $default = 0.0): float
+// Gets one query value as unsigned float.
+// Returns $default only when the query key is missing.
+// Throws InvalidArgumentException when a present value is negative or not numeric.
+$weight = route_query_ufloat('weight', 0.0);
 
 function route_query_str(string $key, string $default = ''): string
 // Gets one query value as string.

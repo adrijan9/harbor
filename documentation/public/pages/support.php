@@ -3,16 +3,16 @@
 declare(strict_types=1);
 
 $page_title = 'Harbor Docs - Support Helpers';
-$page_description = 'Shared support helpers for value checks and array mutation.';
+$page_description = 'Shared support helpers for value checks, strict unsigned number conversion, and array mutation.';
 $page_id = 'support';
 
 require __DIR__.'/../shared/header.php';
 ?>
 
 <section class="hero">
-    <span class="hero-eyebrow">namespace: value, array</span>
+    <span class="hero-eyebrow">namespace: value, number, array</span>
     <h1>Support Helpers</h1>
-    <p>Reusable helpers for value checks and array key mutation.</p>
+    <p>Reusable helpers for value checks, strict unsigned number conversion, and array key mutation.</p>
 </section>
 
 <section class="docs-section">
@@ -43,6 +43,41 @@ function harbor_is_null(mixed $value): bool
 // Returns true only when the value is null.
 // Useful when default fallback should trigger only for null.
 $is_null = harbor_is_null($value);</code></pre>
+        </div>
+    </details>
+</section>
+
+<section class="docs-section">
+    <h2>Unsigned Number Conversion</h2>
+    <h3>Example</h3>
+    <pre><code class="language-php">use function Harbor\Support\number_ufloat;
+use function Harbor\Support\number_uint;
+
+$page = number_uint('42');
+$ratio = number_ufloat('2.75');
+
+// number_uint('-1');   // throws InvalidArgumentException
+// number_ufloat('-3'); // throws InvalidArgumentException</code></pre>
+    <h3>What it does</h3>
+    <p>Provides strict direct conversion helpers when you want unsigned numbers without going through request, config, route, or command helpers.</p>
+    <h3>API</h3>
+    <details class="api-details">
+        <summary class="api-summary">
+            <span>Number Helper API</span>
+            <span class="api-state"><span class="api-state-closed">Hidden - click to open</span><span class="api-state-open">Open</span></span>
+        </summary>
+        <div class="api-body">
+            <pre><code class="language-php">function number_uint(mixed $value): int
+// Converts one value to unsigned int.
+// Accepts 0, positive integers, and integer-like numeric strings.
+// Throws InvalidArgumentException for negatives, decimals, and non-numeric values.
+$page = number_uint('42');
+
+function number_ufloat(mixed $value): float
+// Converts one value to unsigned float.
+// Accepts 0, positive ints/floats, and numeric strings.
+// Throws InvalidArgumentException for negatives and non-numeric values.
+$ratio = number_ufloat('2.75');</code></pre>
         </div>
     </details>
 </section>

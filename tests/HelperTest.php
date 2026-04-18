@@ -29,6 +29,7 @@ final class HelperTest extends TestCase
         self::assertContains('route_named', $helpers);
         self::assertContains('config', $helpers);
         self::assertContains('value', $helpers);
+        self::assertContains('number', $helpers);
         self::assertContains('array', $helpers);
         self::assertContains('carbon', $helpers);
         self::assertContains('pipeline', $helpers);
@@ -90,6 +91,8 @@ final class HelperTest extends TestCase
         self::assertTrue(function_exists('Harbor\Router\route_exists'));
         self::assertTrue(function_exists('Harbor\Router\route_name_is'));
         self::assertTrue(function_exists('Harbor\Router\route'));
+        self::assertTrue(function_exists('Harbor\Router\route_segment_uint'));
+        self::assertTrue(function_exists('Harbor\Router\route_query_ufloat'));
     }
 
     public function test_helper_enum_resolve_supports_aliases(): void
@@ -146,6 +149,9 @@ final class HelperTest extends TestCase
         self::assertTrue(function_exists('Harbor\Request\request_old'));
         self::assertTrue(function_exists('Harbor\Request\request_has_old'));
         self::assertTrue(function_exists('Harbor\Request\request_clear_old_input'));
+        self::assertTrue(function_exists('Harbor\Request\request_header_uint'));
+        self::assertTrue(function_exists('Harbor\Request\request_body_uint'));
+        self::assertTrue(function_exists('Harbor\Request\request_input_ufloat'));
     }
 
     public function test_load_cookie_helper_registers_namespaced_functions(): void
@@ -260,12 +266,16 @@ final class HelperTest extends TestCase
         Helper::load_many('command');
 
         self::assertTrue(function_exists('Harbor\Command\command_run'));
+        self::assertTrue(function_exists('Harbor\Command\command_arg_uint'));
+        self::assertTrue(function_exists('Harbor\Command\command_arg_ufloat'));
         self::assertTrue(function_exists('Harbor\Command\Flags\command_flags_init'));
         self::assertTrue(function_exists('Harbor\Command\Flags\command_flag'));
         self::assertTrue(function_exists('Harbor\Command\Flags\command_flag_present'));
         self::assertTrue(function_exists('Harbor\Command\Flags\command_flag_string'));
         self::assertTrue(function_exists('Harbor\Command\Flags\command_flag_int'));
         self::assertTrue(function_exists('Harbor\Command\Flags\command_flag_float'));
+        self::assertTrue(function_exists('Harbor\Command\Flags\command_flag_uint'));
+        self::assertTrue(function_exists('Harbor\Command\Flags\command_flag_ufloat'));
         self::assertTrue(function_exists('Harbor\Command\Flags\command_flag_bool'));
         self::assertTrue(function_exists('Harbor\Command\Flags\command_flag_array'));
         self::assertTrue(function_exists('Harbor\Command\Flags\command_flags_print_usage'));
@@ -288,6 +298,8 @@ final class HelperTest extends TestCase
         self::assertTrue(function_exists('Harbor\Command\Flags\command_flag_string'));
         self::assertTrue(function_exists('Harbor\Command\Flags\command_flag_int'));
         self::assertTrue(function_exists('Harbor\Command\Flags\command_flag_float'));
+        self::assertTrue(function_exists('Harbor\Command\Flags\command_flag_uint'));
+        self::assertTrue(function_exists('Harbor\Command\Flags\command_flag_ufloat'));
         self::assertTrue(function_exists('Harbor\Command\Flags\command_flag_bool'));
         self::assertTrue(function_exists('Harbor\Command\Flags\command_flag_array'));
         self::assertTrue(function_exists('Harbor\Command\Flags\command_flags_print_usage'));
@@ -376,6 +388,8 @@ final class HelperTest extends TestCase
         self::assertTrue(function_exists('Harbor\Config\config'));
         self::assertTrue(function_exists('Harbor\Config\config_init'));
         self::assertTrue(function_exists('Harbor\Config\config_int'));
+        self::assertTrue(function_exists('Harbor\Config\config_uint'));
+        self::assertTrue(function_exists('Harbor\Config\config_ufloat'));
     }
 
     public function test_load_value_helper_registers_namespaced_functions(): void
@@ -384,6 +398,14 @@ final class HelperTest extends TestCase
 
         self::assertTrue(function_exists('Harbor\Support\harbor_is_blank'));
         self::assertTrue(function_exists('Harbor\Support\harbor_is_null'));
+    }
+
+    public function test_load_number_helper_registers_namespaced_functions(): void
+    {
+        Helper::load_many('number');
+
+        self::assertTrue(function_exists('Harbor\Support\number_uint'));
+        self::assertTrue(function_exists('Harbor\Support\number_ufloat'));
     }
 
     public function test_load_array_helper_registers_namespaced_functions(): void
