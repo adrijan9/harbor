@@ -27,6 +27,7 @@ require __DIR__.'/../shared/header.php';
     <h3>What it does</h3>
     <p>Creates a new Harbor site scaffold in <code>./my-site</code>.</p>
     <p>The scaffold includes an editable <code>public/robots.txt</code> file by default.</p>
+    <p>Need starter contents for that file? Use Harbor's <a href="/robots-txt-generator"><code>Robots.txt Generator</code></a>.</p>
 </section>
 
 <section class="docs-section">
@@ -36,6 +37,7 @@ require __DIR__.'/../shared/header.php';
     <h3>What it does</h3>
     <p>Compiles <code>my-site/.router</code> into <code>my-site/public/routes.php</code>.</p>
     <p>The compiled routes always include a default <code>GET /robots.txt</code> entry that serves <code>public/robots.txt</code>.</p>
+    <p>Generate the file contents in Harbor's <a href="/robots-txt-generator"><code>Robots.txt Generator</code></a>, then paste them into <code>public/robots.txt</code>.</p>
 </section>
 
 <section class="docs-section">

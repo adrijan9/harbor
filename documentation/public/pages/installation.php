@@ -35,6 +35,7 @@ require __DIR__.'/../shared/header.php';
     <h3>What it does</h3>
     <p>Installs dependencies and creates a runnable site scaffold.</p>
     <p>Scaffolded sites include an editable <code>public/robots.txt</code> file by default.</p>
+    <p>Use Harbor's <a href="/robots-txt-generator"><code>Robots.txt Generator</code></a> when you want starter contents for that file.</p>
     <h3>API</h3>
     <details class="api-details">
         <summary class="api-summary">

@@ -47,6 +47,10 @@ require __DIR__.'/../shared/header.php';
             <h3>Routing</h3>
             <p>Route files with segment and query support.</p>
         </a>
+        <a class="card" href="/robots-txt-generator">
+            <h3>Robots.txt Generator</h3>
+            <p>Generate a starter file for <code>public/robots.txt</code> without leaving the Harbor docs.</p>
+        </a>
         <a class="card" href="/request">
             <h3>Request Helpers</h3>
             <p>Typed access to method, URL, headers, body, files, and cookies.</p>

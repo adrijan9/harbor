@@ -6,6 +6,12 @@ return [
     'assets' => '/assets',
     'routes' => [
         [
+            'path' => '/robots.txt',
+            'method' => 'GET',
+            'name' => 'robots',
+            'entry' => 'robots.txt',
+        ],
+        [
             'path' => '/',
             'method' => 'GET',
             'name' => 'docs.home',
@@ -52,6 +58,12 @@ return [
             'method' => 'GET',
             'name' => 'docs.routing',
             'entry' => 'pages/routing.php',
+        ],
+        [
+            'path' => '/robots-txt-generator',
+            'method' => 'GET',
+            'name' => 'docs.robots_generator',
+            'entry' => 'pages/robots-txt-generator.php',
         ],
         [
             'path' => '/load-helpers',

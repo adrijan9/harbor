@@ -65,6 +65,12 @@ $docs_navigation_groups = [
             ['id' => 'pipeline', 'label' => 'Pipeline', 'href' => '/pipeline'],
         ],
     ],
+    [
+        'label' => 'Tools',
+        'items' => [
+            ['id' => 'robots_generator', 'label' => 'Robots.txt Generator', 'href' => '/robots-txt-generator'],
+        ],
+    ],
 ];
 
 $docs_lifecycle = [];

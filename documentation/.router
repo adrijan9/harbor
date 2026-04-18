@@ -57,6 +57,13 @@
 </route>
 
 <route>
+  path: /robots-txt-generator
+  method: GET
+  name: docs.robots_generator
+  entry: pages/robots-txt-generator.php
+</route>
+
+<route>
   path: /load-helpers
   method: GET
   name: docs.load_helpers

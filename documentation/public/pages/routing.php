@@ -41,6 +41,7 @@ require __DIR__.'/../shared/header.php';
     <h3>What it does</h3>
     <p>Preprocesses <code>#include</code> lines first, then compiles final route entries into a routes file.</p>
     <p>Compilation also prepends a default <code>GET /robots.txt</code> route that points to <code>robots.txt</code>.</p>
+    <p>Need a starter file? Use Harbor's <a class="docs-tool-link" href="/robots-txt-generator" target="_blank" rel="noopener noreferrer">Robots.txt Generator</a>, then paste the output into <code>public/robots.txt</code>.</p>
     <p>When <code>&lt;assets&gt;...&lt;/assets&gt;</code> is present at the top of <code>.router</code>, requests under that URL prefix are served as static files from that directory.</p>
 
     <h3>API</h3>
@@ -366,6 +367,7 @@ $router->render(['name' => 'Ada']);</code></pre>
     <h3>What it does</h3>
     <p>Compiles your route file into executable route arrays.</p>
     <p>The compiled routes always start with a default <code>GET /robots.txt</code> entry.</p>
+    <p>Generate the file contents in Harbor's <a class="docs-tool-link" href="/robots-txt-generator" target="_blank" rel="noopener noreferrer">Robots.txt Generator</a>, then paste them into <code>public/robots.txt</code>.</p>
     <h3>API</h3>
     <details class="api-details">
         <summary class="api-summary">

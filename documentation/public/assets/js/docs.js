@@ -144,6 +144,7 @@
     init_code_highlight();
     setup_repo_star_count();
     setup_docs_search();
+    setup_robots_txt_generator();
 
     theme_option_buttons.forEach((button) => {
         button.addEventListener('click', () => {
@@ -646,6 +647,221 @@
     };
 
     build_page_toc();
+
+    function setup_robots_txt_generator() {
+        if ('robots_generator' !== (body.dataset.pageId || '')) {
+            return;
+        }
+
+        const form = document.getElementById('robots_generator_form');
+        const default_policy_input = document.getElementById('robots_default_policy');
+        const sitemap_url_input = document.getElementById('robots_sitemap_url');
+        const crawl_delay_input = document.getElementById('robots_crawl_delay');
+        const disallow_paths_input = document.getElementById('robots_disallow_paths');
+        const allow_paths_input = document.getElementById('robots_allow_paths');
+        const output = document.getElementById('robots_output');
+        const copy_button = document.getElementById('robots_copy_button');
+        const download_button = document.getElementById('robots_download_button');
+        const reset_button = document.getElementById('robots_reset_button');
+        const status = document.getElementById('robots_generator_status');
+        const bot_override_inputs = Array.from(document.querySelectorAll('[data-robots-bot]'));
+
+        if (
+            !(form instanceof HTMLFormElement) ||
+            !(default_policy_input instanceof HTMLSelectElement) ||
+            !(sitemap_url_input instanceof HTMLInputElement) ||
+            !(crawl_delay_input instanceof HTMLInputElement) ||
+            !(disallow_paths_input instanceof HTMLTextAreaElement) ||
+            !(allow_paths_input instanceof HTMLTextAreaElement) ||
+            !(output instanceof HTMLTextAreaElement) ||
+            !(copy_button instanceof HTMLButtonElement) ||
+            !(download_button instanceof HTMLButtonElement) ||
+            !(reset_button instanceof HTMLButtonElement)
+        ) {
+            return;
+        }
+
+        let status_timeout_id = 0;
+
+        const set_status = (message) => {
+            if (!(status instanceof HTMLElement)) {
+                return;
+            }
+
+            status.textContent = message;
+
+            if (0 !== status_timeout_id) {
+                window.clearTimeout(status_timeout_id);
+            }
+
+            if ('' === message) {
+                status_timeout_id = 0;
+
+                return;
+            }
+
+            status_timeout_id = window.setTimeout(() => {
+                status.textContent = '';
+                status_timeout_id = 0;
+            }, 2400);
+        };
+
+        const normalize_path = (value) => {
+            const trimmed_value = String(value || '').trim();
+            if ('' === trimmed_value) {
+                return '';
+            }
+
+            if ('/' === trimmed_value || trimmed_value.startsWith('/')) {
+                return trimmed_value;
+            }
+
+            return `/${trimmed_value.replace(/^\/+/, '')}`;
+        };
+
+        const unique_values = (values) => Array.from(new Set(values));
+
+        const parse_paths = (value) => unique_values(
+            String(value || '')
+                .split(/\r?\n/u)
+                .map(normalize_path)
+                .filter((path) => '' !== path)
+        );
+
+        const resolve_crawl_delay = () => {
+            const parsed_value = Number.parseInt(crawl_delay_input.value || '', 10);
+            if (!Number.isFinite(parsed_value) || parsed_value < 1) {
+                return null;
+            }
+
+            return Math.min(parsed_value, 120);
+        };
+
+        const render_output = () => {
+            const default_policy = default_policy_input.value || 'allow';
+            const sitemap_url = (sitemap_url_input.value || '').trim();
+            const crawl_delay = resolve_crawl_delay();
+            const disallow_paths = parse_paths(disallow_paths_input.value);
+            const allow_paths = parse_paths(allow_paths_input.value);
+            const lines = ['User-agent: *'];
+
+            if ('block' === default_policy) {
+                lines.push('Disallow: /');
+                allow_paths.forEach((path) => {
+                    lines.push(`Allow: ${path}`);
+                });
+            } else if (0 === disallow_paths.length && 0 === allow_paths.length) {
+                lines.push('Allow: /');
+            } else {
+                disallow_paths.forEach((path) => {
+                    lines.push(`Disallow: ${path}`);
+                });
+                allow_paths.forEach((path) => {
+                    lines.push(`Allow: ${path}`);
+                });
+            }
+
+            if (Number.isInteger(crawl_delay) && crawl_delay > 0) {
+                lines.push(`Crawl-delay: ${crawl_delay}`);
+            }
+
+            bot_override_inputs.forEach((input) => {
+                if (!(input instanceof HTMLSelectElement)) {
+                    return;
+                }
+
+                const bot_name = (input.dataset.robotsBot || '').trim();
+                const bot_policy = (input.value || 'inherit').trim();
+                if ('' === bot_name || 'inherit' === bot_policy) {
+                    return;
+                }
+
+                lines.push('');
+                lines.push(`User-agent: ${bot_name}`);
+                lines.push('allow' === bot_policy ? 'Allow: /' : 'Disallow: /');
+            });
+
+            if ('' !== sitemap_url) {
+                lines.push('');
+                lines.push(`Sitemap: ${sitemap_url}`);
+            }
+
+            output.value = lines.join('\n');
+        };
+
+        const copy_output = async () => {
+            const text = output.value || '';
+            if ('' === text.trim()) {
+                set_status('Nothing to copy.');
+
+                return;
+            }
+
+            output.focus();
+            output.select();
+
+            if (navigator.clipboard && 'function' === typeof navigator.clipboard.writeText) {
+                try {
+                    await navigator.clipboard.writeText(text);
+                    set_status('Copied to clipboard.');
+
+                    return;
+                } catch (error) {
+                    // Fall back to document.execCommand when clipboard access fails.
+                }
+            }
+
+            try {
+                const copied = document.execCommand('copy');
+                set_status(copied ? 'Copied to clipboard.' : 'Copy failed. Copy the text manually.');
+            } catch (error) {
+                set_status('Copy failed. Copy the text manually.');
+            }
+        };
+
+        const download_output = () => {
+            const text = output.value || '';
+            if ('' === text.trim()) {
+                set_status('Nothing to download.');
+
+                return;
+            }
+
+            const blob = new Blob([text], {
+                type: 'text/plain;charset=utf-8',
+            });
+            const object_url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+
+            link.href = object_url;
+            link.download = 'robots.txt';
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+
+            window.setTimeout(() => {
+                window.URL.revokeObjectURL(object_url);
+            }, 1000);
+
+            set_status('Downloaded robots.txt.');
+        };
+
+        const reset_generator = () => {
+            form.reset();
+            set_status('');
+            render_output();
+        };
+
+        form.addEventListener('input', render_output);
+        form.addEventListener('change', render_output);
+        copy_button.addEventListener('click', () => {
+            void copy_output();
+        });
+        download_button.addEventListener('click', download_output);
+        reset_button.addEventListener('click', reset_generator);
+
+        render_output();
+    }
 
     const scroll_sidebar_to_active_link = () => {
         if (!sidebar) {
